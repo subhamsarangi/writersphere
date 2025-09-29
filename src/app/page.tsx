@@ -1,103 +1,238 @@
-import Image from "next/image";
+// app/page.tsx
+"use client";
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "../lib/supabaseClient";
+import type { Session } from "@supabase/supabase-js";
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+type Mode = "sign_in" | "sign_up";
+
+export default function HomePage() {
+  const router = useRouter();
+  const [mode, setMode] = useState<Mode>("sign_up");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"reader" | "writer">("writer");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  // NEW: separate "ready" to prevent UI flash
+  const [ready, setReady] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    let unsub: (() => void) | undefined;
+
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session ?? null);
+      setReady(true);
+
+      const { data: listener } = supabase.auth.onAuthStateChange((_e, s) => {
+        setSession(s);
+      });
+      // cleanup (guard against undefined)
+      unsub = listener?.subscription?.unsubscribe;
+    })();
+
+    return () => {
+      try {
+        unsub?.();
+      } catch {}
+    };
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setErr(null);
+    setMsg(null);
+    setLoading(true);
+
+    try {
+      if (mode === "sign_up") {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { role } },
+        });
+
+        if (error) {
+          if (error.message?.toLowerCase().includes("already")) {
+            setErr("This email is already registered. Switching to sign in.");
+            setMode("sign_in");
+          } else {
+            setErr(error.message);
+          }
+          return;
+        }
+
+        if (data.session) {
+          const uRole = data.session.user.user_metadata?.role as
+            | "reader"
+            | "writer"
+            | undefined;
+          if (uRole === "writer" || role === "writer")
+            router.replace("/dashboard");
+          else
+            setMsg("Signed up as reader. You can explore without dashboard.");
+        } else {
+          setMsg("Check your inbox to confirm your email before signing in.");
+        }
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          setErr(error.message);
+          return;
+        }
+        const uRole = data.user?.user_metadata?.role as
+          | "reader"
+          | "writer"
+          | undefined;
+        if (uRole === "writer") router.replace("/dashboard");
+        else setMsg("Signed in as reader.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // NEW: block render until we know the session to avoid splash of the auth box
+  if (!ready) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        {/* Skeleton or nothing; replace with your own shimmer if you like */}
+        <div className="h-32 w-32 rounded-xl border border-gray-200 dark:border-gray-800 animate-pulse" />
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen flex flex-col">
+      <div className="flex flex-1 items-center justify-center p-6">
+        {!session ? (
+          <div className="w-full max-w-md bg-white text-gray-900 p-6 rounded-xl shadow dark:bg-gray-800 dark:text-gray-100">
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => setMode("sign_up")}
+                className={`px-3 py-2 rounded border ${
+                  mode === "sign_up"
+                    ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                    : "bg-white dark:bg-gray-700 dark:text-gray-100"
+                }`}
+              >
+                Sign up
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("sign_in")}
+                className={`px-3 py-2 rounded border ${
+                  mode === "sign_in"
+                    ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                    : "bg-white dark:bg-gray-700 dark:text-gray-100"
+                }`}
+              >
+                Sign in
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <label className="block">
+                <span className="text-sm">Email</span>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
+                  placeholder="you@example.com"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm">Password</span>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
+                  placeholder="••••••••"
+                />
+              </label>
+
+              {mode === "sign_up" && (
+                <label className="block">
+                  <span className="text-sm">Role</span>
+                  <select
+                    value={role}
+                    onChange={(e) =>
+                      setRole(e.target.value as "reader" | "writer")
+                    }
+                    className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
+                  >
+                    <option value="writer">Writer</option>
+                    <option value="reader">Reader</option>
+                  </select>
+                </label>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded bg-gray-900 text-white py-2 disabled:opacity-60 dark:bg-white dark:text-gray-900"
+              >
+                {loading
+                  ? mode === "sign_up"
+                    ? "Creating account…"
+                    : "Signing in…"
+                  : mode === "sign_up"
+                  ? "Create account"
+                  : "Sign in"}
+              </button>
+            </form>
+
+            {msg && (
+              <p
+                className="mt-3 text-sm text-green-700 dark:text-green-400"
+                aria-live="polite"
+              >
+                {msg}
+              </p>
+            )}
+            {err && (
+              <p
+                className="mt-3 text-sm text-red-700 dark:text-red-400"
+                aria-live="polite"
+              >
+                {err}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="text-center">
+            <h2 className="text-2xl font-semibold mb-2">
+              Welcome{session.user?.email ? `, ${session.user.email}` : ""}!
+            </h2>
+            {session.user?.user_metadata?.role === "reader" ? (
+              <p>
+                You’re signed in as a <strong>reader</strong>. Enjoy exploring!
+              </p>
+            ) : (
+              <p>
+                You’re signed in as a <strong>writer</strong>. Check your
+                dashboard for more.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
