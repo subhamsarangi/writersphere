@@ -30,11 +30,3 @@ Here are the  **Features**  i wanted:
 - **Backend/Database:** Supabase (PostgreSQL, auth, real-time APIs)
 
 - **Hosting:** Vercel (free tier)
-
-
-
-
-
-
-
-dont try to generate All of the codes now and first help me run the project locally first, assume i have nothing installed in my windows 11 system except vscode and node 22.9.
