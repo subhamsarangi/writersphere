@@ -3,8 +3,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabaseBrowserClient } from "../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
+
+const supabase = getSupabaseBrowserClient();
 
 type Mode = "sign_in" | "sign_up";
 
