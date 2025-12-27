@@ -14,8 +14,12 @@ export type SubcategoryInput = {
 };
 
 // ADDED: STRONG TYPE FOR `initial` (OPTIONAL `id` FOR EDIT MODE)
-export type SubcategoryInitial = Partial<SubcategoryInput> & {
+export type SubcategoryInitial = Partial<
+  Omit<SubcategoryInput, "description" | "image_url">
+> & {
   id?: string;
+  description?: string | null;
+  image_url?: string | null;
 };
 
 // ADDED: NAMED TYPES FOR STATE/PROPS

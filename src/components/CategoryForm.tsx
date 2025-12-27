@@ -12,9 +12,13 @@ export type CategoryInput = {
   status: Status;
 };
 
-// ADDED: TYPE FOR `initial` THAT CAN OPTIONALLY INCLUDE `id` (FOR EDIT MODE)
-export type CategoryInitial = Partial<CategoryInput> & {
+// ADDED: TYPE FOR `initial` THAT CAN OPTIONALLY INCLUDE `id` (FOR EDIT MODE), DB-ROW FRIENDLY INITIAL TYPE (ALLOWS NULLS)
+export type CategoryInitial = Partial<
+  Omit<CategoryInput, "description" | "image_url">
+> & {
   id?: string;
+  description?: string | null;
+  image_url?: string | null;
 };
 
 type CategoryFormProps = {

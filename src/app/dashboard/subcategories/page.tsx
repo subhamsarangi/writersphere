@@ -140,11 +140,13 @@ export default function SubcategoriesListPage() {
                 {s.category_name ? `in ${s.category_name}` : ""}
               </p>
               {s.image_url && (
+                /* eslint-disable @next/next/no-img-element */
                 <img
                   src={s.image_url}
                   alt={s.name}
                   className="mt-2 h-28 w-full object-cover rounded"
                 />
+                /* eslint-enable @next/next/no-img-element */
               )}
               {s.description && (
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
