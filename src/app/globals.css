@@ -31,3 +31,14 @@ input, textarea, select { color: rgb(17 24 39); background-color: #fff; }
 html.dark input, html.dark textarea, html.dark select { color: #e5e7eb; background-color: #111827; }
 input::placeholder, textarea::placeholder { color: #6b7280; }
 html.dark input::placeholder, html.dark textarea::placeholder { color: #9ca3af; }
+
+@layer base {
+  a,
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+}

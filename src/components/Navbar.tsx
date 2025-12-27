@@ -16,6 +16,14 @@ import {
   faPenNib,
 } from "@fortawesome/free-solid-svg-icons";
 
+function Spinner({ className = "" }: { className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent ${className}`}
+    />
+  );
+}
 export default function Navbar() {
   const supabase = getSupabaseBrowserClient();
 
@@ -65,10 +73,18 @@ export default function Navbar() {
     } catch {}
   }
 
+  const [loggingOut, setLoggingOut] = useState(false);
+
   async function handleLogout() {
-    await supabase.auth.signOut();
-    setSession(null);
-    router.replace("/");
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      setSession(null);
+      router.replace("/");
+    } finally {
+      setLoggingOut(false);
+    }
   }
 
   return (
@@ -103,11 +119,16 @@ export default function Navbar() {
         {session && (
           <button
             onClick={handleLogout}
-            className="px-3 py-1 rounded-lg border text-sm 
-                       hover:bg-red-100 hover:text-red-700 
-                       dark:hover:bg-red-800 dark:hover:text-red-100"
+            disabled={loggingOut}
+            className="px-3 py-1 rounded-lg border text-sm transition
+                   hover:bg-red-100 hover:text-red-700
+                   dark:hover:bg-red-800 dark:hover:text-red-100
+                   disabled:opacity-60"
           >
-            <FontAwesomeIcon icon={faRightFromBracket} /> Logout
+            <span className="inline-flex items-center gap-2">
+              {loggingOut && <Spinner />}
+              <FontAwesomeIcon icon={faRightFromBracket} /> Logout
+            </span>
           </button>
         )}
       </div>
