@@ -122,11 +122,13 @@ export default function CategoriesListPage() {
                 </span>
               </div>
               {c.image_url && (
+                /* eslint-disable @next/next/no-img-element */
                 <img
                   src={c.image_url}
                   alt={c.name}
                   className="mt-2 h-28 w-full object-cover rounded"
                 />
+                /* eslint-enable @next/next/no-img-element */
               )}
               {c.description && (
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">

@@ -84,7 +84,15 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen p-6">
-      <h1 className="text-2xl font-bold mb-6">Writer Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+
+      {session?.user?.email && (
+        <h3 className="text-sm font-normal text-gray-500">
+          Signed in as {session.user.email}
+        </h3>
+      )}
+
+      <br />
 
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Categories card */}
