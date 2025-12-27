@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { supabase } from "../../../lib/supabaseClient";
+import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
+
+const supabase = getSupabaseBrowserClient();
 
 type Row = {
   id: string;
