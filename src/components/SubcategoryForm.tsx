@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabaseBrowserClient } from "../lib/supabaseClient";
 
+const supabase = getSupabaseBrowserClient();
 type Status = "active" | "inactive";
 
 export type SubcategoryInput = {

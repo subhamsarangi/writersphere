@@ -3,10 +3,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../lib/supabaseClient";
+import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFolderTree,
@@ -15,6 +14,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function DashboardPage() {
+  const supabase = getSupabaseBrowserClient();
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
