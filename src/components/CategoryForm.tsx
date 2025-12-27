@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 type Status = "active" | "inactive";
+
 export type CategoryInput = {
   name: string;
   description?: string;
@@ -11,21 +12,31 @@ export type CategoryInput = {
   status: Status;
 };
 
+// ADDED: TYPE FOR `initial` THAT CAN OPTIONALLY INCLUDE `id` (FOR EDIT MODE)
+export type CategoryInitial = Partial<CategoryInput> & {
+  id?: string;
+};
+
+type CategoryFormProps = {
+  // EDITED: `initial` IS NOW PROPERLY TYPED (NO `any` NEEDED)
+  initial?: CategoryInitial;
+  onSaved: (id: string) => void;
+  submitLabel?: string;
+};
+
 export default function CategoryForm({
   initial,
   onSaved,
   submitLabel = "Save",
-}: {
-  initial?: Partial<CategoryInput>;
-  onSaved: (id: string) => void;
-  submitLabel?: string;
-}) {
+}: CategoryFormProps) {
   const [form, setForm] = useState<CategoryInput>({
     name: initial?.name ?? "",
     description: initial?.description ?? "",
     image_url: initial?.image_url ?? "",
-    status: (initial?.status as Status) ?? "active",
+    // EDITED: NO CAST NEEDED; `initial?.status` IS `Status | undefined`
+    status: initial?.status ?? "active",
   });
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,10 +52,13 @@ export default function CategoryForm({
       .upload(key, file, {
         upsert: false,
       });
+
     if (error) return setError(error.message);
+
     const { data: pub } = supabase.storage
       .from("category-images")
       .getPublicUrl(key);
+
     set("image_url", pub.publicUrl);
   }
 
@@ -52,13 +66,20 @@ export default function CategoryForm({
     e.preventDefault();
     setSaving(true);
     setError(null);
+
     try {
       // get user id to set writer_id
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
       if (!uid) throw new Error("Not authenticated");
 
-      if ((initial as any)?.id) {
+      // ADDED: READ `id` SAFELY FROM THE TYPED `initial`
+      const initialId = initial?.id;
+
+      // DELETED (KEPT AS COMMENTED OUT): USED `any` TO READ `id`
+      // if ((initial as any)?.id) {
+
+      if (initialId) {
         const { error } = await supabase
           .from("categories")
           .update({
@@ -68,10 +89,16 @@ export default function CategoryForm({
             status: form.status,
             updated_at: new Date().toISOString(),
           })
-          .eq("id", (initial as any).id)
+          // EDITED: USE TYPED `initialId` (NO `any`)
+          .eq("id", initialId)
           .eq("writer_id", uid); // extra safety
+
         if (error) throw error;
-        onSaved((initial as any).id);
+
+        // DELETED (KEPT AS COMMENTED OUT): USED `any` TO PASS ID BACK
+        // onSaved((initial as any).id);
+
+        onSaved(initialId);
       } else {
         const { data, error } = await supabase
           .from("categories")
@@ -84,11 +111,19 @@ export default function CategoryForm({
           })
           .select("id")
           .single();
+
         if (error) throw error;
         onSaved(data.id);
       }
-    } catch (e: any) {
-      setError(e.message ?? String(e));
+    } catch (e: unknown) {
+      // EDITED: REMOVE `any` IN CATCH; HANDLE `unknown` SAFELY
+      const message =
+        e instanceof Error ? e.message : typeof e === "string" ? e : String(e);
+      setError(message);
+
+      // DELETED (KEPT AS COMMENTED OUT): `any` IN CATCH
+      // } catch (e: any) {
+      //   setError(e.message ?? String(e));
     } finally {
       setSaving(false);
     }
