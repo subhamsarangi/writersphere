@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "../lib/supabaseClient";
+import { getSupabaseBrowserClient } from "../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +17,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar() {
+  const supabase = getSupabaseBrowserClient();
+
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<"writer" | "reader" | null>(null);

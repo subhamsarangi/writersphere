@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { supabase } from "../../../../../lib/supabaseClient";
+import { getSupabaseBrowserClient } from "../../../../../lib/supabaseClient";
 import SubcategoryForm from "../../../../../components/SubcategoryForm";
+
+const supabase = getSupabaseBrowserClient();
 
 type Row = {
   id: string;
