@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 type Status = "active" | "inactive";
+
 export type SubcategoryInput = {
   category_id: string;
   name: string;
@@ -12,23 +13,38 @@ export type SubcategoryInput = {
   status: Status;
 };
 
+// ADDED: STRONG TYPE FOR `initial` (OPTIONAL `id` FOR EDIT MODE)
+export type SubcategoryInitial = Partial<SubcategoryInput> & {
+  id?: string;
+};
+
+// ADDED: NAMED TYPES FOR STATE/PROPS
+type CategoryOption = { id: string; name: string };
+
+type SubcategoryFormProps = {
+  // EDITED: USE NAMED TYPE INSTEAD OF INLINE INTERSECTION
+  initial?: SubcategoryInitial;
+  onSaved: (id: string) => void;
+  submitLabel?: string;
+};
+
 export default function SubcategoryForm({
   initial,
   onSaved,
   submitLabel = "Save",
-}: {
-  initial?: Partial<SubcategoryInput> & { id?: string };
-  onSaved: (id: string) => void;
-  submitLabel?: string;
-}) {
-  const [cats, setCats] = useState<{ id: string; name: string }[]>([]);
+}: SubcategoryFormProps) {
+  // EDITED: USE NAMED TYPE FOR CATEGORY OPTIONS
+  const [cats, setCats] = useState<CategoryOption[]>([]);
+
   const [form, setForm] = useState<SubcategoryInput>({
     category_id: initial?.category_id ?? "",
     name: initial?.name ?? "",
     description: initial?.description ?? "",
     image_url: initial?.image_url ?? "",
-    status: (initial?.status as Status) ?? "active",
+    // EDITED: REMOVE CAST; `initial?.status` ALREADY `Status | undefined`
+    status: initial?.status ?? "active",
   });
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,12 +57,22 @@ export default function SubcategoryForm({
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
       if (!uid) return;
-      const { data } = await supabase
+
+      const { data, error } = await supabase
         .from("categories")
         .select("id,name")
         .eq("writer_id", uid)
         .order("name");
-      setCats(data ?? []);
+
+      // ADDED: HANDLE FETCH ERROR (OPTIONAL BUT HELPFUL)
+      if (error) {
+        setError(error.message);
+        return;
+      }
+
+      setCats((data ?? []) as CategoryOption[]);
+      // DELETED (KEPT AS COMMENTED OUT): NO ERROR HANDLING
+      // setCats(data ?? []);
     })();
   }, []);
 
@@ -55,10 +81,13 @@ export default function SubcategoryForm({
     const { error } = await supabase.storage
       .from("subcategory-images")
       .upload(key, file);
+
     if (error) return setError(error.message);
+
     const { data: pub } = supabase.storage
       .from("subcategory-images")
       .getPublicUrl(key);
+
     set("image_url", pub.publicUrl);
   }
 
@@ -66,12 +95,19 @@ export default function SubcategoryForm({
     e.preventDefault();
     setSaving(true);
     setError(null);
+
     try {
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user.id;
       if (!uid) throw new Error("Not authenticated");
 
-      if ((initial as any)?.id) {
+      // ADDED: READ ID SAFELY FROM TYPED `initial`
+      const initialId = initial?.id;
+
+      // DELETED (KEPT AS COMMENTED OUT): USED `any` TO READ ID
+      // if ((initial as any)?.id) {
+
+      if (initialId) {
         const { error } = await supabase
           .from("subcategories")
           .update({
@@ -82,10 +118,16 @@ export default function SubcategoryForm({
             status: form.status,
             updated_at: new Date().toISOString(),
           })
-          .eq("id", (initial as any).id)
+          // EDITED: USE TYPED `initialId` (NO `any`)
+          .eq("id", initialId)
           .eq("writer_id", uid);
+
         if (error) throw error;
-        onSaved((initial as any).id);
+
+        // DELETED (KEPT AS COMMENTED OUT): USED `any` TO PASS ID BACK
+        // onSaved((initial as any).id);
+
+        onSaved(initialId);
       } else {
         const { data, error } = await supabase
           .from("subcategories")
@@ -99,11 +141,19 @@ export default function SubcategoryForm({
           })
           .select("id")
           .single();
+
         if (error) throw error;
         onSaved(data.id);
       }
-    } catch (e: any) {
-      setError(e.message ?? String(e));
+    } catch (e: unknown) {
+      // EDITED: REMOVE `any` IN CATCH; HANDLE `unknown` SAFELY
+      const message =
+        e instanceof Error ? e.message : typeof e === "string" ? e : String(e);
+      setError(message);
+
+      // DELETED (KEPT AS COMMENTED OUT): `any` IN CATCH
+      // } catch (e: any) {
+      //   setError(e.message ?? String(e));
     } finally {
       setSaving(false);
     }
@@ -156,6 +206,7 @@ export default function SubcategoryForm({
             className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
           />
         </label>
+
         <label className="block">
           <span className="text-sm">or Upload</span>
           <input
