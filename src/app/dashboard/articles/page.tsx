@@ -243,6 +243,7 @@ export default function ArticlesPage() {
           "id,title,status,updated_at,last_saved_at,created_at,categories(name),subcategories(name)"
         )
         .eq("writer_id", uid)
+        .neq("status", "deleted")
         .order("updated_at", { ascending: false })
         .limit(50);
 
