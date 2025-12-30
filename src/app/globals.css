@@ -1,38 +1,15 @@
 @import "tailwindcss";
 
-/* Base tokens that respond to .dark */
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-html.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
-/* Tailwind v4 token mapping (keep if you’re using it) */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* REMOVE the @media (prefers-color-scheme: dark) block */
-/* REMOVE the ":root { color-scheme: light; }" line */
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-input, textarea, select { color: rgb(17 24 39); background-color: #fff; }
-html.dark input, html.dark textarea, html.dark select { color: #e5e7eb; background-color: #111827; }
-input::placeholder, textarea::placeholder { color: #6b7280; }
-html.dark input::placeholder, html.dark textarea::placeholder { color: #9ca3af; }
+/* =========================================================
+   1. BASE: BODY, TYPOGRAPHY, GLOBAL ELEMENTS
+   ========================================================= */
 
 @layer base {
+  body {
+    @apply min-h-screen bg-slate-950 text-slate-50 antialiased;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
   a,
   button {
     cursor: pointer;
@@ -40,5 +17,164 @@ html.dark input::placeholder, html.dark textarea::placeholder { color: #9ca3af; 
 
   button:disabled {
     cursor: not-allowed;
+  }
+
+  /* Basic dark form defaults */
+  input,
+  textarea,
+  select {
+    @apply bg-slate-900 text-slate-100;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280; /* gray-500-ish */
+  }
+}
+
+/* =========================================================
+   2. LAYOUT HELPERS
+   ========================================================= */
+
+@layer components {
+  .page-shell {
+    @apply flex min-h-screen flex-col bg-slate-950;
+  }
+
+  .page-center {
+    @apply flex flex-1 items-center justify-center p-6 bg-slate-950;
+  }
+
+  .page-inner {
+    @apply w-full max-w-4xl mx-auto flex-1 p-6;
+  }
+
+  .page-title {
+    @apply text-2xl font-bold mb-2;
+  }
+
+  .page-subtitle {
+    @apply text-sm font-normal text-slate-400 mb-6;
+  }
+
+  .skeleton-card {
+    @apply h-24 w-full max-w-md rounded-2xl border border-slate-800 animate-pulse;
+  }
+}
+
+/* =========================================================
+   3. NAVBAR & TOP CONTROLS
+   ========================================================= */
+
+@layer components {
+  .navbar {
+    @apply flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950;
+  }
+
+  .nav-left {
+    @apply flex items-center gap-4;
+  }
+
+  .nav-brand {
+    @apply flex items-center gap-1 font-semibold;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-1 text-sm hover:underline;
+  }
+
+  .btn-ghost {
+    @apply px-3 py-1 rounded-lg border border-slate-700 text-sm transition
+           hover:bg-slate-800;
+  }
+
+  .btn-danger {
+    @apply px-3 py-1 rounded-lg border border-red-700 text-sm transition
+           hover:bg-red-900 hover:text-red-100 disabled:opacity-60;
+  }
+}
+
+/* =========================================================
+   4. AUTH (SIGN IN / SIGN UP)
+   ========================================================= */
+
+@layer components {
+  .card-auth {
+    @apply w-full max-w-md rounded-2xl border border-slate-800
+           bg-slate-900 text-slate-50 shadow-xl;
+  }
+
+  .card-auth-body {
+    @apply p-6 space-y-4;
+  }
+
+  .tabs-auth {
+    @apply flex items-end border-b border-slate-800 px-6 pt-5;
+  }
+
+  .tab-auth {
+    @apply relative -mb-px px-4 py-3 text-sm font-medium transition
+           border-b-2 border-transparent text-slate-500 hover:text-slate-100;
+  }
+
+  .tab-auth-active {
+    @apply border-slate-100 text-slate-100;
+  }
+
+  .field-label {
+    @apply block text-sm text-slate-200;
+  }
+
+  .field-input {
+    @apply mt-1 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm outline-none transition
+           focus:border-slate-100 focus:ring-4 focus:ring-slate-800;
+  }
+
+  .btn-primary {
+    @apply w-full rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 shadow-sm transition
+           hover:opacity-90 active:scale-[0.99] disabled:opacity-60;
+  }
+
+  .alert-success {
+    @apply mt-4 rounded-xl border border-emerald-700 bg-emerald-950/60 p-3 text-sm text-emerald-200;
+  }
+
+  .alert-error {
+    @apply mt-4 rounded-xl border border-red-700 bg-red-950/60 p-3 text-sm text-red-200;
+  }
+}
+
+/* =========================================================
+   5. DASHBOARD CARDS & BUTTONS
+   ========================================================= */
+
+@layer components {
+  .card-dashboard {
+    @apply rounded-xl border border-slate-800 bg-slate-900 p-5 shadow-sm;
+  }
+
+  .card-header {
+    @apply flex items-center justify-between;
+  }
+
+  .card-header-left {
+    @apply flex items-center gap-3;
+  }
+
+  .card-icon {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-700;
+  }
+
+  .card-meta-label {
+    @apply text-sm text-slate-400;
+  }
+
+  .card-meta-value {
+    @apply text-2xl font-semibold;
+  }
+
+  .btn-chip {
+    @apply inline-flex items-center gap-2 rounded px-3 py-2 border border-slate-700 text-sm
+           hover:bg-slate-800;
   }
 }

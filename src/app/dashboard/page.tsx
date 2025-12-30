@@ -16,6 +16,7 @@ import {
 export default function DashboardPage() {
   const supabase = getSupabaseBrowserClient();
   const router = useRouter();
+
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [counts, setCounts] = useState<{
@@ -37,7 +38,7 @@ export default function DashboardPage() {
 
       const role = s?.user?.user_metadata?.role;
       if (!s || role !== "writer") {
-        router.replace("/"); // readers/non-auth → home
+        router.replace("/"); // readers / non-auth → home
         return;
       }
 
@@ -78,83 +79,50 @@ export default function DashboardPage() {
         unsub?.();
       } catch {}
     };
-  }, [router]);
+  }, [router, supabase]);
 
-  if (!ready) return null; // or a skeleton
+  // Simple skeleton while loading
+  if (!ready) {
+    return (
+      <main className="page-shell">
+        <div className="page-center">
+          <div className="skeleton-card" />
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen p-6">
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+    <main className="page-shell">
+      <div className="page-inner">
+        <h1 className="page-title">Dashboard</h1>
 
-      {session?.user?.email && (
-        <h3 className="text-sm font-normal text-gray-500">
-          Signed in as {session.user.email}
-        </h3>
-      )}
+        {session?.user?.email && (
+          <h3 className="page-subtitle">Signed in as {session.user.email}</h3>
+        )}
 
-      <br />
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {/* Categories card */}
-        <div className="rounded-xl border p-5 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border dark:border-gray-700">
-                <FontAwesomeIcon icon={faFolderTree} />
-              </span>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Categories
-                </p>
-                <p className="text-2xl font-semibold">{counts.categories}</p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Categories card */}
+          <div className="card-dashboard">
+            <div className="card-header">
+              <div className="card-header-left">
+                <span className="card-icon">
+                  <FontAwesomeIcon icon={faFolderTree} />
+                </span>
+                <div>
+                  <p className="card-meta-label">Categories</p>
+                  <p className="card-meta-value">{counts.categories}</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link
-                href="/dashboard/categories/new"
-                className="inline-flex items-center gap-2 rounded px-3 py-2 border text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <FontAwesomeIcon icon={faPlus} />
-                New
-              </Link>
-              <Link
-                href="/dashboard/categories"
-                className="inline-flex items-center rounded px-3 py-2 border text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                Manage
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Subcategories card */}
-        <div className="rounded-xl border p-5 dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border dark:border-gray-700">
-                <FontAwesomeIcon icon={faLayerGroup} />
-              </span>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Subcategories
-                </p>
-                <p className="text-2xl font-semibold">{counts.subcategories}</p>
+              <div className="flex items-center gap-2">
+                <Link href="/dashboard/categories/new" className="btn-chip">
+                  <FontAwesomeIcon icon={faPlus} />
+                  New
+                </Link>
+                <Link href="/dashboard/categories" className="btn-chip">
+                  Manage
+                </Link>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link
-                href="/dashboard/subcategories/new"
-                className="inline-flex items-center gap-2 rounded px-3 py-2 border text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <FontAwesomeIcon icon={faPlus} />
-                New
-              </Link>
-              <Link
-                href="/dashboard/subcategories"
-                className="inline-flex items-center rounded px-3 py-2 border text-sm hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                Manage
-              </Link>
             </div>
           </div>
         </div>

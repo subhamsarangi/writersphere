@@ -11,7 +11,7 @@ export default function NewCategoryPage() {
       <h1 className="text-2xl font-bold mb-4">New Category</h1>
       <CategoryForm
         submitLabel="Create"
-        onSaved={(id) => router.replace(`/dashboard/categories/${id}/edit`)}
+        onSaved={(id) => router.replace(`/dashboard/categories/${id}/view`)}
       />
     </main>
   );
