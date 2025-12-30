@@ -473,16 +473,16 @@ export default function ArticlesPage() {
           ) : null}
 
           {rows.map((a) => (
-            <Link
+            <div
               key={a.id}
-              href={`/dashboard/write/${a.id}`}
-              className="card-dashboard block hover:bg-slate-800/40 transition"
+              className="card-dashboard hover:bg-slate-800/40 transition"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <div className="text-lg font-semibold">
                     {a.title || "Untitled"}
                   </div>
+
                   <div className="text-xs text-slate-400 mt-1">
                     Status: <span className="text-slate-200">{a.status}</span>
                     {a.category_name ? (
@@ -509,9 +509,24 @@ export default function ArticlesPage() {
                 <div className="text-right text-xs text-slate-400">
                   <div>Updated: {fmt(a.updated_at)}</div>
                   <div>Saved: {fmt(a.last_saved_at)}</div>
+
+                  <div className="mt-2 flex justify-end gap-2">
+                    <Link
+                      className="btn-chip"
+                      href={`/dashboard/write/${a.id}`}
+                    >
+                      Edit
+                    </Link>
+
+                    {a.status === "published" ? (
+                      <Link className="btn-chip" href={`/articles/${a.id}`}>
+                        View
+                      </Link>
+                    ) : null}
+                  </div>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

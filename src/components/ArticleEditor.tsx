@@ -133,6 +133,12 @@ async function syncTags(params: {
 }
 
 export default function ArticleEditor({ articleId }: { articleId: string }) {
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem("ws_newdraft_id");
+    } catch {}
+  }, []);
+
   const supabase = getSupabaseBrowserClient();
   const router = useRouter();
 
