@@ -77,6 +77,19 @@ export default function EditSubcategoryPage() {
             router.replace(`/dashboard/categories/${row.category_id}/view`)
           }
         />
+        {row.image_url && (
+          <div className="mt-4">
+            <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+              Image preview
+            </p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={row.image_url}
+              alt={row.name}
+              className="h-40 w-full max-w-md rounded object-cover border border-slate-800"
+            />
+          </div>
+        )}
       </div>
     </main>
   );

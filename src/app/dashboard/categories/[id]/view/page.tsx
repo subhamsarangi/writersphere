@@ -26,7 +26,7 @@ type SubRow = {
   created_at: string;
 };
 
-export default function EditCategoryPage() {
+export default function ViewCategoryPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
 
@@ -117,11 +117,44 @@ export default function EditCategoryPage() {
     }
   }
 
+  async function handleDeleteCategory() {
+    if (!row) return;
+    if (
+      !confirm(
+        "Delete this category and all its subcategories? This cannot be undone."
+      )
+    )
+      return;
+
+    const { error } = await supabase
+      .from("categories")
+      .delete()
+      .eq("id", row.id);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    router.replace("/dashboard/categories");
+  }
+
   if (loading) {
     return (
       <main className="page-shell">
-        <div className="page-center">
-          <div className="skeleton-card" />
+        <div className="page-inner space-y-8">
+          {/* Skeleton for category form */}
+          <div className="skeleton-card h-52" />
+
+          {/* Skeleton title */}
+          <div className="h-5 w-32 bg-slate-800 rounded animate-pulse" />
+
+          {/* Skeleton grid for subcategory list */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="skeleton-card h-36" />
+            <div className="skeleton-card h-36" />
+            <div className="skeleton-card h-36" />
+          </div>
         </div>
       </main>
     );
@@ -140,14 +173,29 @@ export default function EditCategoryPage() {
   return (
     <main className="page-shell">
       <div className="page-inner space-y-8">
-        {/* Category form */}
-        <section>
-          <h1 className="page-title">Edit Category</h1>
+        {/* Category form + image preview */}
+        <section className="space-y-4">
+          <h1 className="page-title">Category</h1>
+
           <CategoryForm
             initial={row}
             submitLabel="Update"
             onSaved={() => router.replace("/dashboard/categories")}
           />
+
+          {row.image_url && (
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+                Image preview
+              </p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={row.image_url}
+                alt={row.name}
+                className="h-40 w-full max-w-md rounded object-cover border border-slate-800"
+              />
+            </div>
+          )}
         </section>
 
         {/* Subcategories list for this category */}
@@ -163,7 +211,6 @@ export default function EditCategoryPage() {
                 className="field-input max-w-xs"
               />
 
-              {/* Assumes you have a "new subcategory" page that can read the category from query string */}
               <Link
                 href={`/dashboard/subcategories/new?category=${row.id}`}
                 className="btn-primary w-fit text-xs"
@@ -211,10 +258,10 @@ export default function EditCategoryPage() {
 
                   <div className="mt-3 flex gap-2">
                     <Link
-                      href={`/dashboard/subcategories/${s.id}/edit`}
+                      href={`/dashboard/subcategories/${s.id}/view`}
                       className="btn-chip text-sm"
                     >
-                      Edit
+                      View
                     </Link>
                     <button
                       onClick={() =>
@@ -241,6 +288,17 @@ export default function EditCategoryPage() {
               ))}
             </ul>
           )}
+        </section>
+
+        {/* Absolute end: delete category action */}
+        <section className="pt-4 border-t border-slate-800 mt-4">
+          <button onClick={handleDeleteCategory} className="btn-danger">
+            Delete category
+          </button>
+          <p className="mt-2 text-xs text-slate-400">
+            This will permanently delete this category (and may affect related
+            content). This action cannot be undone.
+          </p>
         </section>
       </div>
     </main>

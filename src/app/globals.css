@@ -58,7 +58,11 @@
   }
 
   .skeleton-card {
-    @apply h-24 w-full max-w-md rounded-2xl border border-slate-800 animate-pulse;
+    /* looks like a card-auth / card-dashboard */
+    @apply w-full max-w-xl h-40
+           rounded-2xl border border-slate-800
+           bg-slate-900/60
+           animate-pulse;
   }
 }
 

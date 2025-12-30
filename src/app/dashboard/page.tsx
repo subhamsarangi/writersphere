@@ -85,7 +85,8 @@ export default function DashboardPage() {
   if (!ready) {
     return (
       <main className="page-shell">
-        <div className="page-center">
+        <div className="page-inner grid gap-4 sm:grid-cols-2">
+          <div className="skeleton-card" />
           <div className="skeleton-card" />
         </div>
       </main>
