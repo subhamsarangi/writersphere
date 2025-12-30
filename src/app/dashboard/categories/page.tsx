@@ -66,12 +66,6 @@ export default function CategoriesListPage() {
     );
   }, [rows, q]);
 
-  async function handleDelete(id: string) {
-    if (!confirm("Delete this category? This cannot be undone.")) return;
-    const { error } = await supabase.from("categories").delete().eq("id", id);
-    if (!error) setRows((x) => x.filter((r) => r.id !== id));
-  }
-
   async function toggleStatus(id: string, next: "active" | "inactive") {
     // optimistic UI update
     setRows((xs) => xs.map((x) => (x.id === id ? { ...x, status: next } : x)));
@@ -92,6 +86,20 @@ export default function CategoriesListPage() {
       );
       alert(error.message);
     }
+  }
+
+  if (loading) {
+    return (
+      <main className="page-shell">
+        <div className="page-inner">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="skeleton-card h-40" />
+            <div className="skeleton-card h-40" />
+            <div className="skeleton-card h-40" />
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -168,13 +176,6 @@ export default function CategoriesListPage() {
                     }
                   >
                     {c.status === "active" ? "Deactivate" : "Activate"}
-                  </button>
-
-                  <button
-                    onClick={() => void handleDelete(c.id)}
-                    className="btn-chip text-red-300"
-                  >
-                    Delete
                   </button>
                 </div>
               </li>

@@ -58,6 +58,8 @@ export default function SubcategoryForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isEdit = Boolean(initial?.id);
+
   function set<K extends keyof SubcategoryInput>(k: K, v: SubcategoryInput[K]) {
     setForm((f) => ({ ...f, [k]: v }));
   }
@@ -153,23 +155,36 @@ export default function SubcategoryForm({
     }
   }
 
+  const selectedCategory = cats.find((c) => c.id === form.category_id) ?? null;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <label className="field-label">
         <span>Category</span>
-        <select
-          required
-          value={form.category_id}
-          onChange={(e) => set("category_id", e.target.value)}
-          className="field-input"
-        >
-          <option value="">Select a category</option>
-          {cats.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+
+        {isEdit ? (
+          // EDIT MODE: show read-only category name
+          <input
+            value={selectedCategory?.name ?? "Unknown category"}
+            readOnly
+            className="field-input cursor-not-allowed opacity-80"
+          />
+        ) : (
+          // CREATE MODE: normal category select
+          <select
+            required
+            value={form.category_id}
+            onChange={(e) => set("category_id", e.target.value)}
+            className="field-input"
+          >
+            <option value="">Select a category</option>
+            {cats.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        )}
       </label>
 
       <label className="field-label">
