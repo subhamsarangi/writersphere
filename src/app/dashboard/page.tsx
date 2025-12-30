@@ -6,7 +6,11 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFolderTree, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFolderTree,
+  faPlus,
+  faPenNib,
+} from "@fortawesome/free-solid-svg-icons";
 import LoadingLink from "../../components/LoadingLink";
 
 export default function DashboardPage() {
@@ -18,9 +22,11 @@ export default function DashboardPage() {
   const [counts, setCounts] = useState<{
     categories: number;
     subcategories: number;
+    articles: number;
   }>({
     categories: 0,
     subcategories: 0,
+    articles: 0,
   });
 
   useEffect(() => {
@@ -40,7 +46,7 @@ export default function DashboardPage() {
 
       // 2) counts (parallel)
       const uid = s.user.id;
-      const [catRes, subRes] = await Promise.all([
+      const [catRes, subRes, artRes] = await Promise.all([
         supabase
           .from("categories")
           .select("*", { count: "exact", head: true })
@@ -49,11 +55,17 @@ export default function DashboardPage() {
           .from("subcategories")
           .select("*", { count: "exact", head: true })
           .eq("writer_id", uid),
+        supabase
+          .from("articles")
+          .select("*", { count: "exact", head: true })
+          .eq("writer_id", uid)
+          .neq("status", "deleted"), // hide deleted at app level
       ]);
 
       setCounts({
         categories: catRes.count ?? 0,
         subcategories: subRes.count ?? 0,
+        articles: artRes.count ?? 0,
       });
 
       // 3) listen to auth changes; if role changes or logout → home
@@ -131,14 +143,39 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Articles  card */}
-          <LoadingLink
-            href="/dashboard/articles"
-            className="btn-chip"
-            loadingMode="append"
-          >
-            My Articles
-          </LoadingLink>
+          {/* Articles card */}
+          <div className="card-dashboard">
+            <div className="card-header">
+              <div className="card-header-left">
+                <span className="card-icon">
+                  <FontAwesomeIcon icon={faPenNib} />
+                </span>
+                <div>
+                  <p className="card-meta-label">Articles</p>
+                  <p className="card-meta-value">{counts.articles}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <LoadingLink
+                  href="/dashboard/write"
+                  className="btn-chip"
+                  loadingMode="overlay"
+                >
+                  <FontAwesomeIcon icon={faPlus} />
+                  New draft
+                </LoadingLink>
+
+                <LoadingLink
+                  href="/dashboard/articles"
+                  className="btn-chip"
+                  loadingMode="append"
+                >
+                  Manage
+                </LoadingLink>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
