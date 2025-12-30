@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
 
 import MDEditor from "@uiw/react-md-editor";
@@ -47,6 +49,15 @@ function formatTime(ts: string | null) {
   } catch {
     return ts;
   }
+}
+
+function getErrorMessage(e: unknown) {
+  if (e && typeof e === "object" && "message" in e) {
+    const m = (e as { message?: unknown }).message;
+    if (typeof m === "string") return m;
+  }
+  if (e instanceof Error) return e.message;
+  return typeof e === "string" ? e : JSON.stringify(e);
 }
 
 function useLocalTheme() {
@@ -123,11 +134,13 @@ async function syncTags(params: {
 
 export default function ArticleEditor({ articleId }: { articleId: string }) {
   const supabase = getSupabaseBrowserClient();
+  const router = useRouter();
 
   const { theme, toggle: toggleTheme } = useLocalTheme();
   const [preview, setPreview] = useState(false);
 
   const [ready, setReady] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
 
   const [cats, setCats] = useState<CategoryOpt[]>([]);
@@ -151,6 +164,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   const [deletedAt, setDeletedAt] = useState<string | null>(null);
 
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -266,6 +280,56 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       setSaving(false);
     }
   }
+  // delete handler (confirmation + delete + immediate redirect)
+  async function deleteArticle() {
+    if (!uid) return;
+    if (deleting) return;
+
+    const ok = window.confirm(
+      "⚠️ PERMANENT WARNING\n\nYou are about to DELETE this article.\n\n• It will immediately disappear from your lists.\n• You will NOT be able to edit or restore it from the app.\n\nIf you understand, click OK to delete it."
+    );
+
+    if (!ok) return;
+
+    // Prevent autosave / double-actions while deletion is in progress
+    savingRef.current = true;
+    setDeleting(true);
+    setError(null);
+
+    try {
+      const ts = nowIso();
+      const { error: delErr } = await supabase
+        .from("articles")
+        .update({
+          status: "deleted",
+          deleted_at: ts,
+          updated_at: ts,
+          last_saved_at: ts,
+        })
+        .eq("id", articleId)
+        .eq("writer_id", uid);
+
+      if (delErr) throw delErr;
+
+      // Immediate redirect
+      router.replace("/dashboard/articles");
+    } catch (e: unknown) {
+      setError(getErrorMessage(e));
+      setDeleting(false);
+      savingRef.current = false;
+    }
+  }
+
+  // Redirect after 3s when blocked
+  useEffect(() => {
+    if (!blocked) return;
+
+    const t = window.setTimeout(() => {
+      router.replace("/dashboard/articles");
+    }, 3000);
+
+    return () => window.clearTimeout(t);
+  }, [blocked, router]);
 
   // Load session + article + metadata
   useEffect(() => {
@@ -303,8 +367,18 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
         .eq("writer_id", id)
         .single();
 
-      if (aErr) {
-        setError(aErr.message);
+      if (aErr || !a || a.status === "deleted") {
+        setError(
+          "This article was deleted (or you don’t have access). Redirecting…"
+        );
+        setBlocked(true);
+        setReady(true);
+        return;
+      }
+
+      if (a.status === "deleted") {
+        setError("This article was deleted. Redirecting…");
+        setBlocked(true);
         setReady(true);
         return;
       }
@@ -399,6 +473,8 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
   // Autosave every 10 seconds if dirty
   useEffect(() => {
+    if (blocked || deleting) return;
+
     const t = setInterval(() => {
       if (!dirtyRef.current) return;
       if (savingRef.current) return;
@@ -407,7 +483,17 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uid, status, categoryId, subcategoryId, title, body, tags]);
+  }, [
+    blocked,
+    deleting,
+    uid,
+    status,
+    categoryId,
+    subcategoryId,
+    title,
+    body,
+    tags,
+  ]);
 
   function addTag(raw: string) {
     const n = normalizeTag(raw);
@@ -429,6 +515,24 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       <main className="page-shell">
         <div className="page-center">
           <div className="skeleton-card" />
+        </div>
+      </main>
+    );
+  }
+
+  if (blocked) {
+    return (
+      <main className="page-shell">
+        <div className="page-center">
+          <div className="card-dashboard w-full max-w-xl">
+            <div className="page-title">Can’t open this article</div>
+            <p className="text-sm text-slate-300 mt-2">
+              {error ?? "This article is not available."}
+            </p>
+            <p className="text-xs text-slate-500 mt-3">
+              Redirecting to your articles list in 3 seconds…
+            </p>
+          </div>
         </div>
       </main>
     );
@@ -473,6 +577,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             <select
               className="field-input !w-auto !py-1.5"
               value={status}
+              disabled={saving || deleting}
               onChange={(e) => {
                 const next = e.target.value as ArticleStatus;
 
@@ -500,7 +605,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
               <option value="published">Published</option>
               <option value="unpublished">Unpublished</option>
               <option value="archived">Archived</option>
-              <option value="deleted">Deleted</option>
             </select>
 
             <button
@@ -516,7 +620,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
         {error ? (
           <p className="alert-error !mt-0">{error}</p>
-        ) : !hasRequiredMetadata ? (
+        ) : needsMetadata && !hasRequiredMetadata ? (
           <p className="text-xs text-amber-300 mb-4">
             To publish/unpublish/archive/delete you must select a category and
             have <strong>at least 5 tags</strong>.
@@ -659,6 +763,27 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
               textareaProps={{ placeholder: "Write in Markdown…" }}
             />
           )}
+        </div>
+
+        {/* Danger zone */}
+        <div className="card-dashboard mt-6 border border-red-900/60 bg-black/40">
+          <div className="text-red-200 font-semibold">Danger zone</div>
+          <p className="text-sm text-slate-300 mt-2">
+            Deleting this article will remove it from your lists and block any
+            further edits.
+          </p>
+          <p className="text-xs text-slate-500 mt-1">
+            This action is intended to be permanent in the app.
+          </p>
+
+          <button
+            type="button"
+            disabled={deleting || saving}
+            onClick={() => void deleteArticle()}
+            className="mt-4 btn-ghost !w-full sm:!w-auto !border-red-800 !text-red-200 hover:!bg-red-950/50 disabled:opacity-60"
+          >
+            {deleting ? "Deleting…" : "Delete article"}
+          </button>
         </div>
       </div>
     </main>

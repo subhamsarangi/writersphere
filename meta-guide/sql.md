@@ -152,3 +152,36 @@ using (
   )
 );
 ```
+
+alter table public.articles enable row level security;
+
+-- SELECT: hide deleted
+create policy "articles_select_own_not_deleted"
+on public.articles for select
+using (writer_id = auth.uid() and status <> 'deleted');
+
+-- INSERT: writer owns their row
+create policy "articles_insert_own"
+on public.articles for insert
+with check (writer_id = auth.uid());
+
+-- UPDATE: allowed only if the *current* row isn't deleted
+-- (this permits setting status='deleted' once, then blocks all future updates)
+create policy "articles_update_own_not_deleted"
+on public.articles for update
+using (writer_id = auth.uid() and status <> 'deleted')
+with check (writer_id = auth.uid());
+
+-- Optional: prevent hard DELETE from the client entirely
+-- (recommended since you’re doing soft delete)
+-- If you want this, DO NOT create a DELETE policy.
+
+
+---
+
+select policyname, cmd, permissive, roles, qual, with_check
+from pg_policies
+where schemaname='public' and tablename='articles'
+order by cmd, policyname;
+
+---
