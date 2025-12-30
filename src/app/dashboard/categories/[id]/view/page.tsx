@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../../../../lib/supabaseClient";
 import CategoryForm from "../../../../../components/CategoryForm";
+import BackButton from "../../../../../components/BackButton";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -173,6 +174,8 @@ export default function ViewCategoryPage() {
   return (
     <main className="page-shell">
       <div className="page-inner space-y-8">
+        <BackButton />
+
         {/* Category form + image preview */}
         <section className="space-y-4">
           <h1 className="page-title">Category</h1>
