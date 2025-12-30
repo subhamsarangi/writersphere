@@ -182,3 +182,27 @@
            hover:bg-slate-800;
   }
 }
+
+ html[data-theme="light"] body {
+    @apply bg-slate-50 text-slate-950;
+  }
+
+  html[data-theme="light"] .page-shell,
+  html[data-theme="light"] .page-center {
+    @apply bg-slate-50;
+  }
+
+  html[data-theme="light"] .card-auth,
+  html[data-theme="light"] .card-dashboard {
+    @apply bg-white text-slate-950 border-slate-200;
+  }
+
+  html[data-theme="light"] input,
+  html[data-theme="light"] textarea,
+  html[data-theme="light"] select {
+    @apply bg-white text-slate-950 border-slate-300;
+  }
+
+  html[data-theme="light"] .btn-ghost {
+    @apply border-slate-300;
+  }
