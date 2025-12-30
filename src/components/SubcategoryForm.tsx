@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
 
 const supabase = getSupabaseBrowserClient();
+
 type Status = "active" | "inactive";
 
 export type SubcategoryInput = {
@@ -14,7 +15,6 @@ export type SubcategoryInput = {
   status: Status;
 };
 
-// ADDED: STRONG TYPE FOR `initial` (OPTIONAL `id` FOR EDIT MODE)
 export type SubcategoryInitial = Partial<
   Omit<SubcategoryInput, "description" | "image_url">
 > & {
@@ -23,22 +23,28 @@ export type SubcategoryInitial = Partial<
   image_url?: string | null;
 };
 
-// ADDED: NAMED TYPES FOR STATE/PROPS
 type CategoryOption = { id: string; name: string };
 
 type SubcategoryFormProps = {
-  // EDITED: USE NAMED TYPE INSTEAD OF INLINE INTERSECTION
   initial?: SubcategoryInitial;
   onSaved: (id: string) => void;
   submitLabel?: string;
 };
+
+function Spinner({ className = "" }: { className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent ${className}`}
+    />
+  );
+}
 
 export default function SubcategoryForm({
   initial,
   onSaved,
   submitLabel = "Save",
 }: SubcategoryFormProps) {
-  // EDITED: USE NAMED TYPE FOR CATEGORY OPTIONS
   const [cats, setCats] = useState<CategoryOption[]>([]);
 
   const [form, setForm] = useState<SubcategoryInput>({
@@ -46,7 +52,6 @@ export default function SubcategoryForm({
     name: initial?.name ?? "",
     description: initial?.description ?? "",
     image_url: initial?.image_url ?? "",
-    // EDITED: REMOVE CAST; `initial?.status` ALREADY `Status | undefined`
     status: initial?.status ?? "active",
   });
 
@@ -69,15 +74,12 @@ export default function SubcategoryForm({
         .eq("writer_id", uid)
         .order("name");
 
-      // ADDED: HANDLE FETCH ERROR (OPTIONAL BUT HELPFUL)
       if (error) {
         setError(error.message);
         return;
       }
 
       setCats((data ?? []) as CategoryOption[]);
-      // DELETED (KEPT AS COMMENTED OUT): NO ERROR HANDLING
-      // setCats(data ?? []);
     })();
   }, []);
 
@@ -106,11 +108,7 @@ export default function SubcategoryForm({
       const uid = sess.session?.user.id;
       if (!uid) throw new Error("Not authenticated");
 
-      // ADDED: READ ID SAFELY FROM TYPED `initial`
       const initialId = initial?.id;
-
-      // DELETED (KEPT AS COMMENTED OUT): USED `any` TO READ ID
-      // if ((initial as any)?.id) {
 
       if (initialId) {
         const { error } = await supabase
@@ -123,14 +121,10 @@ export default function SubcategoryForm({
             status: form.status,
             updated_at: new Date().toISOString(),
           })
-          // EDITED: USE TYPED `initialId` (NO `any`)
           .eq("id", initialId)
           .eq("writer_id", uid);
 
         if (error) throw error;
-
-        // DELETED (KEPT AS COMMENTED OUT): USED `any` TO PASS ID BACK
-        // onSaved((initial as any).id);
 
         onSaved(initialId);
       } else {
@@ -151,28 +145,23 @@ export default function SubcategoryForm({
         onSaved(data.id);
       }
     } catch (e: unknown) {
-      // EDITED: REMOVE `any` IN CATCH; HANDLE `unknown` SAFELY
       const message =
         e instanceof Error ? e.message : typeof e === "string" ? e : String(e);
       setError(message);
-
-      // DELETED (KEPT AS COMMENTED OUT): `any` IN CATCH
-      // } catch (e: any) {
-      //   setError(e.message ?? String(e));
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
-      <label className="block">
-        <span className="text-sm">Category</span>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <label className="field-label">
+        <span>Category</span>
         <select
           required
           value={form.category_id}
           onChange={(e) => set("category_id", e.target.value)}
-          className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
+          className="field-input"
         >
           <option value="">Select a category</option>
           {cats.map((c) => (
@@ -183,37 +172,37 @@ export default function SubcategoryForm({
         </select>
       </label>
 
-      <label className="block">
-        <span className="text-sm">Name</span>
+      <label className="field-label">
+        <span>Name</span>
         <input
           required
           value={form.name}
           onChange={(e) => set("name", e.target.value)}
-          className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
+          className="field-input"
         />
       </label>
 
-      <label className="block">
-        <span className="text-sm">Description</span>
+      <label className="field-label">
+        <span>Description</span>
         <textarea
           value={form.description}
           onChange={(e) => set("description", e.target.value)}
-          className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
+          className="field-input"
         />
       </label>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <label className="block">
-          <span className="text-sm">Image URL</span>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label className="field-label">
+          <span>Image URL</span>
           <input
             value={form.image_url}
             onChange={(e) => set("image_url", e.target.value)}
-            className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
+            className="field-input"
           />
         </label>
 
-        <label className="block">
-          <span className="text-sm">or Upload</span>
+        <label className="field-label">
+          <span>or Upload</span>
           <input
             type="file"
             accept="image/*"
@@ -221,32 +210,31 @@ export default function SubcategoryForm({
               const f = e.target.files?.[0];
               if (f) void handleUpload(f);
             }}
-            className="mt-1 w-full"
+            className="mt-1 w-full text-sm"
           />
         </label>
       </div>
 
-      <label className="block">
-        <span className="text-sm">Status</span>
+      <label className="field-label">
+        <span>Status</span>
         <select
           value={form.status}
           onChange={(e) => set("status", e.target.value as Status)}
-          className="mt-1 w-full rounded border px-3 py-2 bg-white dark:bg-gray-700 dark:text-gray-100"
+          className="field-input"
         >
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </select>
       </label>
 
-      {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-400">{error}</p>}
 
       <button
         type="submit"
         disabled={saving}
-        className="rounded px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 disabled:opacity-60"
+        className="btn-primary inline-flex items-center gap-2 w-fit"
       >
+        {saving && <Spinner />}
         {saving ? "Saving…" : submitLabel}
       </button>
     </form>

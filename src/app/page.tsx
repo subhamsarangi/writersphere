@@ -85,10 +85,11 @@ export default function HomePage() {
             | "writer"
             | undefined;
 
-          if (uRole === "writer" || role === "writer")
+          if (uRole === "writer" || role === "writer") {
             router.replace("/dashboard");
-          else
+          } else {
             setMsg("Signed up as reader. You can explore without dashboard.");
+          }
         } else {
           setMsg("Check your inbox to confirm your email before signing in.");
         }
@@ -114,38 +115,36 @@ export default function HomePage() {
     }
   };
 
+  // Skeleton while we don't know the session yet
   if (!ready) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="h-32 w-32 rounded-2xl border border-gray-200 dark:border-gray-800 animate-pulse" />
+      <main className="page-shell">
+        <div className="page-center">
+          <div className="skeleton-card" />
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen flex flex-col">
-      {/* Subtle background */}
-      <div className="flex flex-1 items-center justify-center p-6 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900">
+    <main className="page-shell">
+      <div className="page-center">
         {!session ? (
-          <div className="w-full max-w-md rounded-2xl border border-gray-200/70 bg-white/80 text-gray-900 shadow-xl backdrop-blur dark:border-gray-800/70 dark:bg-gray-900/60 dark:text-gray-100">
+          <div className="card-auth">
             {/* Tabs */}
             <div
               role="tablist"
               aria-label="Authentication"
-              className="flex items-end border-b border-gray-200/70 px-6 pt-5 dark:border-gray-800/70"
+              className="tabs-auth"
             >
               <button
                 type="button"
                 role="tab"
                 aria-selected={mode === "sign_up"}
                 onClick={() => setMode("sign_up")}
-                className={[
-                  "relative -mb-px px-4 py-3 text-sm font-medium transition",
-                  "border-b-2",
-                  mode === "sign_up"
-                    ? "border-gray-900 text-gray-900 dark:border-gray-100 dark:text-gray-100"
-                    : "border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100",
-                ].join(" ")}
+                className={`tab-auth ${
+                  mode === "sign_up" ? "tab-auth-active" : ""
+                }`}
               >
                 Sign up
               </button>
@@ -155,70 +154,55 @@ export default function HomePage() {
                 role="tab"
                 aria-selected={mode === "sign_in"}
                 onClick={() => setMode("sign_in")}
-                className={[
-                  "relative -mb-px px-4 py-3 text-sm font-medium transition",
-                  "border-b-2",
-                  mode === "sign_in"
-                    ? "border-gray-900 text-gray-900 dark:border-gray-100 dark:text-gray-100"
-                    : "border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100",
-                ].join(" ")}
+                className={`tab-auth ${
+                  mode === "sign_in" ? "tab-auth-active" : ""
+                }`}
               >
                 Sign in
               </button>
 
-              <div className="ml-auto pb-3 text-xs text-gray-500 dark:text-gray-400">
+              <div className="ml-auto pb-3 text-xs text-slate-400">
                 Writersphere
               </div>
             </div>
 
-            <div className="p-6">
+            {/* Form */}
+            <div className="card-auth-body">
               <form onSubmit={handleSubmit} className="space-y-4">
-                <label className="block">
-                  <span className="text-sm text-gray-700 dark:text-gray-200">
-                    Email
-                  </span>
+                <label className="field-label">
+                  <span>Email</span>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition
-                               focus:border-gray-900 focus:ring-4 focus:ring-gray-200
-                               dark:border-gray-700 dark:bg-gray-800 dark:focus:border-gray-100 dark:focus:ring-gray-800"
+                    className="field-input"
                     placeholder="you@example.com"
                   />
                 </label>
 
-                <label className="block">
-                  <span className="text-sm text-gray-700 dark:text-gray-200">
-                    Password
-                  </span>
+                <label className="field-label">
+                  <span>Password</span>
                   <input
                     type="password"
                     required
                     minLength={6}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition
-                               focus:border-gray-900 focus:ring-4 focus:ring-gray-200
-                               dark:border-gray-700 dark:bg-gray-800 dark:focus:border-gray-100 dark:focus:ring-gray-800"
+                    className="field-input"
                     placeholder="••••••••"
                   />
                 </label>
 
                 {mode === "sign_up" && (
-                  <label className="block">
-                    <span className="text-sm text-gray-700 dark:text-gray-200">
-                      Role
-                    </span>
+                  <label className="field-label">
+                    <span>Role</span>
                     <select
                       value={role}
                       onChange={(e) =>
                         setRole(e.target.value as "reader" | "writer")
                       }
-                      className="mt-1 w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none transition
-                                 focus:border-gray-900 focus:ring-4 focus:ring-gray-200
-                                 dark:border-gray-700 dark:bg-gray-800 dark:focus:border-gray-100 dark:focus:ring-gray-800"
+                      className="field-input"
                     >
                       <option value="writer">Writer</option>
                       <option value="reader">Reader</option>
@@ -229,9 +213,7 @@ export default function HomePage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition
-                             hover:opacity-95 active:scale-[0.99] disabled:opacity-60
-                             dark:bg-white dark:text-gray-900"
+                  className="btn-primary"
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     {loading && <Spinner />}
@@ -246,20 +228,12 @@ export default function HomePage() {
                 </button>
               </form>
 
-              {msg && (
-                <p className="mt-4 rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-900/50 dark:bg-green-950/40 dark:text-green-200">
-                  {msg}
-                </p>
-              )}
-              {err && (
-                <p className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200">
-                  {err}
-                </p>
-              )}
+              {msg && <p className="alert-success">{msg}</p>}
+              {err && <p className="alert-error">{err}</p>}
             </div>
           </div>
         ) : (
-          <div className="text-center">
+          <div className="page-inner text-center">
             <h2 className="text-2xl font-semibold mb-2">
               Welcome{session.user?.email ? `, ${session.user.email}` : ""}!
             </h2>

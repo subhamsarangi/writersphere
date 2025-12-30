@@ -19,38 +19,65 @@ type Row = {
 export default function EditSubcategoryPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+
   const [row, setRow] = useState<Row | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
+
     (async () => {
       const { data, error } = await supabase
         .from("subcategories")
         .select("id,category_id,name,description,image_url,status")
         .eq("id", params.id)
         .single();
+
       if (!mounted) return;
+
       if (error) setRow(null);
-      else setRow(data);
+      else setRow(data as Row);
+
       setLoading(false);
     })();
+
     return () => {
       mounted = false;
     };
   }, [params.id]);
 
-  if (loading) return <main className="p-6">Loading…</main>;
-  if (!row) return <main className="p-6">Not found</main>;
+  if (loading) {
+    return (
+      <main className="page-shell">
+        <div className="page-center">
+          <div className="skeleton-card" />
+        </div>
+      </main>
+    );
+  }
+
+  if (!row) {
+    return (
+      <main className="page-shell">
+        <div className="page-center">
+          <p className="text-sm text-slate-300">Subcategory not found.</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
-    <main className="min-h-screen p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit Subcategory</h1>
-      <SubcategoryForm
-        initial={row}
-        submitLabel="Update"
-        onSaved={() => router.replace("/dashboard/subcategories")}
-      />
+    <main className="page-shell">
+      <div className="page-inner">
+        <h1 className="page-title">Edit Subcategory</h1>
+        <SubcategoryForm
+          initial={row}
+          submitLabel="Update"
+          onSaved={() =>
+            router.replace(`/dashboard/categories/${row.category_id}/view`)
+          }
+        />
+      </div>
     </main>
   );
 }
