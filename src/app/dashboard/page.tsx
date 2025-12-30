@@ -5,13 +5,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
-import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faFolderTree,
-  faLayerGroup,
-  faPlus,
-} from "@fortawesome/free-solid-svg-icons";
+import { faFolderTree, faPlus } from "@fortawesome/free-solid-svg-icons";
+import LoadingLink from "../../components/LoadingLink";
 
 export default function DashboardPage() {
   const supabase = getSupabaseBrowserClient();
@@ -116,16 +112,33 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Link href="/dashboard/categories/new" className="btn-chip">
+                <LoadingLink
+                  href="/dashboard/categories/new"
+                  className="btn-chip"
+                  loadingMode="overlay"
+                >
                   <FontAwesomeIcon icon={faPlus} />
                   New
-                </Link>
-                <Link href="/dashboard/categories" className="btn-chip">
+                </LoadingLink>
+                <LoadingLink
+                  href="/dashboard/categories"
+                  className="btn-chip"
+                  loadingMode="append"
+                >
                   Manage
-                </Link>
+                </LoadingLink>
               </div>
             </div>
           </div>
+
+          {/* Articles  card */}
+          <LoadingLink
+            href="/dashboard/articles"
+            className="btn-chip"
+            loadingMode="append"
+          >
+            My Articles
+          </LoadingLink>
         </div>
       </div>
     </main>

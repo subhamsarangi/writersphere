@@ -1,5 +1,9 @@
 // app/layout.tsx
 import "./globals.css";
+
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+
 import Navbar from "../components/Navbar";
 
 export const metadata = {
@@ -13,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark">
       <body>
         <Navbar />
         {children}

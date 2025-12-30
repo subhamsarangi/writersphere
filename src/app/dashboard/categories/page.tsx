@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
+import LoadingLink from "../../../components/LoadingLink";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -107,9 +108,13 @@ export default function CategoriesListPage() {
       <div className="page-inner">
         <div className="flex items-center justify-between mb-4">
           <h1 className="page-title">Categories</h1>
-          <Link href="/dashboard/categories/new" className="btn-primary w-fit">
+          <LoadingLink
+            href="/dashboard/categories/new"
+            className="btn-primary w-fit"
+            loadingMode="overlay"
+          >
             New Category
-          </Link>
+          </LoadingLink>
         </div>
 
         <input
@@ -156,12 +161,14 @@ export default function CategoriesListPage() {
                 )}
 
                 <div className="mt-3 flex gap-2">
-                  <Link
+                  <LoadingLink
                     href={`/dashboard/categories/${c.id}/view`}
                     className="btn-chip"
+                    loadingMode="replace"
+                    loadingText="loading"
                   >
                     View
-                  </Link>
+                  </LoadingLink>
 
                   <button
                     onClick={() =>

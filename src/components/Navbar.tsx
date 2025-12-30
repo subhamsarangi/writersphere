@@ -82,6 +82,20 @@ export default function Navbar() {
             Dashboard
           </Link>
         )}
+
+        {session && role === "writer" && (
+          <Link href="/dashboard/write" className="nav-link">
+            <FontAwesomeIcon icon={faPenNib} />
+            Write
+          </Link>
+        )}
+
+        {session && role === "writer" && (
+          <Link href="/dashboard/articles" className="nav-link">
+            <FontAwesomeIcon icon={faBookOpen} />
+            Articles
+          </Link>
+        )}
       </div>
 
       <div className="flex items-center gap-3">
