@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
+import TagInput from "@/components/TagInput";
 
 import MDEditor from "@uiw/react-md-editor";
 
@@ -699,39 +700,15 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
               <div className="field-label">
                 <span>Tags (min 5)</span>
               </div>
-              <div className="text-xs text-slate-400">
-                {uniqueTags(tags).length}/5
-              </div>
+              <div className="text-xs text-slate-400">{tags.length}/5</div>
             </div>
 
-            <div className="mt-2 flex flex-wrap gap-2">
-              {uniqueTags(tags).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  className="btn-chip"
-                  onClick={() => removeTag(t)}
-                  title="Remove"
-                >
-                  #{t} <span className="text-slate-400">×</span>
-                </button>
-              ))}
-
-              <input
-                className="field-input !w-auto !py-2"
-                value={tagInput}
+            <div className="mt-2">
+              <TagInput
+                label="" // hide TagInput’s own label
+                tags={tags}
+                onChange={setTags}
                 placeholder="Add tag… (Enter / comma)"
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === ",") {
-                    e.preventDefault();
-                    addTag(tagInput);
-                  }
-                  if (e.key === "Backspace" && !tagInput && tags.length) {
-                    e.preventDefault();
-                    removeTag(tags[tags.length - 1]);
-                  }
-                }}
               />
             </div>
 
