@@ -185,3 +185,6 @@ where schemaname='public' and tablename='articles'
 order by cmd, policyname;
 
 ---
+
+alter table public.articles
+add column if not exists primary_image_url text null;

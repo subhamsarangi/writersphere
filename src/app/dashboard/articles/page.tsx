@@ -227,7 +227,7 @@ export default function ArticlesPage() {
         if (atErr) throw atErr;
 
         const ids = Array.from(
-          new Set((atRows ?? []).map((r) => r.article_id))
+          new Set((atRows ?? []).map((r) => r.article_id)),
         );
         articleIdFilter = ids.length ? ids : [];
         if (!articleIdFilter.length) {
@@ -240,7 +240,7 @@ export default function ArticlesPage() {
       let query = supabase
         .from("articles")
         .select(
-          "id,title,status,updated_at,last_saved_at,created_at,categories(name),subcategories(name)"
+          "id,title,status,updated_at,last_saved_at,created_at,primary_image_url,categories(name),subcategories(name)",
         )
         .eq("writer_id", uid)
         .neq("status", "deleted")
