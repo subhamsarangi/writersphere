@@ -153,9 +153,12 @@ using (
 );
 ```
 
+---
+
 alter table public.articles enable row level security;
 
 -- SELECT: hide deleted
+```SQL
 create policy "articles_select_own_not_deleted"
 on public.articles for select
 using (writer_id = auth.uid() and status <> 'deleted');
@@ -175,16 +178,58 @@ with check (writer_id = auth.uid());
 -- Optional: prevent hard DELETE from the client entirely
 -- (recommended since you’re doing soft delete)
 -- If you want this, DO NOT create a DELETE policy.
-
+```
 
 ---
 
+```SQL
 select policyname, cmd, permissive, roles, qual, with_check
 from pg_policies
 where schemaname='public' and tablename='articles'
 order by cmd, policyname;
-
+```
 ---
 
+```SQL
 alter table public.articles
 add column if not exists primary_image_url text null;
+```
+
+---
+## SQL: add an RPC that returns author name for published articles
+### Returns a published article + author display name (safe: only published articles)
+```SQL
+create or replace function public.get_published_article_with_author(p_id uuid)
+returns table (
+  id uuid,
+  title text,
+  body_md text,
+  published_at timestamptz,
+  updated_at timestamptz,
+  author_name text
+)
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select
+    a.id,
+    a.title,
+    a.body_md,
+    a.published_at,
+    a.updated_at,
+    coalesce(
+      u.raw_user_meta_data->>'display_name',
+      u.email,
+      'Anonymous'
+    ) as author_name
+  from public.articles a
+  join auth.users u on u.id = a.writer_id
+  where a.id = p_id
+    and a.status = 'published'
+  limit 1;
+$$;
+
+grant execute on function public.get_published_article_with_author(uuid) to anon, authenticated;
+```

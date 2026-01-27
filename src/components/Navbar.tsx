@@ -1,7 +1,6 @@
-// components/Navbar.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
@@ -12,7 +11,14 @@ import {
   faRightFromBracket,
   faBookOpen,
   faPenNib,
+  faTableColumns,
 } from "@fortawesome/free-solid-svg-icons";
+
+type Role = "writer" | "reader";
+
+function pickRole(v: unknown): Role | null {
+  return v === "writer" || v === "reader" ? v : null;
+}
 
 function Spinner({ className = "" }: { className?: string }) {
   return (
@@ -25,14 +31,14 @@ function Spinner({ className = "" }: { className?: string }) {
 
 export default function Navbar() {
   const supabase = getSupabaseBrowserClient();
-
-  const [session, setSession] = useState<Session | null>(null);
-  const [role, setRole] = useState<"writer" | "reader" | null>(null);
-  const [loggingOut, setLoggingOut] = useState(false);
-
   const router = useRouter();
 
-  // Track supabase auth session
+  const [session, setSession] = useState<Session | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const brandHref = useMemo(() => (session ? "/feed" : "/"), [session]);
+
   useEffect(() => {
     let unsub: (() => void) | undefined;
 
@@ -40,12 +46,13 @@ export default function Navbar() {
       const { data } = await supabase.auth.getSession();
       const s = data.session ?? null;
       setSession(s);
-      setRole(s?.user?.user_metadata?.role ?? null);
+      setRole(pickRole(s?.user?.user_metadata?.role));
 
       const { data: listener } = supabase.auth.onAuthStateChange((_e, sess) => {
         setSession(sess);
-        setRole(sess?.user?.user_metadata?.role ?? null);
+        setRole(pickRole(sess?.user?.user_metadata?.role));
       });
+
       unsub = listener?.subscription?.unsubscribe;
     })();
 
@@ -62,6 +69,7 @@ export default function Navbar() {
     try {
       await supabase.auth.signOut();
       setSession(null);
+      setRole(null);
       router.replace("/");
     } finally {
       setLoggingOut(false);
@@ -71,35 +79,29 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="nav-left">
-        <Link href="/" className="nav-brand">
+        {/* Brand: auth users -> /feed, unauth -> / */}
+        <Link href={brandHref} className="nav-brand">
           <FontAwesomeIcon icon={faPenNib} />
           Writersphere
         </Link>
 
+        {/* Feed is available for everyone */}
+        <Link href="/feed" className="nav-link">
+          <FontAwesomeIcon icon={faBookOpen} />
+          Feed
+        </Link>
+
+        {/* Dashboard only for writers */}
         {session && role === "writer" && (
           <Link href="/dashboard" className="nav-link">
-            <FontAwesomeIcon icon={faBookOpen} />
+            <FontAwesomeIcon icon={faTableColumns} />
             Dashboard
-          </Link>
-        )}
-
-        {session && role === "writer" && (
-          <Link href="/dashboard/write" className="nav-link">
-            <FontAwesomeIcon icon={faPenNib} />
-            Write
-          </Link>
-        )}
-
-        {session && role === "writer" && (
-          <Link href="/dashboard/articles" className="nav-link">
-            <FontAwesomeIcon icon={faBookOpen} />
-            Articles
           </Link>
         )}
       </div>
 
       <div className="flex items-center gap-3">
-        {session && (
+        {session ? (
           <button
             onClick={handleLogout}
             disabled={loggingOut}
@@ -110,7 +112,8 @@ export default function Navbar() {
               <FontAwesomeIcon icon={faRightFromBracket} /> Logout
             </span>
           </button>
-        )}
+        ) : // empty statement
+        null}
       </div>
     </nav>
   );

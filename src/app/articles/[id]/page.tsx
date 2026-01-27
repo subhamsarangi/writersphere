@@ -5,12 +5,13 @@ import Link from "next/link";
 import MDEditor from "@uiw/react-md-editor";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 
-type PublishedArticle = {
+type PublishedArticleWithAuthor = {
   id: string;
   title: string | null;
   body_md: string | null;
   published_at: string | null;
   updated_at: string | null;
+  author_name: string | null;
 };
 
 function fmt(ts: string | null) {
@@ -22,6 +23,19 @@ function fmt(ts: string | null) {
   }
 }
 
+function isRow(v: unknown): v is PublishedArticleWithAuthor {
+  if (typeof v !== "object" || v === null) return false;
+  const o = v as Record<string, unknown>;
+  return (
+    typeof o.id === "string" &&
+    "title" in o &&
+    "body_md" in o &&
+    "published_at" in o &&
+    "updated_at" in o &&
+    "author_name" in o
+  );
+}
+
 export default function PublishedArticlePage({
   params,
 }: {
@@ -30,7 +44,7 @@ export default function PublishedArticlePage({
   const supabase = getSupabaseBrowserClient();
 
   const [loading, setLoading] = useState(true);
-  const [row, setRow] = useState<PublishedArticle | null>(null);
+  const [row, setRow] = useState<PublishedArticleWithAuthor | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -40,32 +54,32 @@ export default function PublishedArticlePage({
       setLoading(true);
       setError(null);
 
-      const { data, error } = await supabase
-        .from("articles")
-        .select("id,title,body_md,published_at,updated_at,status")
-        .eq("id", params.id)
-        .eq("status", "published")
-        .maybeSingle();
+      const res = await supabase.rpc("get_published_article_with_author", {
+        p_id: params.id,
+      });
 
       if (cancelled) return;
 
-      if (error) {
-        setError(error.message);
+      if (res.error) {
+        setError(res.error.message);
         setLoading(false);
         return;
       }
 
-      if (!data) {
+      // SQL function returns an array (table result). Take first row.
+      const dataUnknown: unknown = res.data;
+      const first =
+        Array.isArray(dataUnknown) && dataUnknown.length > 0
+          ? dataUnknown[0]
+          : null;
+
+      if (!first || !isRow(first)) {
         setRow(null);
         setLoading(false);
         return;
       }
 
-      // strip status field
-      const { id, title, body_md, published_at, updated_at } =
-        data as PublishedArticle & { status: string };
-
-      setRow({ id, title, body_md, published_at, updated_at });
+      setRow(first);
       setLoading(false);
     })();
 
@@ -118,6 +132,8 @@ export default function PublishedArticlePage({
     );
   }
 
+  const author = row.author_name?.trim() ? row.author_name : "Anonymous";
+
   return (
     <main className="page-shell">
       <div className="page-inner max-w-3xl">
@@ -125,9 +141,17 @@ export default function PublishedArticlePage({
           <div className="text-3xl font-bold">
             {row.title?.trim() ? row.title : "Untitled"}
           </div>
-          <div className="text-xs text-slate-400 mt-2">
-            Published: {fmt(row.published_at)}{" "}
-            {row.updated_at ? `· Updated: ${fmt(row.updated_at)}` : ""}
+
+          <div className="text-xs text-slate-400 mt-2 flex flex-wrap gap-x-2 gap-y-1">
+            <span>By {author}</span>
+            <span className="text-slate-500">·</span>
+            <span>Published: {fmt(row.published_at)}</span>
+            {row.updated_at ? (
+              <>
+                <span className="text-slate-500">·</span>
+                <span>Updated: {fmt(row.updated_at)}</span>
+              </>
+            ) : null}
           </div>
         </div>
 
