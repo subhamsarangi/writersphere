@@ -63,7 +63,7 @@ export default function CategoriesListPage() {
     return rows.filter(
       (r) =>
         r.name.toLowerCase().includes(qq) ||
-        (r.description ?? "").toLowerCase().includes(qq)
+        (r.description ?? "").toLowerCase().includes(qq),
     );
   }, [rows, q]);
 
@@ -82,8 +82,8 @@ export default function CategoriesListPage() {
         xs.map((x) =>
           x.id === id
             ? { ...x, status: next === "active" ? "inactive" : "active" }
-            : x
-        )
+            : x,
+        ),
       );
       alert(error.message);
     }
@@ -132,7 +132,7 @@ export default function CategoriesListPage() {
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((c) => (
               <li key={c.id} className="card-dashboard">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold">{c.name}</h3>
                   <span
                     className={`text-xs px-2 py-0.5 rounded ${
@@ -174,7 +174,7 @@ export default function CategoriesListPage() {
                     onClick={() =>
                       toggleStatus(
                         c.id,
-                        c.status === "active" ? "inactive" : "active"
+                        c.status === "active" ? "inactive" : "active",
                       )
                     }
                     className="btn-chip text-emerald-300"

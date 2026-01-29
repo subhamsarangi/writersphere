@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
+import LoadingLink from "@/components/LoadingLink";
 
 type FeedArticle = {
   id: string;
@@ -207,7 +208,7 @@ export default function FeedPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner max-w-3xl">
+      <div className="page-inner max-w-4xl">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1 className="page-title">{title}</h1>
@@ -260,10 +261,10 @@ export default function FeedPage() {
         {error ? <p className="alert-error mt-4">{error}</p> : null}
 
         {loading ? (
-          <div className="mt-4 grid gap-3">
-            <div className="skeleton-card" />
-            <div className="skeleton-card" />
-            <div className="skeleton-card" />
+          <div className="mt-4 grid gap-3 !max-w-full">
+            <div className="skeleton-card !max-w-full h-25" />
+            <div className="skeleton-card !max-w-full h-40" />
+            <div className="skeleton-card !max-w-full h-25" />
           </div>
         ) : items.length === 0 ? (
           <p className="mt-6 text-sm text-slate-400">
@@ -272,11 +273,7 @@ export default function FeedPage() {
         ) : (
           <div className="mt-4 grid gap-3">
             {items.map((a) => (
-              <Link
-                key={a.id}
-                href={`/articles/${a.id}`}
-                className="card-dashboard block hover:opacity-95 transition"
-              >
+              <div key={a.id} className="card-dashboard block transition">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="text-lg font-semibold text-white truncate">
@@ -294,9 +291,16 @@ export default function FeedPage() {
                     </div>
                   </div>
 
-                  <span className="btn-chip shrink-0">Open</span>
+                  <LoadingLink
+                    href={`/articles/${a.id}`}
+                    className="btn-chip shrink-0"
+                    loadingMode="replace"
+                    loadingText="Opening..."
+                  >
+                    Open
+                  </LoadingLink>
                 </div>
-              </Link>
+              </div>
             ))}
 
             <div ref={sentinelRef} />

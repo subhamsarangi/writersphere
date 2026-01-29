@@ -46,7 +46,7 @@
   }
 
   .page-inner {
-    @apply w-full max-w-4xl mx-auto flex-1 p-6;
+    @apply w-full max-w-6xl mx-auto flex-1 p-6 mt-2;
   }
 
   .page-title {

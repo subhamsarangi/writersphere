@@ -8,7 +8,7 @@ export default function NewSubcategoryPage() {
   const router = useRouter();
   return (
     <main className="page-shell">
-      <div className="page-inner">
+      <div className="page-inner space-y-8">
         <BackButton />
         <section className="space-y-4">
           <h1 className="page-title">New Subcategory</h1>

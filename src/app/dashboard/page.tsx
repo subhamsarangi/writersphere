@@ -270,14 +270,6 @@ export default function DashboardPage() {
                 <FontAwesomeIcon icon={faPlus} />
                 New
               </LoadingLink>
-
-              <LoadingLink
-                href="/dashboard/subcategories"
-                className="btn-chip"
-                loadingMode="append"
-              >
-                Manage →
-              </LoadingLink>
             </div>
           </div>
 

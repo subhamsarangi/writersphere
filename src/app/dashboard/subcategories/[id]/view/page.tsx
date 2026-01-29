@@ -69,7 +69,7 @@ export default function EditSubcategoryPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner">
+      <div className="page-inner space-y-8">
         <BackButton />
         <h1 className="page-title">Edit Subcategory</h1>
         <SubcategoryForm

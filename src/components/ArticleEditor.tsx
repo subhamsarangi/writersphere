@@ -104,7 +104,7 @@ async function syncTags(params: {
     .from("tags")
     .upsert(
       cleaned.map((name) => ({ writer_id: uid, name })),
-      { onConflict: "writer_id,name" }
+      { onConflict: "writer_id,name" },
     )
     .select("id,name");
 
@@ -125,7 +125,7 @@ async function syncTags(params: {
       tagIds.map((tag_id) => ({
         article_id: articleId,
         tag_id,
-      }))
+      })),
     );
     if (insErr) throw insErr;
   }
@@ -218,7 +218,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       // If user picked a non-draft status, enforce required metadata
       if (needsMetadata && !hasRequiredMetadata) {
         throw new Error(
-          "To publish/unpublish/archive you must select a category and have at least 5 tags."
+          "To publish/unpublish/archive you must select a category and have at least 5 tags.",
         );
       }
 
@@ -246,7 +246,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
         .eq("id", articleId)
         .eq("writer_id", uid)
         .select(
-          "created_at,updated_at,last_saved_at,published_at,unpublished_at,archived_at,deleted_at"
+          "created_at,updated_at,last_saved_at,published_at,unpublished_at,archived_at,deleted_at",
         )
         .single();
 
@@ -275,8 +275,8 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
         reason === "auto"
           ? "Autosaved"
           : reason === "status"
-          ? "Status saved"
-          : "Saved"
+            ? "Status saved"
+            : "Saved",
       );
     } catch (e: unknown) {
       const msg =
@@ -293,7 +293,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     if (deleting) return;
 
     const ok = window.confirm(
-      "⚠️ PERMANENT WARNING\n\nYou are about to DELETE this article.\n\n• It will immediately disappear from your lists.\n• You will NOT be able to edit or restore it from the app.\n\nIf you understand, click OK to delete it."
+      "⚠️ PERMANENT WARNING\n\nYou are about to DELETE this article.\n\n• It will immediately disappear from your lists.\n• You will NOT be able to edit or restore it from the app.\n\nIf you understand, click OK to delete it.",
     );
 
     if (!ok) return;
@@ -368,7 +368,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       const { data: a, error: aErr } = await supabase
         .from("articles")
         .select(
-          "title,body_md,status,category_id,subcategory_id,created_at,updated_at,last_saved_at,published_at,unpublished_at,archived_at,deleted_at"
+          "title,body_md,status,category_id,subcategory_id,created_at,updated_at,last_saved_at,published_at,unpublished_at,archived_at,deleted_at",
         )
         .eq("id", articleId)
         .eq("writer_id", id)
@@ -376,7 +376,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
       if (aErr || !a || a.status === "deleted") {
         setError(
-          "This article was deleted (or you don’t have access). Redirecting…"
+          "This article was deleted (or you don’t have access). Redirecting…",
         );
         setBlocked(true);
         setReady(true);
@@ -423,7 +423,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             return arr.map((x) => x.name);
           })
           .filter(
-            (n): n is string => typeof n === "string" && n.trim().length > 0
+            (n): n is string => typeof n === "string" && n.trim().length > 0,
           );
 
         setTags(uniqueTags(names));
@@ -547,7 +547,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
   return (
     <main className="page-shell">
-      <div className="page-inner" data-color-mode={theme}>
+      <div className="page-inner max-w-full" data-color-mode={theme}>
         {/* Top bar */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
@@ -596,7 +596,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
                 if (nextNeedsMetadata && !hasRequiredMetadata) {
                   setError(
-                    "Pick a category and add at least 5 tags before publishing/unpublishing/archiving."
+                    "Pick a category and add at least 5 tags before publishing/unpublishing/archiving.",
                   );
                   return;
                 }

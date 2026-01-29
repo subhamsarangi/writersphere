@@ -6,6 +6,7 @@ import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../../../../lib/supabaseClient";
 import CategoryForm from "../../../../../components/CategoryForm";
 import BackButton from "../../../../../components/BackButton";
+import LoadingLink from "@/components/LoadingLink";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -83,7 +84,7 @@ export default function ViewCategoryPage() {
     return subs.filter(
       (s) =>
         s.name.toLowerCase().includes(qq) ||
-        (s.description ?? "").toLowerCase().includes(qq)
+        (s.description ?? "").toLowerCase().includes(qq),
     );
   }, [subs, subSearch]);
 
@@ -111,8 +112,8 @@ export default function ViewCategoryPage() {
         xs.map((s) =>
           s.id === id
             ? { ...s, status: next === "active" ? "inactive" : "active" }
-            : s
-        )
+            : s,
+        ),
       );
       alert(error.message);
     }
@@ -122,7 +123,7 @@ export default function ViewCategoryPage() {
     if (!row) return;
     if (
       !confirm(
-        "Delete this category and all its subcategories? This cannot be undone."
+        "Delete this category and all its subcategories? This cannot be undone.",
       )
     )
       return;
@@ -214,12 +215,12 @@ export default function ViewCategoryPage() {
                 className="field-input max-w-xs"
               />
 
-              <Link
+              <LoadingLink
                 href={`/dashboard/subcategories/new?category=${row.id}`}
                 className="btn-primary w-fit text-xs"
               >
                 New Subcategory
-              </Link>
+              </LoadingLink>
             </div>
           </div>
 
@@ -260,17 +261,17 @@ export default function ViewCategoryPage() {
                   )}
 
                   <div className="mt-3 flex gap-2">
-                    <Link
+                    <LoadingLink
                       href={`/dashboard/subcategories/${s.id}/view`}
                       className="btn-chip text-sm"
                     >
                       View
-                    </Link>
+                    </LoadingLink>
                     <button
                       onClick={() =>
                         toggleSubStatus(
                           s.id,
-                          s.status === "active" ? "inactive" : "active"
+                          s.status === "active" ? "inactive" : "active",
                         )
                       }
                       className="btn-chip text-sm text-emerald-300"

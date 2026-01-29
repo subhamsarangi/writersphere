@@ -136,7 +136,7 @@ export default function PublishedArticlePage({
 
   return (
     <main className="page-shell">
-      <div className="page-inner max-w-3xl">
+      <div className="page-inner max-w-3xl p-2">
         <div className="mb-6">
           <div className="text-3xl font-bold">
             {row.title?.trim() ? row.title : "Untitled"}
@@ -155,9 +155,9 @@ export default function PublishedArticlePage({
           </div>
         </div>
 
-        <div className="card-dashboard">
+        <div className="prose-container">
           <div className="prose max-w-none">
-            <MDEditor.Markdown source={row.body_md ?? ""} />
+            <MDEditor.Markdown className="p-2" source={row.body_md ?? ""} />
           </div>
         </div>
       </div>
