@@ -8,12 +8,259 @@ import TagInput from "@/components/TagInput";
 
 import MDEditor from "@uiw/react-md-editor";
 
+// ==== Status change UX helpers (confirm modal + toast + sound + burst) ====
+
+// Your statuses (deleted exists but is excluded from the dropdown)
 type ArticleStatus =
   | "draft"
   | "published"
   | "unpublished"
   | "archived"
   | "deleted";
+
+function statusLabel(s: ArticleStatus): string {
+  switch (s) {
+    case "draft":
+      return "Draft";
+    case "published":
+      return "Published";
+    case "unpublished":
+      return "Unpublished";
+    case "archived":
+      return "Archived";
+    case "deleted":
+      return "Deleted";
+  }
+}
+
+function isStatusThatNeedsMetadata(s: ArticleStatus): boolean {
+  return s === "published" || s === "unpublished" || s === "archived";
+}
+
+type StatusSfx = "publish" | "unpublish" | "archive";
+
+function statusActionCopy(
+  from: ArticleStatus,
+  to: ArticleStatus,
+): {
+  title: string;
+  body: string;
+  confirmText: string;
+  tone: "primary" | "danger";
+  sfx: StatusSfx;
+  toast: string;
+  burst: "publish" | "archive" | null;
+} {
+  // Draft/Unpublished/Archived -> Published
+  if (to === "published" && from !== "published") {
+    return {
+      title: "Publish this article?",
+      body: "It will become visible on the public feed immediately.",
+      confirmText: "Publish",
+      tone: "primary",
+      sfx: "publish",
+      toast: "Published ✨",
+      burst: "publish",
+    };
+  }
+
+  // Published -> Archived
+  if (from === "published" && to === "archived") {
+    return {
+      title: "Archive this public article?",
+      body: "It will disappear from the public feed. You can restore it later.",
+      confirmText: "Archive",
+      tone: "danger",
+      sfx: "archive",
+      toast: "Archived",
+      burst: "archive",
+    };
+  }
+
+  // Published -> Draft/Unpublished (treat both as private)
+  if (from === "published" && (to === "draft" || to === "unpublished")) {
+    return {
+      title: "Make this article private?",
+      body: "It will be removed from the public feed immediately.",
+      confirmText: "Yes, make it private",
+      tone: "danger",
+      sfx: "unpublish",
+      toast: "Now private",
+      burst: null,
+    };
+  }
+
+  // Private -> Archived
+  if (to === "archived" && from !== "archived" && from !== "published") {
+    return {
+      title: "Archive this article?",
+      body: "It won’t be public. You can unarchive later.",
+      confirmText: "Archive",
+      tone: "danger",
+      sfx: "archive",
+      toast: "Archived",
+      burst: "archive",
+    };
+  }
+
+  // Everything else (draft <-> unpublished, archived -> draft/unpublished, etc.)
+  return {
+    title: "Change status?",
+    body: `Change status from ${statusLabel(from)} to ${statusLabel(to)}?`,
+    confirmText: "Confirm",
+    tone: "primary",
+    sfx: to === "archived" ? "archive" : "unpublish",
+    toast: "Status updated",
+    burst: null,
+  };
+}
+
+type ToastState = { message: string; kind: "success" | "error" };
+
+function playSfx(kind: StatusSfx): void {
+  if (typeof window === "undefined") return;
+
+  type WebkitAudioWindow = Window & {
+    webkitAudioContext?: typeof AudioContext;
+  };
+
+  const w = window as WebkitAudioWindow;
+  const Ctx = window.AudioContext ?? w.webkitAudioContext;
+  if (!Ctx) return;
+
+  const ctx = new Ctx();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+
+  const now = ctx.currentTime;
+
+  // quick, subtle, memorable
+  let f0 = 440;
+  let f1 = 880;
+  let dur = 0.12;
+
+  if (kind === "unpublish") {
+    f0 = 520;
+    f1 = 220;
+    dur = 0.14;
+  } else if (kind === "archive") {
+    f0 = 330;
+    f1 = 440;
+    dur = 0.18;
+  }
+
+  o.type = "sine";
+  o.frequency.setValueAtTime(f0, now);
+  o.frequency.exponentialRampToValueAtTime(f1, now + dur);
+
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(0.14, now + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+  o.connect(g);
+  g.connect(ctx.destination);
+
+  o.start(now);
+  o.stop(now + dur);
+
+  o.onended = () => {
+    try {
+      ctx.close();
+    } catch {
+      // ignore
+    }
+  };
+}
+
+function Toast({ state }: { state: ToastState | null }) {
+  if (!state) return null;
+  return (
+    <div
+      className={`ws-toast ${
+        state.kind === "error" ? "ws-toast--error" : "ws-toast--success"
+      }`}
+      role="status"
+      aria-live="polite"
+    >
+      {state.message}
+    </div>
+  );
+}
+
+type ConfirmState = {
+  open: boolean;
+  title: string;
+  body: string;
+  confirmText: string;
+  tone: "primary" | "danger";
+  nextStatus: ArticleStatus;
+  sfx: StatusSfx;
+  toast: string;
+  burst: "publish" | "archive" | null;
+};
+
+function ConfirmModal(props: {
+  state: ConfirmState | null;
+  busy: boolean;
+  onCancel: () => void;
+  onConfirm: (s: ConfirmState) => void;
+}) {
+  const { state, busy, onCancel, onConfirm } = props;
+  if (!state?.open) return null;
+
+  return (
+    <div
+      className="ws-modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label={state.title}
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !busy) onCancel();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && !busy) onCancel();
+      }}
+      tabIndex={-1}
+    >
+      <div className="ws-modal">
+        <div className="ws-modal__head">
+          <h3 className="ws-modal__title">{state.title}</h3>
+        </div>
+
+        <p className="ws-modal__body">{state.body}</p>
+
+        <div className="ws-modal__actions">
+          <button
+            type="button"
+            className="btn-chip"
+            onClick={onCancel}
+            disabled={busy}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="button"
+            className={
+              state.tone === "danger"
+                ? "ws-btn ws-btn--danger"
+                : "ws-btn ws-btn--primary"
+            }
+            onClick={() => onConfirm(state)}
+            disabled={busy}
+          >
+            {busy ? "Working…" : state.confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CelebrateBurst({ mode }: { mode: "publish" | "archive" | null }) {
+  if (!mode) return null;
+  return <div className={`ws-burst ws-burst--${mode}`} aria-hidden="true" />;
+}
 
 type CategoryOpt = { id: string; name: string };
 type SubcategoryOpt = { id: string; name: string; category_id: string };
@@ -175,6 +422,36 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [burst, setBurst] = useState<"publish" | "archive" | null>(null);
+  const toastTimerRef = useRef<number | null>(null);
+
+  function showToast(next: ToastState) {
+    setToast(next);
+    if (toastTimerRef.current != null) {
+      window.clearTimeout(toastTimerRef.current);
+    }
+    toastTimerRef.current = window.setTimeout(() => {
+      setToast(null);
+      toastTimerRef.current = null;
+    }, 1800);
+  }
+
+  function triggerBurst(mode: "publish" | "archive" | null) {
+    if (!mode) return;
+    setBurst(mode);
+    window.setTimeout(() => setBurst(null), 700);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current != null) {
+        window.clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
+
   const dirtyRef = useRef(false);
   const savingRef = useRef(false);
 
@@ -206,9 +483,9 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     if (next === "deleted") setDeletedAt(ts);
   }
 
-  async function save(reason: "auto" | "manual" | "status") {
-    if (!uid) return;
-    if (savingRef.current) return;
+  async function save(reason: "auto" | "manual" | "status"): Promise<boolean> {
+    if (!uid) return false;
+    if (savingRef.current) return false;
 
     savingRef.current = true;
     setSaving(true);
@@ -278,10 +555,12 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             ? "Status saved"
             : "Saved",
       );
+      return true;
     } catch (e: unknown) {
       const msg =
         e instanceof Error ? e.message : typeof e === "string" ? e : String(e);
       setError(msg);
+      return false;
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -548,10 +827,42 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   return (
     <main className="page-shell">
       <div className="page-inner max-w-full" data-color-mode={theme}>
+        <Toast state={toast} />
+        <CelebrateBurst mode={burst} />
+        <ConfirmModal
+          state={confirm}
+          busy={saving || deleting}
+          onCancel={() => setConfirm(null)}
+          onConfirm={async (c) => {
+            if (saving || deleting) return;
+
+            const prev = status;
+            setConfirm(null);
+
+            // apply change locally
+            setStatus(c.nextStatus);
+            bumpStatusDatetime(c.nextStatus);
+            markDirty();
+
+            // attempt save
+            const ok = await save("status");
+            if (!ok) {
+              // revert if save failed
+              setStatus(prev);
+              showToast({ message: "Couldn’t change status", kind: "error" });
+              return;
+            }
+
+            playSfx(c.sfx);
+            triggerBurst(c.burst);
+            showToast({ message: c.toast, kind: "success" });
+          }}
+        />
+
         {/* Top bar */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
           <div>
-            <div className="page-title">Write</div>
+            <div className="page-title">Write your article here ... </div>
             <div className="page-subtitle">
               {saveMsg ? (
                 <span className="text-emerald-300">{saveMsg}</span>
@@ -587,13 +898,12 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
               disabled={saving || deleting}
               onChange={(e) => {
                 const next = e.target.value as ArticleStatus;
+                if (next === status) return;
 
-                // optimistic guard for UX; DB trigger is the final gate too
-                const nextNeedsMetadata =
-                  next === "published" ||
-                  next === "unpublished" ||
-                  next === "archived";
+                // Hide deleted from dropdown already; if it ever gets here, ignore.
+                if (next === "deleted") return;
 
+                const nextNeedsMetadata = isStatusThatNeedsMetadata(next);
                 if (nextNeedsMetadata && !hasRequiredMetadata) {
                   setError(
                     "Pick a category and add at least 5 tags before publishing/unpublishing/archiving.",
@@ -602,10 +912,19 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
                 }
 
                 setError(null);
-                setStatus(next);
-                bumpStatusDatetime(next);
-                markDirty();
-                void save("status");
+
+                const copy = statusActionCopy(status, next);
+                setConfirm({
+                  open: true,
+                  title: copy.title,
+                  body: copy.body,
+                  confirmText: copy.confirmText,
+                  tone: copy.tone,
+                  nextStatus: next,
+                  sfx: copy.sfx,
+                  toast: copy.toast,
+                  burst: copy.burst,
+                });
               }}
             >
               <option value="draft">Draft</option>

@@ -138,9 +138,9 @@ export default function PublishedArticlePage({
     <main className="page-shell">
       <div className="page-inner max-w-3xl p-2">
         <div className="mb-6">
-          <div className="text-3xl font-bold">
+          <h1 className="text-3xl font-bold">
             {row.title?.trim() ? row.title : "Untitled"}
-          </div>
+          </h1>
 
           <div className="text-xs text-slate-400 mt-2 flex flex-wrap gap-x-2 gap-y-1">
             <span>By {author}</span>

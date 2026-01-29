@@ -183,26 +183,145 @@
   }
 }
 
- html[data-theme="light"] body {
-    @apply bg-slate-50 text-slate-950;
+html[data-theme="light"] body {
+  @apply bg-slate-50 text-slate-950;
+}
+
+html[data-theme="light"] .page-shell,
+html[data-theme="light"] .page-center {
+  @apply bg-slate-50;
+}
+
+html[data-theme="light"] .card-auth,
+html[data-theme="light"] .card-dashboard {
+  @apply bg-white text-slate-950 border-slate-200;
+}
+
+html[data-theme="light"] input,
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {
+  @apply bg-white text-slate-950 border-slate-300;
+}
+
+html[data-theme="light"] .btn-ghost {
+  @apply border-slate-300;
+}
+
+  /* =========================================================
+   STATUS UX: confirm modal + toast + burst
+   ========================================================= */
+
+@keyframes wsToastIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wsBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.75);
+    filter: blur(0px);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+    filter: blur(0.25px);
+  }
+}
+
+@layer components {
+  .ws-toast {
+    @apply fixed right-5 bottom-5 z-[60]
+           rounded-2xl border px-4 py-3 text-sm shadow-xl;
+    animation: wsToastIn 220ms ease-out both;
+    backdrop-filter: blur(10px);
   }
 
-  html[data-theme="light"] .page-shell,
-  html[data-theme="light"] .page-center {
-    @apply bg-slate-50;
+  .ws-toast--success {
+    @apply border-emerald-800 bg-emerald-950/60 text-emerald-200;
   }
 
-  html[data-theme="light"] .card-auth,
-  html[data-theme="light"] .card-dashboard {
-    @apply bg-white text-slate-950 border-slate-200;
+  .ws-toast--error {
+    @apply border-red-800 bg-red-950/60 text-red-200;
   }
 
-  html[data-theme="light"] input,
-  html[data-theme="light"] textarea,
-  html[data-theme="light"] select {
-    @apply bg-white text-slate-950 border-slate-300;
+  .ws-modal-backdrop {
+    @apply fixed inset-0 z-[70] flex items-center justify-center p-4;
+    background: rgba(2, 6, 23, 0.72);
+    backdrop-filter: blur(6px);
   }
 
-  html[data-theme="light"] .btn-ghost {
-    @apply border-slate-300;
+  .ws-modal {
+    @apply w-full max-w-md rounded-2xl border border-slate-800
+           bg-slate-900 p-5 shadow-2xl;
   }
+
+  .ws-modal__head {
+    @apply mb-2;
+  }
+
+  .ws-modal__title {
+    @apply text-lg font-semibold text-slate-50;
+  }
+
+  .ws-modal__body {
+    @apply text-sm text-slate-300 mt-2;
+  }
+
+  .ws-modal__actions {
+    @apply mt-5 flex items-center justify-end gap-2;
+  }
+
+  .ws-btn {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium
+           transition active:scale-[0.99] disabled:opacity-60;
+  }
+
+  .ws-btn--primary {
+    @apply bg-slate-100 text-slate-900 hover:opacity-90;
+  }
+
+  .ws-btn--danger {
+    @apply border border-red-800 text-red-100 bg-red-950/40 hover:bg-red-950/60;
+  }
+
+  .ws-burst {
+    @apply fixed left-1/2 top-20 z-[55] pointer-events-none;
+    width: 1px;
+    height: 1px;
+    animation: wsBurst 700ms ease-out both;
+  }
+
+  /* 8 little sparks via box-shadow (no extra DOM nodes) */
+  .ws-burst::before {
+    content: "";
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    opacity: 0.95;
+    transform: translate(-50%, -50%);
+    box-shadow:
+      0 -26px 0 0 rgba(255, 255, 255, 0.9),
+      18px -18px 0 0 rgba(255, 255, 255, 0.75),
+      26px 0 0 0 rgba(255, 255, 255, 0.9),
+      18px 18px 0 0 rgba(255, 255, 255, 0.7),
+      0 26px 0 0 rgba(255, 255, 255, 0.85),
+      -18px 18px 0 0 rgba(255, 255, 255, 0.7),
+      -26px 0 0 0 rgba(255, 255, 255, 0.85),
+      -18px -18px 0 0 rgba(255, 255, 255, 0.7);
+  }
+
+  .ws-burst--archive::before {
+    opacity: 0.7;
+  }
+}
