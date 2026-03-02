@@ -465,7 +465,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   }, [status]);
 
   const hasRequiredMetadata = useMemo(() => {
-    const hasMinTags = uniqueTags(tags).length >= 5;
+    const hasMinTags = uniqueTags(tags).length >= 2;
     const hasCategory = Boolean(categoryId);
     return hasMinTags && hasCategory;
   }, [tags, categoryId]);
@@ -495,7 +495,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       // If user picked a non-draft status, enforce required metadata
       if (needsMetadata && !hasRequiredMetadata) {
         throw new Error(
-          "To publish/unpublish/archive you must select a category and have at least 5 tags.",
+          "To publish/unpublish/archive you must select a category and have at least 2 tags.",
         );
       }
 
@@ -906,7 +906,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
                 const nextNeedsMetadata = isStatusThatNeedsMetadata(next);
                 if (nextNeedsMetadata && !hasRequiredMetadata) {
                   setError(
-                    "Pick a category and add at least 5 tags before publishing/unpublishing/archiving.",
+                    "Pick a category and add at least 2 tags before publishing/unpublishing/archiving.",
                   );
                   return;
                 }
@@ -949,7 +949,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
         ) : needsMetadata && !hasRequiredMetadata ? (
           <p className="text-xs text-amber-300 mb-4">
             To publish/unpublish/archive/delete you must select a category and
-            have <strong>at least 5 tags</strong>.
+            have <strong>at least 2 tags</strong>.
           </p>
         ) : null}
 
@@ -1017,9 +1017,9 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
           <div>
             <div className="flex items-center justify-between gap-2">
               <div className="field-label">
-                <span>Tags (min 5)</span>
+                <span>Tags (min 2)</span>
               </div>
-              <div className="text-xs text-slate-400">{tags.length}/5</div>
+              <div className="text-xs text-slate-400">{tags.length}/2</div>
             </div>
 
             <div className="mt-2">

@@ -60,8 +60,8 @@ begin
     from public.article_tags at
     where at.article_id = new.id;
 
-    if tcount < 5 then
-      raise exception 'Need at least 5 tags to set status to % (have %).', new.status, tcount;
+    if tcount < 2 then
+      raise exception 'Need at least 2 tags to set status to % (have %).', new.status, tcount;
     end if;
   end if;
 
