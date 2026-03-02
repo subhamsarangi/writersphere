@@ -179,6 +179,19 @@ export default function PublishedArticlePage({
               </>
             ) : null}
           </div>
+
+          {tags.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className={`prose-container ${hasPoetryTag ? 'poetry-content' : ''}`}>
