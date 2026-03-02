@@ -274,12 +274,12 @@ export default function FeedPage() {
           <div className="mt-4 grid gap-3">
             {items.map((a) => (
               <div key={a.id} className="card-dashboard block transition">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <div className="text-lg font-semibold text-white truncate">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-lg font-semibold text-white break-words">
                       {a.title?.trim() ? a.title : "Untitled"}
                     </div>
-                    <div className="mt-1 text-xs text-slate-400">
+                    <div className="mt-1 text-xs text-slate-400 break-words">
                       {a.published_at ? (
                         <>Published: {fmt(a.published_at)}</>
                       ) : (
@@ -293,7 +293,7 @@ export default function FeedPage() {
 
                   <LoadingLink
                     href={`/articles/${a.id}`}
-                    className="btn-chip shrink-0"
+                    className="btn-chip shrink-0 w-full sm:w-auto justify-center"
                     loadingMode="replace"
                     loadingText="Opening..."
                   >
