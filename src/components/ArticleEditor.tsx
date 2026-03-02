@@ -861,8 +861,39 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
         {/* Top bar */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div>
-            <div className="page-title">Write your article here ... </div>
+          <div className="flex-1">
+            <input
+              ref={(el) => {
+                // Auto-focus for draft articles
+                if (el && status === "draft" && !el.dataset.initialized) {
+                  el.dataset.initialized = "true";
+                  el.focus();
+                  // Move cursor to end
+                  el.setSelectionRange(el.value.length, el.value.length);
+                }
+              }}
+              type="text"
+              className="page-title-input"
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                markDirty();
+              }}
+              onDoubleClick={(e) => {
+                // For non-draft articles, focus on double-click
+                if (status !== "draft") {
+                  e.currentTarget.focus();
+                }
+              }}
+              onBlur={(e) => {
+                // Remove focus styling when clicking outside
+                e.currentTarget.classList.remove("page-title-input-focused");
+              }}
+              onFocus={(e) => {
+                e.currentTarget.classList.add("page-title-input-focused");
+              }}
+              placeholder="Write your article title here..."
+            />
             <div className="page-subtitle">
               {saveMsg ? (
                 <span className="text-emerald-300">{saveMsg}</span>
@@ -955,19 +986,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
         {/* Meta */}
         <div className="card-dashboard mb-6 space-y-4">
-          <label className="field-label">
-            <span>Title</span>
-            <input
-              className="field-input"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                markDirty();
-              }}
-              placeholder="Untitled"
-            />
-          </label>
-
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="field-label">
               <span>Category (required to publish)</span>
