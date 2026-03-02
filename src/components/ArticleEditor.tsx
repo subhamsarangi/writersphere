@@ -476,7 +476,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
   return (
     <main className="page-shell">
-      <div className="page-inner max-w-full" data-color-mode={theme}>
+      <div className="page-inner max-w-full p-2.5 md:p-6" data-color-mode={theme}>
         <Toast state={toast} />
         <CelebrateBurst mode={burst} />
         <ConfirmModal
