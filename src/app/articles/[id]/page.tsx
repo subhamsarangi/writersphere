@@ -257,7 +257,7 @@ export default function PublishedArticlePage({
                     key={tag}
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       isPoetry
-                        ? 'bg-purple-900/40 text-purple-200 border border-purple-700/60 shadow-sm shadow-purple-500/20'
+                        ? 'poetry-tag bg-purple-900/40 text-purple-200 border border-purple-700/60 shadow-sm shadow-purple-500/20'
                         : 'bg-slate-800 text-slate-300 border border-slate-700'
                     }`}
                   >

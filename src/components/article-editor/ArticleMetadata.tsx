@@ -104,7 +104,7 @@ export function ArticleMetadata({
                       type="button"
                       className={`btn-chip ${
                         isPoetry
-                          ? '!bg-purple-900/40 !text-purple-200 !border-purple-700/60 shadow-sm shadow-purple-500/20'
+                          ? 'poetry-tag !bg-purple-900/40 !text-purple-200 !border-purple-700/60 shadow-sm shadow-purple-500/20'
                           : ''
                       }`}
                       onClick={() => {

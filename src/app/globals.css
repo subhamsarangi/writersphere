@@ -554,3 +554,16 @@ html[data-theme="light"] .text-amber-300 {
   margin-bottom: 1.25em;
 }
 
+
+/* Poetry tag styling for light mode */
+html[data-theme="light"] .poetry-tag {
+  background-color: rgb(233 213 255 / 0.6) !important;
+  color: rgb(107 33 168) !important;
+  border-color: rgb(168 85 247 / 0.5) !important;
+  box-shadow: 0 1px 2px 0 rgb(168 85 247 / 0.15) !important;
+}
+
+html[data-theme="light"] .poetry-tag:hover {
+  background-color: rgb(233 213 255 / 0.8) !important;
+  border-color: rgb(168 85 247 / 0.7) !important;
+}
