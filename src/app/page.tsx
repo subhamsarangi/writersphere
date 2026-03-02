@@ -39,6 +39,7 @@ export default function HomePage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [role, setRole] = useState<Role>("writer");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -273,15 +274,34 @@ export default function HomePage() {
 
                 <label className="field-label">
                   <span>Password</span>
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="field-input"
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="field-input pr-10"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </label>
 
                 {mode === "sign_up" ? (
@@ -300,27 +320,61 @@ export default function HomePage() {
                       />
                     </label>
 
-                    <label className="field-label">
+                    <div className="field-label">
                       <span>Role</span>
-                      <select
-                        value={role}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setRole(v === "reader" ? "reader" : "writer");
-                        }}
-                        className="field-input"
-                      >
-                        <option value="writer">Writer</option>
-                        <option value="reader">Reader</option>
-                      </select>
-                    </label>
+                      <div className="mt-2 grid grid-cols-2 gap-3">
+                        <label
+                          className={`role-card ${role === "writer" ? "role-card-active" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="role"
+                            value="writer"
+                            checked={role === "writer"}
+                            onChange={(e) => setRole(e.target.value as Role)}
+                            className="sr-only"
+                          />
+                          <div className="flex flex-col items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                            </svg>
+                            <div className="text-center">
+                              <div className="font-medium">Writer + Reader</div>
+                              <div className="text-xs text-slate-400 mt-0.5">Create & explore</div>
+                            </div>
+                          </div>
+                        </label>
+
+                        <label
+                          className={`role-card ${role === "reader" ? "role-card-active" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="role"
+                            value="reader"
+                            checked={role === "reader"}
+                            onChange={(e) => setRole(e.target.value as Role)}
+                            className="sr-only"
+                          />
+                          <div className="flex flex-col items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                            </svg>
+                            <div className="text-center">
+                              <div className="font-medium">Reader</div>
+                              <div className="text-xs text-slate-400 mt-0.5">Explore only</div>
+                            </div>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
                   </>
                 ) : null}
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-primary"
+                  className={mode === "sign_up" ? "btn-auth-signup" : "btn-auth-signin"}
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     {loading && <Spinner />}
@@ -334,15 +388,6 @@ export default function HomePage() {
                   </span>
                 </button>
               </form>
-
-              <div className="mt-4 flex items-center justify-between">
-                <Link href="/feed" className="btn-chip">
-                  View feed
-                </Link>
-                <span className="text-xs text-slate-500">
-                  Writers go to Dashboard · Readers go to Feed
-                </span>
-              </div>
 
               {msg && <p className="alert-success mt-4">{msg}</p>}
               {err && <p className="alert-error mt-4">{err}</p>}

@@ -134,9 +134,52 @@
            focus:border-slate-100 focus:ring-4 focus:ring-slate-800;
   }
 
+  .role-card {
+    @apply cursor-pointer rounded-xl border-2 border-slate-700 bg-slate-900 p-4 text-sm transition
+           hover:border-slate-500 hover:bg-slate-800;
+  }
+
+  .role-card-active {
+    @apply border-slate-100 bg-slate-800 ring-4 ring-slate-800;
+  }
+
   .btn-primary {
     @apply w-full rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-900 shadow-sm transition
            hover:opacity-90 active:scale-[0.99] disabled:opacity-60;
+  }
+
+  /* Sign Up button: dark blue + bluish violet */
+  .btn-auth-signup {
+    @apply w-full rounded-xl px-4 py-2.5 text-sm font-medium shadow-sm transition
+           active:scale-[0.99] disabled:opacity-60;
+    background: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 50%, #2563eb 100%);
+    color: #f0f9ff;
+  }
+
+  .btn-auth-signup:hover:not(:disabled) {
+    color: #ffffff;
+    background: linear-gradient(135deg, #2563eb 0%, #5b21b6 50%, #3b82f6 100%);
+  }
+
+  .btn-auth-signup:disabled {
+    opacity: 0.6;
+  }
+
+  /* Sign In button: dark grey + navy blue */
+  .btn-auth-signin {
+    @apply w-full rounded-xl px-4 py-2.5 text-sm font-medium shadow-sm transition
+           active:scale-[0.99] disabled:opacity-60;
+    background: linear-gradient(135deg, #374151 0%, #1e3a8a 50%, #475569 100%);
+    color: #f0f9ff;
+  }
+
+  .btn-auth-signin:hover:not(:disabled) {
+    color: #ffffff;
+    background: linear-gradient(135deg, #4b5563 0%, #2563eb 50%, #64748b 100%);
+  }
+
+  .btn-auth-signin:disabled {
+    opacity: 0.6;
   }
 
   .alert-success {
