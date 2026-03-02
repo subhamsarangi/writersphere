@@ -64,26 +64,61 @@ export function ArticleMetadata({
       </div>
 
       <div>
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 mb-2">
           <div className="field-label">
             <span>Tags (min 2)</span>
           </div>
           <div className="text-xs text-slate-400">{tags.length}/2</div>
         </div>
 
-        <div className="mt-2">
-          <TagInput
-            label=""
-            tags={tags}
-            onChange={onTagsChange}
-            placeholder="Add tag… (Enter / comma)"
-          />
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Left: Tag Input */}
+          <div>
+            <TagInput
+              label=""
+              tags={[]}
+              onChange={(newTags) => {
+                // Only add new tags that aren't already in the list
+                const existingLower = tags.map(t => t.toLowerCase());
+                const toAdd = newTags.filter(t => !existingLower.includes(t.toLowerCase()));
+                if (toAdd.length > 0) {
+                  onTagsChange([...tags, ...toAdd]);
+                }
+              }}
+              placeholder="Add tag… (Enter / comma)"
+            />
+            <p className="mt-2 text-xs text-slate-500">
+              Tip: press <strong>Enter</strong> or type a <strong>,</strong> to add
+            </p>
+          </div>
 
-        <p className="mt-2 text-xs text-slate-500">
-          Tip: press <strong>Enter</strong> or type a <strong>,</strong> to
-          add. Click a tag to remove.
-        </p>
+          {/* Right: Added Tags */}
+          <div className="mt-2">
+            {tags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {tags.map((t) => (
+                  <button
+                    key={t.toLowerCase()}
+                    type="button"
+                    className="btn-chip"
+                    onClick={() => {
+                      const key = t.toLowerCase();
+                      onTagsChange(tags.filter((x) => x.toLowerCase() !== key));
+                    }}
+                    title="Remove tag"
+                  >
+                    #{t}{" "}
+                    <span aria-hidden="true" className="opacity-70">
+                      ×
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-500 italic">No tags added yet</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

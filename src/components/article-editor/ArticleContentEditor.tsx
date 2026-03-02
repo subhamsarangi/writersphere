@@ -5,16 +5,20 @@ import MDEditor from "@uiw/react-md-editor";
 type ArticleContentEditorProps = {
   body: string;
   preview: boolean;
+  tags: string[];
   onChange: (value: string) => void;
 };
 
 export function ArticleContentEditor({
   body,
   preview,
+  tags,
   onChange,
 }: ArticleContentEditorProps) {
+  const hasPoetryTag = tags.some(tag => tag.toLowerCase() === 'poetry');
+  
   return (
-    <div className="card-dashboard">
+    <div className={`card-dashboard ${hasPoetryTag ? 'poetry-content' : ''}`}>
       {preview ? (
         <div className="prose max-w-none">
           <MDEditor.Markdown source={body || ""} />

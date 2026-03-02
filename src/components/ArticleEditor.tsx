@@ -549,40 +549,45 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
           </p>
         ) : null}
 
-        <ArticleMetadata
-          categoryId={categoryId}
-          subcategoryId={subcategoryId}
-          categories={cats}
-          subcategories={subs}
-          tags={tags}
-          onCategoryChange={(id) => {
-            setCategoryId(id);
-            markDirty();
-          }}
-          onSubcategoryChange={(id) => {
-            setSubcategoryId(id);
-            markDirty();
-          }}
-          onTagsChange={(t) => {
-            setTags(t);
-            markDirty();
-          }}
-        />
+        {!preview && (
+          <ArticleMetadata
+            categoryId={categoryId}
+            subcategoryId={subcategoryId}
+            categories={cats}
+            subcategories={subs}
+            tags={tags}
+            onCategoryChange={(id) => {
+              setCategoryId(id);
+              markDirty();
+            }}
+            onSubcategoryChange={(id) => {
+              setSubcategoryId(id);
+              markDirty();
+            }}
+            onTagsChange={(t) => {
+              setTags(t);
+              markDirty();
+            }}
+          />
+        )}
 
         <ArticleContentEditor
           body={body}
           preview={preview}
+          tags={tags}
           onChange={(v) => {
             setBody(v);
             markDirty();
           }}
         />
 
-        <ArticleDangerZone
-          deleting={deleting}
-          saving={saving}
-          onDelete={deleteArticle}
-        />
+        {!preview && (
+          <ArticleDangerZone
+            deleting={deleting}
+            saving={saving}
+            onDelete={deleteArticle}
+          />
+        )}
       </div>
     </main>
   );

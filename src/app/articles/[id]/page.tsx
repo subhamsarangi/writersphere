@@ -14,6 +14,10 @@ type PublishedArticleWithAuthor = {
   author_name: string | null;
 };
 
+type ArticleTag = {
+  tags: { name: string } | { name: string }[] | null;
+};
+
 function fmt(ts: string | null) {
   if (!ts) return "";
   try {
@@ -45,6 +49,7 @@ export default function PublishedArticlePage({
 
   const [loading, setLoading] = useState(true);
   const [row, setRow] = useState<PublishedArticleWithAuthor | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -80,6 +85,26 @@ export default function PublishedArticlePage({
       }
 
       setRow(first);
+
+      // Fetch tags for this article
+      const { data: tagData } = await supabase
+        .from("article_tags")
+        .select("tags(name)")
+        .eq("article_id", params.id);
+
+      if (tagData && !cancelled) {
+        const tagRows = tagData as unknown as ArticleTag[];
+        const tagNames = tagRows
+          .flatMap((row) => {
+            const t = row.tags;
+            if (!t) return [];
+            const arr = Array.isArray(t) ? t : [t];
+            return arr.map((x) => x.name);
+          })
+          .filter((n): n is string => typeof n === "string" && n.trim().length > 0);
+        setTags(tagNames);
+      }
+
       setLoading(false);
     })();
 
@@ -103,7 +128,7 @@ export default function PublishedArticlePage({
       <main className="page-shell">
         <div className="page-center">
           <div className="card-dashboard w-full max-w-xl">
-            <div className="page-title">Couldn’t load article</div>
+            <div className="page-title">Couldn't load article</div>
             <p className="text-sm text-red-300 mt-2">{error}</p>
             <Link className="btn-chip mt-4 inline-flex" href="/">
               Home
@@ -121,7 +146,7 @@ export default function PublishedArticlePage({
           <div className="card-dashboard w-full max-w-xl">
             <div className="page-title">Not found</div>
             <p className="text-sm text-slate-300 mt-2">
-              This article doesn’t exist or isn’t published.
+              This article doesn't exist or isn't published.
             </p>
             <Link className="btn-chip mt-4 inline-flex" href="/">
               Home
@@ -133,6 +158,7 @@ export default function PublishedArticlePage({
   }
 
   const author = row.author_name?.trim() ? row.author_name : "Anonymous";
+  const hasPoetryTag = tags.some(tag => tag.toLowerCase() === 'poetry');
 
   return (
     <main className="page-shell">
@@ -155,7 +181,7 @@ export default function PublishedArticlePage({
           </div>
         </div>
 
-        <div className="prose-container">
+        <div className={`prose-container ${hasPoetryTag ? 'poetry-content' : ''}`}>
           <div className="prose max-w-none">
             <MDEditor.Markdown className="p-2" source={row.body_md ?? ""} />
           </div>
