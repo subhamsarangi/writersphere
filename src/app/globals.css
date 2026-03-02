@@ -567,3 +567,62 @@ html[data-theme="light"] .poetry-tag:hover {
   background-color: rgb(233 213 255 / 0.8) !important;
   border-color: rgb(168 85 247 / 0.7) !important;
 }
+
+/* Article view page light theme (local only) */
+.article-light-theme {
+  color: rgb(15 23 42);
+}
+
+.article-light-theme .text-slate-400 {
+  color: rgb(100 116 139);
+}
+
+.article-light-theme .text-slate-500 {
+  color: rgb(71 85 105);
+}
+
+.article-light-theme .text-slate-300 {
+  color: rgb(148 163 184);
+}
+
+.article-light-theme .bg-slate-800 {
+  background-color: rgb(226 232 240);
+}
+
+.article-light-theme .border-slate-700 {
+  border-color: rgb(203 213 225);
+}
+
+/* Light theme for markdown content in article view */
+[data-theme="light"] .wmde-markdown {
+  background-color: white;
+  color: rgb(15 23 42);
+}
+
+[data-theme="light"] .wmde-markdown h1,
+[data-theme="light"] .wmde-markdown h2,
+[data-theme="light"] .wmde-markdown h3,
+[data-theme="light"] .wmde-markdown h4,
+[data-theme="light"] .wmde-markdown h5,
+[data-theme="light"] .wmde-markdown h6 {
+  color: rgb(15 23 42);
+}
+
+[data-theme="light"] .wmde-markdown p,
+[data-theme="light"] .wmde-markdown li {
+  color: rgb(51 65 85);
+}
+
+[data-theme="light"] .wmde-markdown code {
+  background-color: rgb(241 245 249);
+  color: rgb(15 23 42);
+}
+
+[data-theme="light"] .wmde-markdown pre {
+  background-color: rgb(241 245 249);
+}
+
+[data-theme="light"] .wmde-markdown blockquote {
+  border-left-color: rgb(203 213 225);
+  color: rgb(71 85 105);
+}

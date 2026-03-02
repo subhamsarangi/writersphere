@@ -53,24 +53,38 @@ export default function PublishedArticlePage({
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
-  // Load theme from localStorage
+  // Load theme from localStorage (only for this page)
   useEffect(() => {
     const stored =
       (typeof window !== "undefined" &&
-        (localStorage.getItem("ws_theme") as "dark" | "light" | null)) ||
+        (localStorage.getItem("ws_article_theme") as "dark" | "light" | null)) ||
       null;
     const initial = stored ?? "dark";
     setTheme(initial);
   }, []);
 
-  // Apply theme to document
+  // Save theme preference (only for article view)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("ws_article_theme", theme);
+    } catch {}
+  }, [theme]);
+
+  // Apply theme to entire page
   useEffect(() => {
     if (typeof document === "undefined") return;
+    const originalTheme = document.documentElement.dataset.theme;
+    const originalColorMode = document.documentElement.dataset.colorMode;
+    
     document.documentElement.dataset.theme = theme;
     document.documentElement.dataset.colorMode = theme;
-    try {
-      localStorage.setItem("ws_theme", theme);
-    } catch {}
+    
+    // Restore original theme when component unmounts
+    return () => {
+      if (originalTheme) document.documentElement.dataset.theme = originalTheme;
+      if (originalColorMode) document.documentElement.dataset.colorMode = originalColorMode;
+    };
   }, [theme]);
 
   const toggleTheme = () => {
@@ -187,7 +201,10 @@ export default function PublishedArticlePage({
 
   return (
     <main className="page-shell">
-      <div className="page-inner max-w-3xl p-2" data-color-mode={theme}>
+      <div 
+        className="page-inner max-w-3xl p-2" 
+        data-color-mode={theme}
+      >
         {/* Theme toggle button */}
         <div className="flex justify-end mb-4">
           <button className="btn-ghost" type="button" onClick={toggleTheme}>
