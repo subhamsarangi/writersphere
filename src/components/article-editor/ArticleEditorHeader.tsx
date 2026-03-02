@@ -56,18 +56,33 @@ export function ArticleEditorHeader({
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div className="flex-1">
-          <input
+          <div
             ref={(el) => {
               if (el && status === "draft" && !el.dataset.initialized) {
                 el.dataset.initialized = "true";
                 el.focus();
-                el.setSelectionRange(el.value.length, el.value.length);
+                // Move cursor to end
+                const range = document.createRange();
+                const sel = window.getSelection();
+                if (el.childNodes.length > 0) {
+                  range.setStart(el.childNodes[0], el.textContent?.length || 0);
+                  range.collapse(true);
+                  sel?.removeAllRanges();
+                  sel?.addRange(range);
+                }
+              }
+              // Update content only if it differs and element is not focused
+              if (el && el !== document.activeElement && el.textContent !== title) {
+                el.textContent = title;
               }
             }}
-            type="text"
-            className="page-title-input"
-            value={title}
-            onChange={(e) => onTitleChange(e.target.value)}
+            contentEditable
+            suppressContentEditableWarning
+            className="page-title-input break-words"
+            onInput={(e) => {
+              const text = e.currentTarget.textContent || "";
+              onTitleChange(text);
+            }}
             onDoubleClick={(e) => {
               if (status !== "draft") {
                 e.currentTarget.focus();
@@ -75,11 +90,28 @@ export function ArticleEditorHeader({
             }}
             onBlur={(e) => {
               e.currentTarget.classList.remove("page-title-input-focused");
+              // Ensure we have the text content
+              const text = e.currentTarget.textContent || "";
+              if (text !== title) {
+                onTitleChange(text);
+              }
             }}
             onFocus={(e) => {
               e.currentTarget.classList.add("page-title-input-focused");
             }}
-            placeholder="Write your article title here..."
+            onKeyDown={(e) => {
+              // Prevent Enter key from creating new lines
+              if (e.key === "Enter") {
+                e.preventDefault();
+              }
+            }}
+            onPaste={(e) => {
+              // Prevent pasting formatted content
+              e.preventDefault();
+              const text = e.clipboardData.getData("text/plain");
+              document.execCommand("insertText", false, text);
+            }}
+            data-placeholder="Write your article title here..."
           />
           <div className="page-subtitle">
             {saveMsg ? (
