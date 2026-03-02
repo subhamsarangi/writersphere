@@ -91,6 +91,14 @@ export default function Navbar() {
           Feed
         </Link>
 
+        {/* My Articles only for writers */}
+        {session && role === "writer" && (
+          <Link href="/dashboard/articles" className="nav-link">
+            <FontAwesomeIcon icon={faPenNib} />
+            My Articles
+          </Link>
+        )}
+
         {/* Dashboard only for writers */}
         {session && role === "writer" && (
           <Link href="/dashboard" className="nav-link">
