@@ -67,12 +67,6 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:items-center md:gap-3">
-          {/* Feed is available for everyone */}
-          <Link href="/feed" className="nav-link">
-            <FontAwesomeIcon icon={faBookOpen} />
-            Feed
-          </Link>
-
           {/* My Articles only for writers */}
           {session && role === "writer" && (
             <Link href="/dashboard/articles" className="nav-link">
@@ -88,6 +82,12 @@ export default function Navbar() {
               Dashboard
             </Link>
           )}
+
+          {/* Feed is available for everyone */}
+          <Link href="/feed" className="nav-link">
+            <FontAwesomeIcon icon={faBookOpen} />
+            Feed
+          </Link>
         </div>
       </div>
 
@@ -113,15 +113,6 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900 border-t border-slate-800 shadow-lg">
           <div className="flex flex-col p-4 gap-2">
-            <Link 
-              href="/feed" 
-              className="nav-link !justify-start"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <FontAwesomeIcon icon={faBookOpen} />
-              Feed
-            </Link>
-
             {session && role === "writer" && (
               <>
                 <Link 
@@ -143,6 +134,15 @@ export default function Navbar() {
                 </Link>
               </>
             )}
+
+            <Link 
+              href="/feed" 
+              className="nav-link !justify-start"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <FontAwesomeIcon icon={faBookOpen} />
+              Feed
+            </Link>
 
             {session && (
               <Link 
