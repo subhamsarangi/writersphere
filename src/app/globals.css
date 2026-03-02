@@ -99,7 +99,7 @@
 
 @layer components {
   .navbar {
-    @apply flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950;
+    @apply flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-950 relative;
   }
 
   .nav-left {
@@ -625,4 +625,10 @@ html[data-theme="light"] .poetry-tag:hover {
 [data-theme="light"] .wmde-markdown blockquote {
   border-left-color: rgb(203 213 225);
   color: rgb(71 85 105);
+}
+
+/* Mobile menu light theme */
+html[data-theme="light"] .navbar > div[class*="absolute"] {
+  background-color: rgb(248 250 252);
+  border-color: rgb(226 232 240);
 }
