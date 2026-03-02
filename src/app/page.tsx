@@ -121,6 +121,35 @@ export default function HomePage() {
           return;
         }
 
+        // Create default category and subcategory for writers
+        if (data.user && role === "writer") {
+          try {
+            // Create default category
+            const { data: categoryData, error: catError } = await supabase
+              .from("categories")
+              .insert({
+                writer_id: data.user.id,
+                name: "General",
+              })
+              .select("id")
+              .single();
+
+            if (!catError && categoryData) {
+              // Create default subcategory
+              await supabase
+                .from("subcategories")
+                .insert({
+                  writer_id: data.user.id,
+                  category_id: categoryData.id,
+                  name: "Uncategorized",
+                });
+            }
+          } catch (e) {
+            // Silently fail - user can create categories manually
+            console.error("Failed to create default categories:", e);
+          }
+        }
+
         // If session returned immediately, route now
         if (data.session) {
           const r = pickRole(data.session.user.user_metadata?.role) ?? role;
