@@ -85,6 +85,7 @@ export default function ArticlesPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [filtersExpanded, setFiltersExpanded] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   const debounceRef = useRef<number | null>(null);
 
@@ -374,8 +375,8 @@ export default function ArticlesPage() {
 
           {filtersExpanded ? (
             <>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <label className="field-label">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                <label className="field-label sm:col-span-6">
                   <span className="text-slate-300">Search</span>
                   <input
                     className="field-input bg-slate-600/50 border-slate-500/50 text-slate-100"
@@ -385,62 +386,7 @@ export default function ArticlesPage() {
                   />
                 </label>
 
-                <label className="field-label">
-                  <span className="text-slate-300">Status</span>
-                  <select
-                    className="field-input bg-slate-600/50 border-slate-500/50 text-slate-100"
-                    value={status}
-                    onChange={(e) =>
-                      setStatus(e.target.value as "" | ArticleStatus)
-                    }
-                  >
-                    <option value="">All</option>
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="unpublished">Unpublished</option>
-                    <option value="archived">Archived</option>
-                    <option value="deleted">Deleted</option>
-                  </select>
-                </label>
-
-                <label className="field-label">
-                  <span className="text-slate-300">Category</span>
-                  <select
-                    className="field-input bg-slate-600/50 border-slate-500/50 text-slate-100"
-                    value={categoryId}
-                    onChange={(e) => setCategoryId(e.target.value)}
-                  >
-                    <option value="">All</option>
-                    {cats.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="field-label">
-                  <span className="text-slate-300">Subcategory</span>
-                  <select
-                    className="field-input bg-slate-600/50 border-slate-500/50 text-slate-100"
-                    value={subcategoryId}
-                    onChange={(e) => setSubcategoryId(e.target.value)}
-                    disabled={!categoryId}
-                  >
-                    <option value="">
-                      {categoryId ? "All" : "Pick a category first"}
-                    </option>
-                    {subs.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <div>
+                <div className="sm:col-span-6">
                   <div className="field-label">
                     <span className="text-slate-300">Tag filter (optional)</span>
                   </div>
@@ -483,22 +429,332 @@ export default function ArticlesPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-12">
+                <label className="field-label sm:col-span-4">
+                  <span className="text-slate-300">Status</span>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+                      className="field-input w-full text-left flex items-center gap-2 cursor-pointer hover:bg-slate-600/70 transition"
+                    >
+                      {status === "" ? (
+                        <span className="text-slate-400">All</span>
+                      ) : status === "published" ? (
+                        <span className="inline-flex items-center gap-1.5 text-green-400">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          Published
+                        </span>
+                      ) : status === "draft" ? (
+                        <span className="inline-flex items-center gap-1.5 text-blue-400">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                          Draft
+                        </span>
+                      ) : status === "unpublished" ? (
+                        <span className="inline-flex items-center gap-1.5 text-yellow-400">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                            />
+                          </svg>
+                          Unpublished
+                        </span>
+                      ) : status === "archived" ? (
+                        <span className="inline-flex items-center gap-1.5 text-slate-400">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                            />
+                          </svg>
+                          Archived
+                        </span>
+                      ) : status === "deleted" ? (
+                        <span className="inline-flex items-center gap-1.5 text-red-400">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                          Deleted
+                        </span>
+                      ) : null}
+                      <svg
+                        className={`w-4 h-4 ml-auto text-slate-400 transition-transform ${
+                          statusDropdownOpen ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+
+                    {statusDropdownOpen ? (
+                      <div className="absolute z-10 mt-1 w-full bg-slate-700 border border-slate-600 rounded-lg shadow-lg overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStatus("");
+                            setStatusDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2 text-slate-400"
+                        >
+                          All
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStatus("draft");
+                            setStatusDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4 text-blue-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                          <span className="text-blue-400">Draft</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStatus("published");
+                            setStatusDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4 text-green-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          <span className="text-green-400">Published</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStatus("unpublished");
+                            setStatusDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4 text-yellow-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                            />
+                          </svg>
+                          <span className="text-yellow-400">Unpublished</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStatus("archived");
+                            setStatusDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4 text-slate-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                            />
+                          </svg>
+                          <span className="text-slate-400">Archived</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStatus("deleted");
+                            setStatusDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4 text-red-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                          <span className="text-red-400">Deleted</span>
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                </label>
+
+                <label className="field-label sm:col-span-4">
+                  <span className="text-slate-300">Category</span>
+                  <select
+                    className="field-input bg-slate-700 border-slate-600 text-slate-100"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                  >
+                    <option value="">All</option>
+                    {cats.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="field-label sm:col-span-4">
+                  <span className="text-slate-300">Subcategory</span>
+                  <select
+                    className={`field-input bg-slate-700 border-slate-600 text-slate-100 ${
+                      !categoryId ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    value={subcategoryId}
+                    onChange={(e) => setSubcategoryId(e.target.value)}
+                    disabled={!categoryId}
+                  >
+                    <option value="">
+                      {categoryId ? "All" : "Pick a category first"}
+                    </option>
+                    {subs.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
               <div className="flex items-center justify-between text-xs text-slate-300 pt-2 border-t border-slate-600/50">
                 <div>
                   {loading ? "Loading…" : `${rows.length} shown (max 50)`}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    className="btn-ghost !py-1 text-slate-300 hover:text-slate-100"
+                    className="btn-ghost !py-1 text-slate-300 hover:text-slate-100 flex items-center gap-1.5"
                     type="button"
                     onClick={clearAll}
                   >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
                     Clear
                   </button>
                   <button
-                    className="btn-ghost !py-1 text-slate-300 hover:text-slate-100"
+                    className="btn-ghost !py-1 text-slate-300 hover:text-slate-100 flex items-center gap-1.5"
                     onClick={() => void fetchArticles()}
                   >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
                     Refresh
                   </button>
                 </div>
@@ -643,14 +899,49 @@ export default function ArticlesPage() {
 
                   <div className="flex gap-2 mt-3 md:hidden">
                     <Link
-                      className="btn-chip"
+                      className="btn-chip flex items-center gap-1.5"
                       href={`/dashboard/write/${a.id}`}
                     >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
+                      </svg>
                       Edit
                     </Link>
 
                     {a.status === "published" ? (
-                      <Link className="btn-chip" href={`/articles/${a.id}`}>
+                      <Link
+                        className="btn-chip flex items-center gap-1.5"
+                        href={`/articles/${a.id}`}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
                         View
                       </Link>
                     ) : null}
@@ -659,14 +950,49 @@ export default function ArticlesPage() {
 
                 <div className="hidden md:flex gap-2">
                   <Link
-                    className="btn-chip"
+                    className="btn-chip flex items-center gap-1.5"
                     href={`/dashboard/write/${a.id}`}
                   >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
                     Edit
                   </Link>
 
                   {a.status === "published" ? (
-                    <Link className="btn-chip" href={`/articles/${a.id}`}>
+                    <Link
+                      className="btn-chip flex items-center gap-1.5"
+                      href={`/articles/${a.id}`}
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
                       View
                     </Link>
                   ) : null}
