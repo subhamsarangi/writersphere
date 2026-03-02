@@ -116,12 +116,20 @@
 
   .btn-ghost {
     @apply px-3 py-1 rounded-lg border border-slate-700 text-sm transition
-           hover:bg-slate-800;
+           hover:bg-slate-800 inline-flex items-center gap-1.5;
   }
 
   .btn-danger {
     @apply px-3 py-1 rounded-lg border border-red-700 text-sm transition
            hover:bg-red-900 hover:text-red-100 disabled:opacity-60;
+  }
+
+  .status-dropdown {
+    @apply rounded-lg border-2 border-slate-700 bg-slate-900 px-3 py-1.5 text-sm font-medium
+           transition outline-none cursor-pointer
+           hover:border-slate-500 hover:bg-slate-800
+           focus:border-slate-400 focus:ring-2 focus:ring-slate-800
+           disabled:opacity-60 disabled:cursor-not-allowed;
   }
 }
 
@@ -274,7 +282,74 @@ html[data-theme="light"] select {
 }
 
 html[data-theme="light"] .btn-ghost {
-  @apply border-slate-300;
+  @apply border-slate-300 hover:bg-slate-100;
+}
+
+html[data-theme="light"] .status-dropdown {
+  @apply border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50;
+}
+
+html[data-theme="light"] .field-label {
+  @apply text-slate-700;
+}
+
+html[data-theme="light"] .page-subtitle {
+  @apply text-slate-600;
+}
+
+html[data-theme="light"] .page-title-input {
+  @apply text-slate-950;
+}
+
+html[data-theme="light"] .page-title-input::placeholder {
+  @apply text-slate-400;
+}
+
+html[data-theme="light"] .nav-link {
+  @apply text-slate-700 hover:text-slate-950;
+}
+
+html[data-theme="light"] .navbar {
+  @apply bg-slate-50 border-slate-200;
+}
+
+/* Danger zone in light mode */
+html[data-theme="light"] .card-dashboard.danger-zone {
+  @apply border-red-300 bg-red-50;
+}
+
+html[data-theme="light"] .danger-zone-title {
+  @apply text-red-700;
+}
+
+html[data-theme="light"] .danger-zone-text {
+  @apply text-slate-700;
+}
+
+html[data-theme="light"] .danger-zone-subtext {
+  @apply text-slate-600;
+}
+
+html[data-theme="light"] .btn-danger-zone {
+  @apply border-red-500 bg-red-600 text-white hover:bg-red-700 hover:border-red-600;
+}
+
+html[data-theme="light"] .btn-primary {
+  @apply bg-blue-900 text-slate-50 hover:bg-blue-800;
+}
+
+html[data-theme="light"] .text-emerald-300 {
+  @apply text-emerald-700;
+}
+
+html[data-theme="light"] .text-amber-300 {
+  @apply text-amber-700;
+}
+
+/* Markdown editor textarea - force transparent background */
+.w-md-editor-text-pre > code,
+.w-md-editor-text-input {
+  background-color: transparent !important;
 }
 
   /* =========================================================
