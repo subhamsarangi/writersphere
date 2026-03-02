@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 
@@ -24,7 +23,6 @@ function pickRole(v: unknown): Role | null {
 
 export default function Navbar() {
   const supabase = getSupabaseBrowserClient();
-  const router = useRouter();
 
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<Role | null>(null);

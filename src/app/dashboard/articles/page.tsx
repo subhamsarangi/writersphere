@@ -54,14 +54,6 @@ function uniqueTags(list: string[]) {
   }
   return out;
 }
-function fmt(ts: string | null) {
-  if (!ts) return "";
-  try {
-    return new Date(ts).toLocaleString();
-  } catch {
-    return ts;
-  }
-}
 
 export default function ArticlesPage() {
   const supabase = getSupabaseBrowserClient();

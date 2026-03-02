@@ -112,7 +112,7 @@ export default function FeedPage() {
         if (articleTagsData) {
           for (const at of articleTagsData) {
             const articleId = at.article_id;
-            const tagName = (at.tags as any)?.name;
+            const tagName = (at.tags as { name?: string } | null)?.name;
             if (tagName) {
               if (!tagsByArticle.has(articleId)) {
                 tagsByArticle.set(articleId, []);
