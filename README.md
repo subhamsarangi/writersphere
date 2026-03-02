@@ -1,5 +1,12 @@
 **Project: Writersphere (Writing Management Website)**
 
+Each article now has a colored badge with an appropriate icon:
+
+- Published: green with checkmark
+- Draft: blue with edit icon
+- Unpublished: yellow with crossed circle
+- Archived: gray with archive box icon
+- Deleted: red with trash icon
 
 Here are the  **Features**  i want later:
 

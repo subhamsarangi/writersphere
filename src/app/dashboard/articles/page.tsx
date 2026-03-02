@@ -475,20 +475,110 @@ export default function ArticlesPage() {
           {rows.map((a) => (
             <div
               key={a.id}
-              className="card-dashboard hover:bg-slate-800/40 transition"
+              className={`card-dashboard hover:bg-slate-800/40 transition ${
+                a.status === "published"
+                  ? "border-2 border-green-500/50 dark:border-green-500/50"
+                  : ""
+              }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-lg font-semibold">
-                    {a.title || "Untitled"}
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="text-lg font-semibold">
+                      {a.title || "Untitled"}
+                    </div>
+                    {a.status === "published" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-green-500/20 text-green-400 border border-green-500/30">
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Published
+                      </span>
+                    ) : a.status === "draft" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                        Draft
+                      </span>
+                    ) : a.status === "unpublished" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                          />
+                        </svg>
+                        Unpublished
+                      </span>
+                    ) : a.status === "archived" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-slate-500/20 text-slate-400 border border-slate-500/30">
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                          />
+                        </svg>
+                        Archived
+                      </span>
+                    ) : a.status === "deleted" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                        Deleted
+                      </span>
+                    ) : null}
                   </div>
 
                   <div className="text-xs text-slate-400 mt-1">
-                    Status: <span className="text-slate-200">{a.status}</span>
                     {a.category_name ? (
                       <>
-                        {" "}
-                        · Category:{" "}
+                        Category:{" "}
                         <span className="text-slate-200">
                           {a.category_name}
                         </span>
@@ -496,21 +586,16 @@ export default function ArticlesPage() {
                     ) : null}
                     {a.subcategory_name ? (
                       <>
-                        {" "}
-                        · Subcategory:{" "}
+                        {a.category_name ? " · " : ""}
+                        Subcategory:{" "}
                         <span className="text-slate-200">
                           {a.subcategory_name}
                         </span>
                       </>
                     ) : null}
                   </div>
-                </div>
 
-                <div className="text-right text-xs text-slate-400">
-                  <div>Updated: {fmt(a.updated_at)}</div>
-                  <div>Saved: {fmt(a.last_saved_at)}</div>
-
-                  <div className="mt-2 flex justify-end gap-2">
+                  <div className="flex gap-2 mt-3 md:hidden">
                     <Link
                       className="btn-chip"
                       href={`/dashboard/write/${a.id}`}
@@ -524,6 +609,21 @@ export default function ArticlesPage() {
                       </Link>
                     ) : null}
                   </div>
+                </div>
+
+                <div className="hidden md:flex gap-2">
+                  <Link
+                    className="btn-chip"
+                    href={`/dashboard/write/${a.id}`}
+                  >
+                    Edit
+                  </Link>
+
+                  {a.status === "published" ? (
+                    <Link className="btn-chip" href={`/articles/${a.id}`}>
+                      View
+                    </Link>
+                  ) : null}
                 </div>
               </div>
             </div>
