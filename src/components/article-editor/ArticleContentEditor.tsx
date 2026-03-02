@@ -18,7 +18,7 @@ export function ArticleContentEditor({
   const hasPoetryTag = tags.some(tag => tag.toLowerCase() === 'poetry');
   
   return (
-    <div className={`card-dashboard ${hasPoetryTag ? 'poetry-content' : ''}`}>
+    <div className={`card-dashboard ${hasPoetryTag ? 'poetry-content' : ''} ${preview ? 'p-3 md:p-5' : ''}`}>
       {preview ? (
         <div className="prose max-w-none">
           <MDEditor.Markdown source={body || ""} />
@@ -29,6 +29,9 @@ export function ArticleContentEditor({
           onChange={(v) => onChange(v ?? "")}
           height={520}
           textareaProps={{ placeholder: "Write in Markdown…" }}
+          preview="edit"
+          hideToolbar={false}
+          visibleDragbar={false}
         />
       )}
     </div>

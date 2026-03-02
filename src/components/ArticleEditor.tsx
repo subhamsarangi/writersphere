@@ -83,6 +83,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
   const { theme, toggle: toggleTheme } = useLocalTheme();
   const [preview, setPreview] = useState(false);
+  const [metadataExpanded, setMetadataExpanded] = useState(true);
 
   const [ready, setReady] = useState(false);
   const [blocked, setBlocked] = useState(false);
@@ -564,6 +565,8 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             categories={cats}
             subcategories={subs}
             tags={tags}
+            expanded={metadataExpanded}
+            onToggle={() => setMetadataExpanded(!metadataExpanded)}
             onCategoryChange={(id) => {
               setCategoryId(id);
               markDirty();
