@@ -84,6 +84,8 @@ export default function ArticlesPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
+
   const debounceRef = useRef<number | null>(null);
 
   const canFetch = Boolean(uid);
@@ -314,151 +316,195 @@ export default function ArticlesPage() {
     <main className="page-shell">
       <div className="page-inner">
         <div className="flex items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <BackButton />
-            <div>
-              <div className="page-title !mb-0">Your Articles</div>
-              <div className="text-xs text-slate-400">{filtersSummary}</div>
-            </div>
-          </div>
+          <div className="page-title !mb-0">Your Articles</div>
 
-          <div className="flex items-center gap-2">
-            <LoadingLink
-              href="/dashboard/write"
-              className="btn-primary !w-auto"
-              loadingMode="append"
+          <LoadingLink
+            href="/dashboard/write"
+            className="btn-primary !w-auto flex items-center gap-2"
+            loadingMode="append"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              New draft
-            </LoadingLink>
-
-            <button className="btn-ghost" type="button" onClick={clearAll}>
-              Clear
-            </button>
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            New draft
+          </LoadingLink>
         </div>
 
         {error ? <p className="alert-error !mt-0">{error}</p> : null}
 
         {/* Filters */}
-        <div className="card-dashboard mb-6 space-y-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <label className="field-label">
-              <span>Search</span>
-              <input
-                className="field-input"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Title or body…"
-              />
-            </label>
-
-            <label className="field-label">
-              <span>Status</span>
-              <select
-                className="field-input"
-                value={status}
-                onChange={(e) =>
-                  setStatus(e.target.value as "" | ArticleStatus)
-                }
-              >
-                <option value="">All</option>
-                <option value="draft">Draft</option>
-                <option value="published">Published</option>
-                <option value="unpublished">Unpublished</option>
-                <option value="archived">Archived</option>
-                <option value="deleted">Deleted</option>
-              </select>
-            </label>
-
-            <label className="field-label">
-              <span>Category</span>
-              <select
-                className="field-input"
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-              >
-                <option value="">All</option>
-                {cats.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className="field-label">
-              <span>Subcategory</span>
-              <select
-                className="field-input"
-                value={subcategoryId}
-                onChange={(e) => setSubcategoryId(e.target.value)}
-                disabled={!categoryId}
-              >
-                <option value="">
-                  {categoryId ? "All" : "Pick a category first"}
-                </option>
-                {subs.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div>
-              <div className="field-label">
-                <span>Tag filter (optional)</span>
-              </div>
-
-              <div className="mt-2 flex flex-wrap gap-2">
-                {tagFilters.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    className="btn-chip"
-                    onClick={() => removeTagFilter(t)}
-                    title="Remove"
-                  >
-                    #{t} <span className="text-slate-400">×</span>
-                  </button>
-                ))}
-
-                <input
-                  className="field-input !w-auto !py-2"
-                  value={tagInput}
-                  placeholder="Add tag… (Enter / comma)"
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === ",") {
-                      e.preventDefault();
-                      const n = normalizeTag(tagInput);
-                      if (n) addTagFilter(n);
-                    }
-                    if (
-                      e.key === "Backspace" &&
-                      !tagInput &&
-                      tagFilters.length
-                    ) {
-                      e.preventDefault();
-                      removeTagFilter(tagFilters[tagFilters.length - 1]);
-                    }
-                  }}
-                />
-              </div>
+        <div className="mb-6 p-6 rounded-lg bg-slate-700/50 border border-slate-600/50 space-y-4 font-mono">
+          <button
+            type="button"
+            onClick={() => setFiltersExpanded(!filtersExpanded)}
+            className="w-full flex items-center justify-between hover:opacity-80 transition"
+          >
+            <div className="text-sm font-medium text-slate-200">
+              Search & Filters
             </div>
-          </div>
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-slate-300">{filtersSummary}</div>
+              <svg
+                className={`w-5 h-5 text-slate-300 transition-transform ${
+                  filtersExpanded ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </div>
+          </button>
 
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <div>{loading ? "Loading…" : `${rows.length} shown (max 50)`}</div>
-            <button
-              className="btn-ghost !py-1"
-              onClick={() => void fetchArticles()}
-            >
-              Refresh
-            </button>
-          </div>
+          {filtersExpanded ? (
+            <>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <label className="field-label">
+                  <span className="text-slate-300">Search</span>
+                  <input
+                    className="field-input bg-slate-600/50 border-slate-500/50 text-slate-100"
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Title or body…"
+                  />
+                </label>
+
+                <label className="field-label">
+                  <span className="text-slate-300">Status</span>
+                  <select
+                    className="field-input bg-slate-600/50 border-slate-500/50 text-slate-100"
+                    value={status}
+                    onChange={(e) =>
+                      setStatus(e.target.value as "" | ArticleStatus)
+                    }
+                  >
+                    <option value="">All</option>
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                    <option value="unpublished">Unpublished</option>
+                    <option value="archived">Archived</option>
+                    <option value="deleted">Deleted</option>
+                  </select>
+                </label>
+
+                <label className="field-label">
+                  <span className="text-slate-300">Category</span>
+                  <select
+                    className="field-input bg-slate-600/50 border-slate-500/50 text-slate-100"
+                    value={categoryId}
+                    onChange={(e) => setCategoryId(e.target.value)}
+                  >
+                    <option value="">All</option>
+                    {cats.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <label className="field-label">
+                  <span className="text-slate-300">Subcategory</span>
+                  <select
+                    className="field-input bg-slate-600/50 border-slate-500/50 text-slate-100"
+                    value={subcategoryId}
+                    onChange={(e) => setSubcategoryId(e.target.value)}
+                    disabled={!categoryId}
+                  >
+                    <option value="">
+                      {categoryId ? "All" : "Pick a category first"}
+                    </option>
+                    {subs.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <div>
+                  <div className="field-label">
+                    <span className="text-slate-300">Tag filter (optional)</span>
+                  </div>
+
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {tagFilters.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        className="btn-chip bg-slate-600/50 border-slate-500/50"
+                        onClick={() => removeTagFilter(t)}
+                        title="Remove"
+                      >
+                        #{t} <span className="text-slate-400">×</span>
+                      </button>
+                    ))}
+
+                    <input
+                      className="field-input !w-auto !py-2 bg-slate-600/50 border-slate-500/50 text-slate-100"
+                      value={tagInput}
+                      placeholder="Add tag… (Enter / comma)"
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === ",") {
+                          e.preventDefault();
+                          const n = normalizeTag(tagInput);
+                          if (n) addTagFilter(n);
+                        }
+                        if (
+                          e.key === "Backspace" &&
+                          !tagInput &&
+                          tagFilters.length
+                        ) {
+                          e.preventDefault();
+                          removeTagFilter(tagFilters[tagFilters.length - 1]);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-slate-300 pt-2 border-t border-slate-600/50">
+                <div>
+                  {loading ? "Loading…" : `${rows.length} shown (max 50)`}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    className="btn-ghost !py-1 text-slate-300 hover:text-slate-100"
+                    type="button"
+                    onClick={clearAll}
+                  >
+                    Clear
+                  </button>
+                  <button
+                    className="btn-ghost !py-1 text-slate-300 hover:text-slate-100"
+                    onClick={() => void fetchArticles()}
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : null}
         </div>
 
         {/* List */}
@@ -628,6 +674,11 @@ export default function ArticlesPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Floating Back Button */}
+        <div className="fixed bottom-6 left-6 z-10">
+          <BackButton />
         </div>
       </div>
     </main>

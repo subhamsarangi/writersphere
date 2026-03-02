@@ -223,13 +223,12 @@ export default function FeedPage() {
         </div>
 
         {/* Search (Enter-only) */}
-        <div className="mt-5 card-dashboard">
-          <label className="field-label">
-            <span>Search</span>
+        <div className="mt-5">
+          <div className="relative">
             <input
-              className="field-input"
+              className="field-input pl-10"
               value={searchInput}
-              placeholder="Type keywords and press Enter…"
+              placeholder="Search articles… (press Enter)"
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -238,15 +237,30 @@ export default function FeedPage() {
                 }
               }}
             />
-          </label>
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
 
           {appliedSearch.trim() ? (
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-slate-400">Searching:</span>
-              <span className="btn-chip">{appliedSearch.trim()}</span>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-slate-400">Searching for:</span>
+              <span className="px-3 py-1 rounded-full bg-slate-700/50 text-slate-200">
+                {appliedSearch.trim()}
+              </span>
               <button
                 type="button"
-                className="btn-chip"
+                className="text-slate-400 hover:text-slate-200 underline"
                 onClick={() => {
                   setSearchInput("");
                   setAppliedSearch("");
