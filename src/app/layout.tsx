@@ -5,6 +5,15 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 
 import Navbar from "../components/Navbar";
+import { Merriweather } from "next/font/google";
+
+const merriweather = Merriweather({
+  weight: ['300', '400', '700'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-merriweather',
+});
 
 export const metadata = {
   title: "Writersphere",
@@ -17,12 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-theme="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="en" data-theme="dark" className={merriweather.variable}>
       <body>
         <Navbar />
         {children}

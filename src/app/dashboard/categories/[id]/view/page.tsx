@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../../../../lib/supabaseClient";
 import CategoryForm from "../../../../../components/CategoryForm";
 import BackButton from "../../../../../components/BackButton";

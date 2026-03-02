@@ -460,7 +460,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       <main className="page-shell">
         <div className="page-center">
           <div className="card-dashboard w-full max-w-xl">
-            <div className="page-title">Can't open this article</div>
+            <div className="page-title">Can&apos;t open this article</div>
             <p className="text-sm text-slate-300 mt-2">
               {error ?? "This article is not available."}
             </p>

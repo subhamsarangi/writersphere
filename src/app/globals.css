@@ -517,7 +517,7 @@ html[data-theme="light"] .text-amber-300 {
 
 /* Apply Merriweather to all article content by default */
 .prose {
-  font-family: 'Merriweather', Georgia, serif;
+  font-family: var(--font-merriweather), 'Merriweather', Georgia, serif;
   line-height: 1.75;
   letter-spacing: 0.002em;
 }
@@ -527,7 +527,7 @@ html[data-theme="light"] .text-amber-300 {
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
-  font-family: 'Merriweather', Georgia, serif;
+  font-family: var(--font-merriweather), 'Merriweather', Georgia, serif;
   font-weight: 700;
   margin-top: 1.5em;
   margin-bottom: 0.75em;
@@ -535,7 +535,7 @@ html[data-theme="light"] .text-amber-300 {
 }
 
 .prose blockquote {
-  font-family: 'Merriweather', Georgia, serif;
+  font-family: var(--font-merriweather), 'Merriweather', Georgia, serif;
   font-style: italic;
   font-weight: 300;
 }
@@ -544,7 +544,7 @@ html[data-theme="light"] .text-amber-300 {
 .wmde-markdown,
 .w-md-editor-text-pre,
 .w-md-editor-text-input {
-  font-family: 'Merriweather', Georgia, serif !important;
+  font-family: var(--font-merriweather), 'Merriweather', Georgia, serif !important;
   line-height: 1.75;
   letter-spacing: 0.002em;
 }
