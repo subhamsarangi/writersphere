@@ -919,9 +919,10 @@ export default function ArticlesPage() {
                     </Link>
 
                     {a.status === "published" ? (
-                      <Link
-                        className="btn-chip flex items-center gap-1.5"
+                      <LoadingLink
+                        className="btn-chip flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
                         href={`/articles/${a.id}`}
+                        loadingMode="replace"
                       >
                         <svg
                           className="w-4 h-4"
@@ -942,8 +943,7 @@ export default function ArticlesPage() {
                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                           />
                         </svg>
-                        View
-                      </Link>
+                      </LoadingLink>
                     ) : null}
                   </div>
                 </div>
@@ -970,9 +970,10 @@ export default function ArticlesPage() {
                   </Link>
 
                   {a.status === "published" ? (
-                    <Link
-                      className="btn-chip flex items-center gap-1.5"
+                    <LoadingLink
+                      className="btn-chip flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
                       href={`/articles/${a.id}`}
+                      loadingMode="replace"
                     >
                       <svg
                         className="w-4 h-4"
@@ -993,8 +994,7 @@ export default function ArticlesPage() {
                           d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                         />
                       </svg>
-                      View
-                    </Link>
+                    </LoadingLink>
                   ) : null}
                 </div>
               </div>
