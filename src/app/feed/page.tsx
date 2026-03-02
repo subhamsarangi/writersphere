@@ -10,6 +10,7 @@ type FeedArticle = {
   title: string | null;
   published_at: string | null;
   updated_at: string | null;
+  tags?: string[];
 };
 
 function fmt(ts: string | null): string {
@@ -96,10 +97,40 @@ export default function FeedPage() {
       }
 
       const raw: unknown = res.data;
-      const rows = Array.isArray(raw) ? raw.filter(isFeedArticle) : [];
-      const done = rows.length < size;
+      const articles = Array.isArray(raw) ? raw.filter(isFeedArticle) : [];
 
-      return { rows, done, ignored: false };
+      // Fetch tags for all articles
+      if (articles.length > 0) {
+        const articleIds = articles.map((a) => a.id);
+        const { data: articleTagsData } = await supabase
+          .from("article_tags")
+          .select("article_id, tags(name)")
+          .in("article_id", articleIds);
+
+        // Map tags to articles
+        const tagsByArticle = new Map<string, string[]>();
+        if (articleTagsData) {
+          for (const at of articleTagsData) {
+            const articleId = at.article_id;
+            const tagName = (at.tags as any)?.name;
+            if (tagName) {
+              if (!tagsByArticle.has(articleId)) {
+                tagsByArticle.set(articleId, []);
+              }
+              tagsByArticle.get(articleId)!.push(tagName);
+            }
+          }
+        }
+
+        // Add tags to articles
+        for (const article of articles) {
+          article.tags = tagsByArticle.get(article.id) || [];
+        }
+      }
+
+      const done = articles.length < size;
+
+      return { rows: articles, done, ignored: false };
     },
     [supabase],
   );
@@ -303,6 +334,22 @@ export default function FeedPage() {
                         <> · Updated: {fmt(a.updated_at)}</>
                       ) : null}
                     </div>
+                    {a.tags && a.tags.length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {a.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className={`inline-block px-2 py-0.5 text-xs rounded-full ${
+                              tag.toLowerCase() === "poetry"
+                                ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                                : "bg-slate-700/50 text-slate-300 border border-slate-600/50"
+                            }`}
+                          >
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
 
                   <LoadingLink
