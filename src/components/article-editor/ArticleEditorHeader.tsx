@@ -5,6 +5,7 @@ import { formatTime, isStatusThatNeedsMetadata } from "./utils";
 
 type ArticleEditorHeaderProps = {
   title: string;
+  body: string;
   status: ArticleStatus;
   saveMsg: string | null;
   isDirty: boolean;
@@ -30,6 +31,7 @@ type ArticleEditorHeaderProps = {
 
 export function ArticleEditorHeader({
   title,
+  body,
   status,
   saveMsg,
   isDirty,
@@ -52,6 +54,8 @@ export function ArticleEditorHeader({
   onSave,
   onError,
 }: ArticleEditorHeaderProps) {
+  const hasContent = body.trim().length > 0;
+
   return (
     <>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
@@ -143,7 +147,8 @@ export function ArticleEditorHeader({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button className="btn-ghost hidden sm:flex" type="button" onClick={onPreviewToggle}>
+          {hasContent && (
+            <button className="btn-ghost hidden sm:flex" type="button" onClick={onPreviewToggle}>
             {preview ? (
               <>
                 <svg
@@ -187,6 +192,7 @@ export function ArticleEditorHeader({
               </>
             )}
           </button>
+          )}
 
           <button className="btn-ghost" type="button" onClick={onThemeToggle}>
             {theme === "dark" ? (
@@ -265,11 +271,12 @@ export function ArticleEditorHeader({
       </div>
 
       {/* Floating Preview Button for Mobile */}
-      <button
-        className="fixed bottom-6 right-6 z-50 sm:hidden btn-primary !w-auto shadow-lg"
-        type="button"
-        onClick={onPreviewToggle}
-      >
+      {hasContent && (
+        <button
+          className="fixed bottom-6 right-6 z-50 sm:hidden btn-primary !w-auto shadow-lg flex items-center gap-2 whitespace-nowrap"
+          type="button"
+          onClick={onPreviewToggle}
+        >
         {preview ? (
           <>
             <svg
@@ -313,6 +320,7 @@ export function ArticleEditorHeader({
           </>
         )}
       </button>
+      )}
     </>
   );
 }

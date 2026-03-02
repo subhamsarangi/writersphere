@@ -109,49 +109,57 @@ export default function Navbar() {
         </button>
       </div>
 
+      {/* Mobile Menu Backdrop */}
+      {mobileMenuOpen && (
+        <div 
+          className="md:hidden fixed top-[64px] left-0 right-0 bottom-0 bg-black/50 backdrop-blur-sm z-40"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900 border-t border-slate-800 shadow-lg">
-          <div className="flex flex-col p-4 gap-2">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900 border-t border-slate-800 shadow-lg z-50">
+          <div className="flex flex-col p-4 gap-3">
             {session && role === "writer" && (
               <>
                 <Link 
                   href="/dashboard/articles" 
-                  className="nav-link !justify-start"
+                  className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <FontAwesomeIcon icon={faPenNib} />
-                  My Articles
+                  <FontAwesomeIcon icon={faPenNib} className="w-5 h-5" />
+                  <span className="text-base">My Articles</span>
                 </Link>
 
                 <Link 
                   href="/dashboard" 
-                  className="nav-link !justify-start"
+                  className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <FontAwesomeIcon icon={faTableColumns} />
-                  Dashboard
+                  <FontAwesomeIcon icon={faTableColumns} className="w-5 h-5" />
+                  <span className="text-base">Dashboard</span>
                 </Link>
               </>
             )}
 
             <Link 
               href="/feed" 
-              className="nav-link !justify-start"
+              className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <FontAwesomeIcon icon={faBookOpen} />
-              Feed
+              <FontAwesomeIcon icon={faBookOpen} className="w-5 h-5" />
+              <span className="text-base">Feed</span>
             </Link>
 
             {session && (
               <Link 
                 href="/profile" 
-                className="nav-link !justify-start"
+                className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <FontAwesomeIcon icon={faUser} />
-                Profile
+                <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
+                <span className="text-base">Profile</span>
               </Link>
             )}
           </div>

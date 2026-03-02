@@ -509,6 +509,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
         <ArticleEditorHeader
           title={title}
+          body={body}
           status={status}
           saveMsg={saveMsg}
           isDirty={dirtyRef.current}
