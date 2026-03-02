@@ -153,7 +153,7 @@ export default function PublishedArticlePage({
       <main className="page-shell">
         <div className="page-center">
           <div className="card-dashboard w-full max-w-xl">
-            <div className="page-title">Couldn't load article</div>
+            <div className="page-title">Couldn&apos;t load article</div>
             <p className="text-sm text-red-300 mt-2">{error}</p>
             <Link className="btn-chip mt-4 inline-flex" href="/">
               Home
@@ -171,7 +171,7 @@ export default function PublishedArticlePage({
           <div className="card-dashboard w-full max-w-xl">
             <div className="page-title">Not found</div>
             <p className="text-sm text-slate-300 mt-2">
-              This article doesn't exist or isn't published.
+              This article doesn&apos;t exist or isn&apos;t published.
             </p>
             <Link className="btn-chip mt-4 inline-flex" href="/">
               Home
