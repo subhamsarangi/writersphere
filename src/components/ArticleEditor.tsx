@@ -2,340 +2,33 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
-import TagInput from "@/components/TagInput";
 
-import MDEditor from "@uiw/react-md-editor";
+import { ArticleEditorHeader } from "./article-editor/ArticleEditorHeader";
+import { ArticleMetadata } from "./article-editor/ArticleMetadata";
+import { ArticleContentEditor } from "./article-editor/ArticleContentEditor";
+import { ArticleDangerZone } from "./article-editor/ArticleDangerZone";
+import { Toast } from "./article-editor/Toast";
+import { ConfirmModal } from "./article-editor/ConfirmModal";
+import { CelebrateBurst } from "./article-editor/CelebrateBurst";
+import { useLocalTheme } from "./article-editor/useLocalTheme";
 
-// ==== Status change UX helpers (confirm modal + toast + sound + burst) ====
+import {
+  statusActionCopy,
+  nowIso,
+  uniqueTags,
+  getErrorMessage,
+  playSfx,
+} from "./article-editor/utils";
 
-// Your statuses (deleted exists but is excluded from the dropdown)
-type ArticleStatus =
-  | "draft"
-  | "published"
-  | "unpublished"
-  | "archived"
-  | "deleted";
-
-function statusLabel(s: ArticleStatus): string {
-  switch (s) {
-    case "draft":
-      return "Draft";
-    case "published":
-      return "Published";
-    case "unpublished":
-      return "Unpublished";
-    case "archived":
-      return "Archived";
-    case "deleted":
-      return "Deleted";
-  }
-}
-
-function isStatusThatNeedsMetadata(s: ArticleStatus): boolean {
-  return s === "published" || s === "unpublished" || s === "archived";
-}
-
-type StatusSfx = "publish" | "unpublish" | "archive";
-
-function statusActionCopy(
-  from: ArticleStatus,
-  to: ArticleStatus,
-): {
-  title: string;
-  body: string;
-  confirmText: string;
-  tone: "primary" | "danger";
-  sfx: StatusSfx;
-  toast: string;
-  burst: "publish" | "archive" | null;
-} {
-  // Draft/Unpublished/Archived -> Published
-  if (to === "published" && from !== "published") {
-    return {
-      title: "Publish this article?",
-      body: "It will become visible on the public feed immediately.",
-      confirmText: "Publish",
-      tone: "primary",
-      sfx: "publish",
-      toast: "Published ✨",
-      burst: "publish",
-    };
-  }
-
-  // Published -> Archived
-  if (from === "published" && to === "archived") {
-    return {
-      title: "Archive this public article?",
-      body: "It will disappear from the public feed. You can restore it later.",
-      confirmText: "Archive",
-      tone: "danger",
-      sfx: "archive",
-      toast: "Archived",
-      burst: "archive",
-    };
-  }
-
-  // Published -> Draft/Unpublished (treat both as private)
-  if (from === "published" && (to === "draft" || to === "unpublished")) {
-    return {
-      title: "Make this article private?",
-      body: "It will be removed from the public feed immediately.",
-      confirmText: "Yes, make it private",
-      tone: "danger",
-      sfx: "unpublish",
-      toast: "Now private",
-      burst: null,
-    };
-  }
-
-  // Private -> Archived
-  if (to === "archived" && from !== "archived" && from !== "published") {
-    return {
-      title: "Archive this article?",
-      body: "It won’t be public. You can unarchive later.",
-      confirmText: "Archive",
-      tone: "danger",
-      sfx: "archive",
-      toast: "Archived",
-      burst: "archive",
-    };
-  }
-
-  // Everything else (draft <-> unpublished, archived -> draft/unpublished, etc.)
-  return {
-    title: "Change status?",
-    body: `Change status from ${statusLabel(from)} to ${statusLabel(to)}?`,
-    confirmText: "Confirm",
-    tone: "primary",
-    sfx: to === "archived" ? "archive" : "unpublish",
-    toast: "Status updated",
-    burst: null,
-  };
-}
-
-type ToastState = { message: string; kind: "success" | "error" };
-
-function playSfx(kind: StatusSfx): void {
-  if (typeof window === "undefined") return;
-
-  type WebkitAudioWindow = Window & {
-    webkitAudioContext?: typeof AudioContext;
-  };
-
-  const w = window as WebkitAudioWindow;
-  const Ctx = window.AudioContext ?? w.webkitAudioContext;
-  if (!Ctx) return;
-
-  const ctx = new Ctx();
-  const o = ctx.createOscillator();
-  const g = ctx.createGain();
-
-  const now = ctx.currentTime;
-
-  // quick, subtle, memorable
-  let f0 = 440;
-  let f1 = 880;
-  let dur = 0.12;
-
-  if (kind === "unpublish") {
-    f0 = 520;
-    f1 = 220;
-    dur = 0.14;
-  } else if (kind === "archive") {
-    f0 = 330;
-    f1 = 440;
-    dur = 0.18;
-  }
-
-  o.type = "sine";
-  o.frequency.setValueAtTime(f0, now);
-  o.frequency.exponentialRampToValueAtTime(f1, now + dur);
-
-  g.gain.setValueAtTime(0.0001, now);
-  g.gain.exponentialRampToValueAtTime(0.14, now + 0.02);
-  g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
-
-  o.connect(g);
-  g.connect(ctx.destination);
-
-  o.start(now);
-  o.stop(now + dur);
-
-  o.onended = () => {
-    try {
-      ctx.close();
-    } catch {
-      // ignore
-    }
-  };
-}
-
-function Toast({ state }: { state: ToastState | null }) {
-  if (!state) return null;
-  return (
-    <div
-      className={`ws-toast ${
-        state.kind === "error" ? "ws-toast--error" : "ws-toast--success"
-      }`}
-      role="status"
-      aria-live="polite"
-    >
-      {state.message}
-    </div>
-  );
-}
-
-type ConfirmState = {
-  open: boolean;
-  title: string;
-  body: string;
-  confirmText: string;
-  tone: "primary" | "danger";
-  nextStatus: ArticleStatus;
-  sfx: StatusSfx;
-  toast: string;
-  burst: "publish" | "archive" | null;
-};
-
-function ConfirmModal(props: {
-  state: ConfirmState | null;
-  busy: boolean;
-  onCancel: () => void;
-  onConfirm: (s: ConfirmState) => void;
-}) {
-  const { state, busy, onCancel, onConfirm } = props;
-  if (!state?.open) return null;
-
-  return (
-    <div
-      className="ws-modal-backdrop"
-      role="dialog"
-      aria-modal="true"
-      aria-label={state.title}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget && !busy) onCancel();
-      }}
-      onKeyDown={(e) => {
-        if (e.key === "Escape" && !busy) onCancel();
-      }}
-      tabIndex={-1}
-    >
-      <div className="ws-modal">
-        <div className="ws-modal__head">
-          <h3 className="ws-modal__title">{state.title}</h3>
-        </div>
-
-        <p className="ws-modal__body">{state.body}</p>
-
-        <div className="ws-modal__actions">
-          <button
-            type="button"
-            className="btn-chip"
-            onClick={onCancel}
-            disabled={busy}
-          >
-            Cancel
-          </button>
-
-          <button
-            type="button"
-            className={
-              state.tone === "danger"
-                ? "ws-btn ws-btn--danger"
-                : "ws-btn ws-btn--primary"
-            }
-            onClick={() => onConfirm(state)}
-            disabled={busy}
-          >
-            {busy ? "Working…" : state.confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CelebrateBurst({ mode }: { mode: "publish" | "archive" | null }) {
-  if (!mode) return null;
-  return <div className={`ws-burst ws-burst--${mode}`} aria-hidden="true" />;
-}
-
-type CategoryOpt = { id: string; name: string };
-type SubcategoryOpt = { id: string; name: string; category_id: string };
-type ArticleTagJoinRow = {
-  tags: { name: unknown }[] | { name: unknown } | null;
-};
-
-function nowIso() {
-  return new Date().toISOString();
-}
-
-function normalizeTag(raw: string) {
-  return raw.trim().replace(/\s+/g, " ");
-}
-
-function uniqueTags(list: string[]) {
-  const seen = new Set<string>();
-  const out: string[] = [];
-  for (const t of list) {
-    const n = normalizeTag(t);
-    if (!n) continue;
-    const key = n.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(n);
-  }
-  return out;
-}
-
-function formatTime(ts: string | null) {
-  if (!ts) return "";
-  try {
-    return new Date(ts).toLocaleString();
-  } catch {
-    return ts;
-  }
-}
-
-function getErrorMessage(e: unknown) {
-  if (e && typeof e === "object" && "message" in e) {
-    const m = (e as { message?: unknown }).message;
-    if (typeof m === "string") return m;
-  }
-  if (e instanceof Error) return e.message;
-  return typeof e === "string" ? e : JSON.stringify(e);
-}
-
-function useLocalTheme() {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-
-  useEffect(() => {
-    const stored =
-      (typeof window !== "undefined" &&
-        (localStorage.getItem("ws_theme") as "dark" | "light" | null)) ||
-      null;
-
-    const initial = stored ?? "dark";
-    setTheme(initial);
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    document.documentElement.dataset.theme = theme;
-    // uiw uses data-color-mode
-    document.documentElement.dataset.colorMode = theme;
-    try {
-      localStorage.setItem("ws_theme", theme);
-    } catch {}
-  }, [theme]);
-
-  return {
-    theme,
-    toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
-  };
-}
+import type {
+  ArticleStatus,
+  ToastState,
+  ConfirmState,
+  CategoryOpt,
+  SubcategoryOpt,
+  ArticleTagJoinRow,
+} from "./article-editor/types";
 
 async function syncTags(params: {
   supabase: ReturnType<typeof getSupabaseBrowserClient>;
@@ -346,12 +39,11 @@ async function syncTags(params: {
   const { supabase, uid, articleId } = params;
   const cleaned = uniqueTags(params.tags);
 
-  // Upsert tags, then attach via join table
   const { data: tagRows, error: upsertErr } = await supabase
     .from("tags")
     .upsert(
       cleaned.map((name) => ({ writer_id: uid, name })),
-      { onConflict: "writer_id,name" },
+      { onConflict: "writer_id,name" }
     )
     .select("id,name");
 
@@ -359,7 +51,6 @@ async function syncTags(params: {
 
   const tagIds = (tagRows ?? []).map((t) => t.id);
 
-  // Replace join rows
   const { error: delErr } = await supabase
     .from("article_tags")
     .delete()
@@ -372,7 +63,7 @@ async function syncTags(params: {
       tagIds.map((tag_id) => ({
         article_id: articleId,
         tag_id,
-      })),
+      }))
     );
     if (insErr) throw insErr;
   }
@@ -405,9 +96,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   const [status, setStatus] = useState<ArticleStatus>("draft");
   const [categoryId, setCategoryId] = useState<string>("");
   const [subcategoryId, setSubcategoryId] = useState<string>("");
-
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
 
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
@@ -456,7 +145,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   const savingRef = useRef(false);
 
   const needsMetadata = useMemo(() => {
-    // Only enforce requirements for these statuses
     return (
       status === "published" ||
       status === "unpublished" ||
@@ -492,10 +180,9 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     setError(null);
 
     try {
-      // If user picked a non-draft status, enforce required metadata
       if (needsMetadata && !hasRequiredMetadata) {
         throw new Error(
-          "To publish/unpublish/archive you must select a category and have at least 2 tags.",
+          "To publish/unpublish/archive you must select a category and have at least 2 tags."
         );
       }
 
@@ -509,7 +196,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
         last_saved_at: nowIso(),
       };
 
-      // Keep status-related timestamps in sync
       if (status === "published")
         payload.published_at = publishedAt ?? nowIso();
       if (status === "unpublished")
@@ -517,25 +203,23 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       if (status === "archived") payload.archived_at = archivedAt ?? nowIso();
       if (status === "deleted") payload.deleted_at = deletedAt ?? nowIso();
 
-      const { data: updated, error: upErr } = await supabase
-        .from("articles")
-        .update(payload)
-        .eq("id", articleId)
-        .eq("writer_id", uid)
-        .select(
-          "created_at,updated_at,last_saved_at,published_at,unpublished_at,archived_at,deleted_at",
-        )
-        .single();
-
-      if (upErr) throw upErr;
-
-      // Sync tags (best-effort; if this fails you’ll see the error)
+      // Sync tags BEFORE updating article (trigger checks tag count on update)
       const cleaned = await syncTags({
         supabase,
         uid,
         articleId,
         tags,
       });
+
+      const { data: updated, error: upErr } = await supabase
+        .from("articles")
+        .update(payload)
+        .eq("id", articleId)
+        .eq("writer_id", uid)
+        .select()
+        .single();
+
+      if (upErr) throw upErr;
 
       setTags(cleaned);
 
@@ -553,7 +237,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
           ? "Autosaved"
           : reason === "status"
             ? "Status saved"
-            : "Saved",
+            : "Saved"
       );
       return true;
     } catch (e: unknown) {
@@ -566,18 +250,17 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       setSaving(false);
     }
   }
-  // delete handler (confirmation + delete + immediate redirect)
+
   async function deleteArticle() {
     if (!uid) return;
     if (deleting) return;
 
     const ok = window.confirm(
-      "⚠️ PERMANENT WARNING\n\nYou are about to DELETE this article.\n\n• It will immediately disappear from your lists.\n• You will NOT be able to edit or restore it from the app.\n\nIf you understand, click OK to delete it.",
+      "⚠️ PERMANENT WARNING\n\nYou are about to DELETE this article.\n\n• It will immediately disappear from your lists.\n• You will NOT be able to edit or restore it from the app.\n\nIf you understand, click OK to delete it."
     );
 
     if (!ok) return;
 
-    // Prevent autosave / double-actions while deletion is in progress
     savingRef.current = true;
     setDeleting(true);
     setError(null);
@@ -597,7 +280,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
       if (delErr) throw delErr;
 
-      // Immediate redirect
       router.replace("/dashboard/articles");
     } catch (e: unknown) {
       setError(getErrorMessage(e));
@@ -606,7 +288,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     }
   }
 
-  // Redirect after 3s when blocked
   useEffect(() => {
     if (!blocked) return;
 
@@ -617,7 +298,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     return () => window.clearTimeout(t);
   }, [blocked, router]);
 
-  // Load session + article + metadata
   useEffect(() => {
     let cancelled = false;
 
@@ -633,7 +313,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       if (cancelled) return;
       setUid(id);
 
-      // Load categories (writer-owned)
       const { data: catRows } = await supabase
         .from("categories")
         .select("id,name")
@@ -643,11 +322,10 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       if (cancelled) return;
       setCats((catRows ?? []) as CategoryOpt[]);
 
-      // Load article
       const { data: a, error: aErr } = await supabase
         .from("articles")
         .select(
-          "title,body_md,status,category_id,subcategory_id,created_at,updated_at,last_saved_at,published_at,unpublished_at,archived_at,deleted_at",
+          "title,body_md,status,category_id,subcategory_id,created_at,updated_at,last_saved_at,published_at,unpublished_at,archived_at,deleted_at"
         )
         .eq("id", articleId)
         .eq("writer_id", id)
@@ -655,15 +333,8 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
       if (aErr || !a || a.status === "deleted") {
         setError(
-          "This article was deleted (or you don’t have access). Redirecting…",
+          "This article was deleted (or you don't have access). Redirecting…"
         );
-        setBlocked(true);
-        setReady(true);
-        return;
-      }
-
-      if (a.status === "deleted") {
-        setError("This article was deleted. Redirecting…");
         setBlocked(true);
         setReady(true);
         return;
@@ -685,7 +356,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       setArchivedAt(a.archived_at ?? null);
       setDeletedAt(a.deleted_at ?? null);
 
-      // Load tags via join
       const { data: joined, error: tErr } = await supabase
         .from("article_tags")
         .select("tags(name)")
@@ -702,7 +372,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             return arr.map((x) => x.name);
           })
           .filter(
-            (n): n is string => typeof n === "string" && n.trim().length > 0,
+            (n): n is string => typeof n === "string" && n.trim().length > 0
           );
 
         setTags(uniqueTags(names));
@@ -716,7 +386,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     };
   }, [articleId, supabase]);
 
-  // Load subcategories when category changes
   useEffect(() => {
     let cancelled = false;
 
@@ -745,7 +414,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
       setSubs((data ?? []) as SubcategoryOpt[]);
 
-      // If existing subcategory doesn't match new category, clear it
       if (subcategoryId) {
         const ok = (data ?? []).some((s) => s.id === subcategoryId);
         if (!ok) setSubcategoryId("");
@@ -757,7 +425,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     };
   }, [uid, categoryId, subcategoryId, supabase]);
 
-  // Autosave every 10 seconds if dirty
   useEffect(() => {
     if (blocked || deleting) return;
 
@@ -769,32 +436,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    blocked,
-    deleting,
-    uid,
-    status,
-    categoryId,
-    subcategoryId,
-    title,
-    body,
-    tags,
-  ]);
-
-  function addTag(raw: string) {
-    const n = normalizeTag(raw);
-    if (!n) return;
-    const next = uniqueTags([...tags, n]);
-    setTags(next);
-    setTagInput("");
-    markDirty();
-  }
-
-  function removeTag(name: string) {
-    const key = name.toLowerCase();
-    setTags((t) => t.filter((x) => x.toLowerCase() !== key));
-    markDirty();
-  }
+  }, [blocked, deleting, uid, status, categoryId, subcategoryId, title, body, tags]);
 
   if (!ready) {
     return (
@@ -811,7 +453,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       <main className="page-shell">
         <div className="page-center">
           <div className="card-dashboard w-full max-w-xl">
-            <div className="page-title">Can’t open this article</div>
+            <div className="page-title">Can't open this article</div>
             <p className="text-sm text-slate-300 mt-2">
               {error ?? "This article is not available."}
             </p>
@@ -839,17 +481,14 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             const prev = status;
             setConfirm(null);
 
-            // apply change locally
             setStatus(c.nextStatus);
             bumpStatusDatetime(c.nextStatus);
             markDirty();
 
-            // attempt save
             const ok = await save("status");
             if (!ok) {
-              // revert if save failed
               setStatus(prev);
-              showToast({ message: "Couldn’t change status", kind: "error" });
+              showToast({ message: "Couldn't change status", kind: "error" });
               return;
             }
 
@@ -859,160 +498,47 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
           }}
         />
 
-        {/* Top bar */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-          <div className="flex-1">
-            <input
-              ref={(el) => {
-                // Auto-focus for draft articles
-                if (el && status === "draft" && !el.dataset.initialized) {
-                  el.dataset.initialized = "true";
-                  el.focus();
-                  // Move cursor to end
-                  el.setSelectionRange(el.value.length, el.value.length);
-                }
-              }}
-              type="text"
-              className="page-title-input"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                markDirty();
-              }}
-              onDoubleClick={(e) => {
-                // For non-draft articles, focus on double-click
-                if (status !== "draft") {
-                  e.currentTarget.focus();
-                }
-              }}
-              onBlur={(e) => {
-                // Remove focus styling when clicking outside
-                e.currentTarget.classList.remove("page-title-input-focused");
-              }}
-              onFocus={(e) => {
-                e.currentTarget.classList.add("page-title-input-focused");
-              }}
-              placeholder="Write your article title here..."
-            />
-            <div className="page-subtitle">
-              {saveMsg ? (
-                <span className="text-emerald-300">{saveMsg}</span>
-              ) : dirtyRef.current ? (
-                <span className="text-amber-300">Unsaved changes</span>
-              ) : (
-                <span className="text-slate-400">Up to date</span>
-              )}
-              {lastSavedAt ? (
-                <span className="ml-2 text-slate-500">
-                  · Last saved: {formatTime(lastSavedAt)}
-                </span>
-              ) : null}
-              
-              {/* Article timestamps */}
-              <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-slate-500">
-                <span>Created: {formatTime(createdAt)}</span>
-                {!lastSavedAt && updatedAt && <span>Updated: {formatTime(updatedAt)}</span>}
-                {publishedAt && <span>Published: {formatTime(publishedAt)}</span>}
-                {unpublishedAt && <span>Unpublished: {formatTime(unpublishedAt)}</span>}
-                {archivedAt && <span>Archived: {formatTime(archivedAt)}</span>}
-                {deletedAt && <span>Deleted: {formatTime(deletedAt)}</span>}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              className="btn-ghost"
-              type="button"
-              onClick={() => setPreview((p) => !p)}
-            >
-              {preview ? (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                  </svg>
-                  Edit
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                  </svg>
-                  Preview
-                </>
-              )}
-            </button>
-
-            <button className="btn-ghost" type="button" onClick={toggleTheme}>
-              {theme === "dark" ? (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-                  </svg>
-                  Dark
-                </>
-              ) : (
-                <>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-                  </svg>
-                  Light
-                </>
-              )}
-            </button>
-
-            <select
-              className="status-dropdown"
-              value={status}
-              disabled={saving || deleting}
-              onChange={(e) => {
-                const next = e.target.value as ArticleStatus;
-                if (next === status) return;
-
-                // Hide deleted from dropdown already; if it ever gets here, ignore.
-                if (next === "deleted") return;
-
-                const nextNeedsMetadata = isStatusThatNeedsMetadata(next);
-                if (nextNeedsMetadata && !hasRequiredMetadata) {
-                  setError(
-                    "Pick a category and add at least 2 tags before publishing/unpublishing/archiving.",
-                  );
-                  return;
-                }
-
-                setError(null);
-
-                const copy = statusActionCopy(status, next);
-                setConfirm({
-                  open: true,
-                  title: copy.title,
-                  body: copy.body,
-                  confirmText: copy.confirmText,
-                  tone: copy.tone,
-                  nextStatus: next,
-                  sfx: copy.sfx,
-                  toast: copy.toast,
-                  burst: copy.burst,
-                });
-              }}
-            >
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-              <option value="unpublished">Unpublished</option>
-              <option value="archived">Archived</option>
-            </select>
-
-            <button
-              className="btn-primary !w-auto"
-              type="button"
-              disabled={saving}
-              onClick={() => void save("manual")}
-            >
-              {saving ? "Saving…" : "Save now"}
-            </button>
-          </div>
-        </div>
+        <ArticleEditorHeader
+          title={title}
+          status={status}
+          saveMsg={saveMsg}
+          isDirty={dirtyRef.current}
+          lastSavedAt={lastSavedAt}
+          createdAt={createdAt}
+          updatedAt={updatedAt}
+          publishedAt={publishedAt}
+          unpublishedAt={unpublishedAt}
+          archivedAt={archivedAt}
+          deletedAt={deletedAt}
+          preview={preview}
+          theme={theme}
+          saving={saving}
+          deleting={deleting}
+          hasRequiredMetadata={hasRequiredMetadata}
+          onTitleChange={(t) => {
+            setTitle(t);
+            markDirty();
+          }}
+          onPreviewToggle={() => setPreview((p) => !p)}
+          onThemeToggle={toggleTheme}
+          onStatusChange={(next) => {
+            setError(null);
+            const copy = statusActionCopy(status, next);
+            setConfirm({
+              open: true,
+              title: copy.title,
+              body: copy.body,
+              confirmText: copy.confirmText,
+              tone: copy.tone,
+              nextStatus: next,
+              sfx: copy.sfx,
+              toast: copy.toast,
+              burst: copy.burst,
+            });
+          }}
+          onSave={() => void save("manual")}
+          onError={setError}
+        />
 
         {error ? (
           <p className="alert-error !mt-0">{error}</p>
@@ -1023,117 +549,40 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
           </p>
         ) : null}
 
-        {/* Meta */}
-        <div className="card-dashboard mb-6 space-y-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className="field-label">
-              <span>Category (required to publish)</span>
-              <select
-                className="field-input"
-                value={categoryId}
-                onChange={(e) => {
-                  setCategoryId(e.target.value);
-                  markDirty();
-                }}
-              >
-                <option value="">Select a category</option>
-                {cats.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+        <ArticleMetadata
+          categoryId={categoryId}
+          subcategoryId={subcategoryId}
+          categories={cats}
+          subcategories={subs}
+          tags={tags}
+          onCategoryChange={(id) => {
+            setCategoryId(id);
+            markDirty();
+          }}
+          onSubcategoryChange={(id) => {
+            setSubcategoryId(id);
+            markDirty();
+          }}
+          onTagsChange={(t) => {
+            setTags(t);
+            markDirty();
+          }}
+        />
 
-            <label className="field-label">
-              <span>Subcategory (optional)</span>
-              <select
-                className="field-input"
-                value={subcategoryId}
-                onChange={(e) => {
-                  setSubcategoryId(e.target.value);
-                  markDirty();
-                }}
-                disabled={!categoryId}
-              >
-                <option value="">
-                  {categoryId
-                    ? "Select a subcategory"
-                    : "Pick a category first"}
-                </option>
-                {subs.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+        <ArticleContentEditor
+          body={body}
+          preview={preview}
+          onChange={(v) => {
+            setBody(v);
+            markDirty();
+          }}
+        />
 
-          {/* Tags */}
-          <div>
-            <div className="flex items-center justify-between gap-2">
-              <div className="field-label">
-                <span>Tags (min 2)</span>
-              </div>
-              <div className="text-xs text-slate-400">{tags.length}/2</div>
-            </div>
-
-            <div className="mt-2">
-              <TagInput
-                label="" // hide TagInput’s own label
-                tags={tags}
-                onChange={setTags}
-                placeholder="Add tag… (Enter / comma)"
-              />
-            </div>
-
-            <p className="mt-2 text-xs text-slate-500">
-              Tip: press <strong>Enter</strong> or type a <strong>,</strong> to
-              add. Click a tag to remove.
-            </p>
-          </div>
-        </div>
-
-        {/* Editor */}
-        <div className="card-dashboard">
-          {preview ? (
-            <div className="prose max-w-none">
-              <MDEditor.Markdown source={body || ""} />
-            </div>
-          ) : (
-            <MDEditor
-              value={body}
-              onChange={(v) => {
-                setBody(v ?? "");
-                markDirty();
-              }}
-              height={520}
-              textareaProps={{ placeholder: "Write in Markdown…" }}
-            />
-          )}
-        </div>
-
-        {/* Danger zone */}
-        <div className="card-dashboard danger-zone mt-6 border border-red-900/60 bg-black/40">
-          <div className="danger-zone-title text-red-200 font-semibold">Danger zone</div>
-          <p className="danger-zone-text text-sm text-slate-300 mt-2">
-            Deleting this article will remove it from your lists and block any
-            further edits.
-          </p>
-          <p className="danger-zone-subtext text-xs text-slate-500 mt-1">
-            This action is intended to be permanent in the app.
-          </p>
-
-          <button
-            type="button"
-            disabled={deleting || saving}
-            onClick={() => void deleteArticle()}
-            className="btn-danger-zone mt-4 btn-ghost !w-full sm:!w-auto !border-red-800 !text-red-200 hover:!bg-red-950/50 disabled:opacity-60"
-          >
-            {deleting ? "Deleting…" : "Delete article"}
-          </button>
-        </div>
+        <ArticleDangerZone
+          deleting={deleting}
+          saving={saving}
+          onDelete={deleteArticle}
+        />
       </div>
     </main>
   );
