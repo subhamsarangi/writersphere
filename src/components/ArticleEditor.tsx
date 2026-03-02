@@ -907,6 +907,16 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
                   · Last saved: {formatTime(lastSavedAt)}
                 </span>
               ) : null}
+              
+              {/* Article timestamps */}
+              <div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-slate-500">
+                <span>Created: {formatTime(createdAt)}</span>
+                {!lastSavedAt && updatedAt && <span>Updated: {formatTime(updatedAt)}</span>}
+                {publishedAt && <span>Published: {formatTime(publishedAt)}</span>}
+                {unpublishedAt && <span>Unpublished: {formatTime(unpublishedAt)}</span>}
+                {archivedAt && <span>Archived: {formatTime(archivedAt)}</span>}
+                {deletedAt && <span>Deleted: {formatTime(deletedAt)}</span>}
+              </div>
             </div>
           </div>
 
@@ -1053,16 +1063,6 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
               Tip: press <strong>Enter</strong> or type a <strong>,</strong> to
               add. Click a tag to remove.
             </p>
-          </div>
-
-          {/* Important datetimes */}
-          <div className="text-xs text-slate-400 grid grid-cols-1 gap-1 sm:grid-cols-2">
-            <div>Created: {formatTime(createdAt)}</div>
-            <div>Updated: {formatTime(updatedAt)}</div>
-            <div>Published: {formatTime(publishedAt)}</div>
-            <div>Unpublished: {formatTime(unpublishedAt)}</div>
-            <div>Archived: {formatTime(archivedAt)}</div>
-            <div>Deleted: {formatTime(deletedAt)}</div>
           </div>
         </div>
 
