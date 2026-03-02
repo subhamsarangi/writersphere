@@ -171,7 +171,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     if (next === "deleted") setDeletedAt(ts);
   }
 
-  async function save(reason: "auto" | "manual" | "status"): Promise<boolean> {
+  async function save(reason: "auto" | "manual" | "status", overrideStatus?: ArticleStatus): Promise<boolean> {
     if (!uid) return false;
     if (savingRef.current) return false;
 
@@ -180,7 +180,14 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     setError(null);
 
     try {
-      if (needsMetadata && !hasRequiredMetadata) {
+      // Use override status if provided, otherwise use current status
+      const currentStatus = overrideStatus ?? status;
+      const currentNeedsMetadata = 
+        currentStatus === "published" ||
+        currentStatus === "unpublished" ||
+        currentStatus === "archived";
+
+      if (currentNeedsMetadata && !hasRequiredMetadata) {
         throw new Error(
           "To publish/unpublish/archive you must select a category and have at least 2 tags."
         );
@@ -189,19 +196,19 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       const payload: Record<string, unknown> = {
         title: title || "Untitled",
         body_md: body ?? "",
-        status,
+        status: currentStatus,
         category_id: categoryId || null,
         subcategory_id: subcategoryId || null,
         updated_at: nowIso(),
         last_saved_at: nowIso(),
       };
 
-      if (status === "published")
+      if (currentStatus === "published")
         payload.published_at = publishedAt ?? nowIso();
-      if (status === "unpublished")
+      if (currentStatus === "unpublished")
         payload.unpublished_at = unpublishedAt ?? nowIso();
-      if (status === "archived") payload.archived_at = archivedAt ?? nowIso();
-      if (status === "deleted") payload.deleted_at = deletedAt ?? nowIso();
+      if (currentStatus === "archived") payload.archived_at = archivedAt ?? nowIso();
+      if (currentStatus === "deleted") payload.deleted_at = deletedAt ?? nowIso();
 
       // Sync tags BEFORE updating article (trigger checks tag count on update)
       const cleaned = await syncTags({
@@ -485,7 +492,8 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             bumpStatusDatetime(c.nextStatus);
             markDirty();
 
-            const ok = await save("status");
+            // Pass the new status directly to save to avoid stale state
+            const ok = await save("status", c.nextStatus);
             if (!ok) {
               setStatus(prev);
               showToast({ message: "Couldn't change status", kind: "error" });
