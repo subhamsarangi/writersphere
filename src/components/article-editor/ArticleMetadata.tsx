@@ -96,23 +96,30 @@ export function ArticleMetadata({
           <div className="mt-2">
             {tags.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {tags.map((t) => (
-                  <button
-                    key={t.toLowerCase()}
-                    type="button"
-                    className="btn-chip"
-                    onClick={() => {
-                      const key = t.toLowerCase();
-                      onTagsChange(tags.filter((x) => x.toLowerCase() !== key));
-                    }}
-                    title="Remove tag"
-                  >
-                    #{t}{" "}
-                    <span aria-hidden="true" className="opacity-70">
-                      ×
-                    </span>
-                  </button>
-                ))}
+                {tags.map((t) => {
+                  const isPoetry = t.toLowerCase() === 'poetry';
+                  return (
+                    <button
+                      key={t.toLowerCase()}
+                      type="button"
+                      className={`btn-chip ${
+                        isPoetry
+                          ? '!bg-purple-900/40 !text-purple-200 !border-purple-700/60 shadow-sm shadow-purple-500/20'
+                          : ''
+                      }`}
+                      onClick={() => {
+                        const key = t.toLowerCase();
+                        onTagsChange(tags.filter((x) => x.toLowerCase() !== key));
+                      }}
+                      title="Remove tag"
+                    >
+                      #{t}{" "}
+                      <span aria-hidden="true" className="opacity-70">
+                        ×
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             ) : (
               <p className="text-xs text-slate-500 italic">No tags added yet</p>

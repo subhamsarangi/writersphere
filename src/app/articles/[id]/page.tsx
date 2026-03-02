@@ -51,6 +51,31 @@ export default function PublishedArticlePage({
   const [row, setRow] = useState<PublishedArticleWithAuthor | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  // Load theme from localStorage
+  useEffect(() => {
+    const stored =
+      (typeof window !== "undefined" &&
+        (localStorage.getItem("ws_theme") as "dark" | "light" | null)) ||
+      null;
+    const initial = stored ?? "dark";
+    setTheme(initial);
+  }, []);
+
+  // Apply theme to document
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.dataset.colorMode = theme;
+    try {
+      localStorage.setItem("ws_theme", theme);
+    } catch {}
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((t) => (t === "dark" ? "light" : "dark"));
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -162,7 +187,50 @@ export default function PublishedArticlePage({
 
   return (
     <main className="page-shell">
-      <div className="page-inner max-w-3xl p-2">
+      <div className="page-inner max-w-3xl p-2" data-color-mode={theme}>
+        {/* Theme toggle button */}
+        <div className="flex justify-end mb-4">
+          <button className="btn-ghost" type="button" onClick={toggleTheme}>
+            {theme === "dark" ? (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                  />
+                </svg>
+                Dark
+              </>
+            ) : (
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                  />
+                </svg>
+                Light
+              </>
+            )}
+          </button>
+        </div>
+
         <div className="mb-6">
           <h1 className="text-3xl font-bold">
             {row.title?.trim() ? row.title : "Untitled"}
@@ -182,14 +250,21 @@ export default function PublishedArticlePage({
 
           {tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700"
-                >
-                  #{tag}
-                </span>
-              ))}
+              {tags.map((tag) => {
+                const isPoetry = tag.toLowerCase() === 'poetry';
+                return (
+                  <span
+                    key={tag}
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      isPoetry
+                        ? 'bg-purple-900/40 text-purple-200 border border-purple-700/60 shadow-sm shadow-purple-500/20'
+                        : 'bg-slate-800 text-slate-300 border border-slate-700'
+                    }`}
+                  >
+                    #{tag}
+                  </span>
+                );
+              })}
             </div>
           )}
         </div>
