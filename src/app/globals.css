@@ -571,7 +571,7 @@ html[data-theme="light"] .text-amber-300 {
 
 /* Apply Merriweather to markdown editor content */
 .wmde-markdown {
-  background-color: transparent;
+  background-color: transparent!important;
 }
 .wmde-markdown,
 .w-md-editor-text-pre,

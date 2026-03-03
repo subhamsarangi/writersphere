@@ -70,22 +70,13 @@ export default function FeedPage() {
 
   const fetchPage = useCallback(
     async (start: number, size: number, search: string, queryKey: number) => {
-      const base = supabase
-        .from("articles")
-        .select("id,title,published_at,updated_at")
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .range(start, Math.max(start, start + size - 1));
-
       const q = search.trim();
-      const query =
-        q.length > 0
-          ? base.or(
-              `title.ilike.%${escapeIlike(q)}%,body_md.ilike.%${escapeIlike(q)}%`,
-            )
-          : base;
-
-      const res = await query;
+      
+      const res = await supabase.rpc("get_published_articles_feed", {
+        p_search: q.length > 0 ? q : null,
+        p_offset: start,
+        p_limit: size,
+      });
 
       // If a reset happened while this request was in-flight, ignore it.
       if (queryKey !== queryKeyRef.current) {
@@ -99,33 +90,10 @@ export default function FeedPage() {
       const raw: unknown = res.data;
       const articles = Array.isArray(raw) ? raw.filter(isFeedArticle) : [];
 
-      // Fetch tags for all articles
-      if (articles.length > 0) {
-        const articleIds = articles.map((a) => a.id);
-        const { data: articleTagsData } = await supabase
-          .from("article_tags")
-          .select("article_id, tags(name)")
-          .in("article_id", articleIds);
-
-        // Map tags to articles
-        const tagsByArticle = new Map<string, string[]>();
-        if (articleTagsData) {
-          for (const at of articleTagsData) {
-            const articleId = at.article_id;
-            const tagName = (at.tags as { name?: string } | null)?.name;
-            if (tagName) {
-              if (!tagsByArticle.has(articleId)) {
-                tagsByArticle.set(articleId, []);
-              }
-              tagsByArticle.get(articleId)!.push(tagName);
-            }
-          }
-        }
-
-        // Add tags to articles
-        for (const article of articles) {
-          article.tags = tagsByArticle.get(article.id) || [];
-        }
+      // Tags are already included in the function response as jsonb
+      for (const article of articles) {
+        const tagArray = article.tags || [];
+        article.tags = Array.isArray(tagArray) ? tagArray : [];
       }
 
       const done = articles.length < size;

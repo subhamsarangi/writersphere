@@ -13,10 +13,7 @@ type PublishedArticleWithAuthor = {
   published_at: string | null;
   updated_at: string | null;
   author_name: string | null;
-};
-
-type ArticleTag = {
-  tags: { name: string } | { name: string }[] | null;
+  tags: string[] | null;
 };
 
 function fmt(ts: string | null) {
@@ -37,7 +34,8 @@ function isRow(v: unknown): v is PublishedArticleWithAuthor {
     "body_md" in o &&
     "published_at" in o &&
     "updated_at" in o &&
-    "author_name" in o
+    "author_name" in o &&
+    "tags" in o
   );
 }
 
@@ -126,25 +124,10 @@ export default function PublishedArticlePage({
       }
 
       setRow(first);
-
-      // Fetch tags for this article
-      const { data: tagData } = await supabase
-        .from("article_tags")
-        .select("tags(name)")
-        .eq("article_id", id);
-
-      if (tagData && !cancelled) {
-        const tagRows = tagData as unknown as ArticleTag[];
-        const tagNames = tagRows
-          .flatMap((row) => {
-            const t = row.tags;
-            if (!t) return [];
-            const arr = Array.isArray(t) ? t : [t];
-            return arr.map((x) => x.name);
-          })
-          .filter((n): n is string => typeof n === "string" && n.trim().length > 0);
-        setTags(tagNames);
-      }
+      
+      // Tags are now included in the function response
+      const tagArray = first.tags || [];
+      setTags(Array.isArray(tagArray) ? tagArray : []);
 
       setLoading(false);
     })();
