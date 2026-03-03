@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 let isBlocked = false;
-let pendingRequests = new Set<number>();
+const pendingRequests = new Set<number>();
 let requestIdCounter = 0;
 let globalSetShowModal: ((show: boolean) => void) | null = null;
 let originalFetch: typeof fetch | null = null;
