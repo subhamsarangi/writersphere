@@ -302,6 +302,7 @@ html[data-theme="light"] .page-subtitle {
 
 html[data-theme="light"] .page-title-input {
   @apply text-slate-950;
+  caret-color: #0f172a;
 }
 
 html[data-theme="light"] .page-title-input:empty:before {
