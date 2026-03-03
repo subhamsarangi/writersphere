@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 import LoadingLink from "../../../components/LoadingLink";
 import BackButton from "../../../components/BackButton";

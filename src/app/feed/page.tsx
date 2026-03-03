@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import LoadingLink from "@/components/LoadingLink";
 import Footer from "@/components/Footer";
