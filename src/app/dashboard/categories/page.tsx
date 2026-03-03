@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 import LoadingLink from "../../../components/LoadingLink";
+import BackButton from "../../../components/BackButton";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -188,6 +189,8 @@ export default function CategoriesListPage() {
             ))}
           </ul>
         )}
+
+        <BackButton />
       </div>
     </main>
   );

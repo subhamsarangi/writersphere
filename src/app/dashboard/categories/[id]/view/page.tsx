@@ -302,12 +302,7 @@ export default function ViewCategoryPage() {
           </p>
         </section>
 
-        {/* Floating Back Button - Mobile Only */}
-        <div className="fixed bottom-6 left-6 z-10 md:hidden">
-          <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg">
-            <BackButton />
-          </div>
-        </div>
+        <BackButton />
       </div>
     </main>
   );

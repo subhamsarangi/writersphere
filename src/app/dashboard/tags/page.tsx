@@ -292,16 +292,17 @@ export default function TagsPage() {
             <FontAwesomeIcon icon={faTags} />
             Tags
           </h1>
-
-          <LoadingLink
-            href="/dashboard"
-            className="btn-chip"
-            loadingMode="append"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} />
-            Back
-          </LoadingLink>
         </div>
+
+        {/* Mobile-only floating back button */}
+        <LoadingLink
+          href="/dashboard"
+          className="fixed bottom-6 left-6 z-50 md:hidden inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium shadow-lg bg-slate-900/80 backdrop-blur-sm border border-slate-700/50 hover:bg-slate-800/90 transition"
+          loadingMode="append"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} />
+          Back
+        </LoadingLink>
 
         {email ? <p className="page-subtitle">Signed in as {email}</p> : null}
 
