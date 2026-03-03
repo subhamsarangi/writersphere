@@ -3,9 +3,10 @@
 type SupabaseErrorModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onRetry: () => void;
 };
 
-export default function SupabaseErrorModal({ isOpen, onClose }: SupabaseErrorModalProps) {
+export default function SupabaseErrorModal({ isOpen, onClose, onRetry }: SupabaseErrorModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -48,6 +49,15 @@ export default function SupabaseErrorModal({ isOpen, onClose }: SupabaseErrorMod
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={onRetry}
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition [html[data-theme='light']_&]:bg-blue-600 [html[data-theme='light']_&]:text-white [html[data-theme='light']_&]:hover:bg-blue-700"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Retry Connection
+              </button>
               <a
                 href="https://status.supabase.com/"
                 target="_blank"
@@ -61,9 +71,9 @@ export default function SupabaseErrorModal({ isOpen, onClose }: SupabaseErrorMod
               </a>
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2 rounded-lg bg-slate-100 text-slate-900 text-sm font-medium hover:bg-slate-200 transition [html[data-theme='light']_&]:bg-slate-900 [html[data-theme='light']_&]:text-slate-100 [html[data-theme='light']_&]:hover:bg-slate-800"
+                className="flex-1 px-4 py-2 rounded-lg bg-slate-600 text-slate-100 text-sm font-medium hover:bg-slate-500 transition [html[data-theme='light']_&]:bg-slate-300 [html[data-theme='light']_&]:text-slate-900 [html[data-theme='light']_&]:hover:bg-slate-400"
               >
-                Close
+                Dismiss
               </button>
             </div>
           </div>

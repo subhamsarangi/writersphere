@@ -1,9 +1,13 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { use } from "react";
 import ArticleEditor from "../../../../components/ArticleEditor";
 
-export default function WriteByIdPage() {
-  const params = useParams<{ id: string }>();
-  return <ArticleEditor articleId={params.id} />;
+export default function WriteByIdPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  return <ArticleEditor articleId={id} />;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import MDEditor from "@uiw/react-md-editor";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
@@ -44,8 +44,9 @@ function isRow(v: unknown): v is PublishedArticleWithAuthor {
 export default function PublishedArticlePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = use(params);
   const supabase = getSupabaseBrowserClient();
 
   const [loading, setLoading] = useState(true);
@@ -100,7 +101,7 @@ export default function PublishedArticlePage({
       setError(null);
 
       const res = await supabase.rpc("get_published_article_with_author", {
-        p_id: params.id,
+        p_id: id,
       });
 
       if (cancelled) return;
@@ -130,7 +131,7 @@ export default function PublishedArticlePage({
       const { data: tagData } = await supabase
         .from("article_tags")
         .select("tags(name)")
-        .eq("article_id", params.id);
+        .eq("article_id", id);
 
       if (tagData && !cancelled) {
         const tagRows = tagData as unknown as ArticleTag[];
@@ -151,7 +152,7 @@ export default function PublishedArticlePage({
     return () => {
       cancelled = true;
     };
-  }, [params.id, supabase]);
+  }, [id, supabase]);
 
   if (loading) {
     return (

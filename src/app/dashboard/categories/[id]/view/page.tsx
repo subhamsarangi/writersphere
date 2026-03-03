@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { use, useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../../../../lib/supabaseClient";
 import CategoryForm from "../../../../../components/CategoryForm";
 import BackButton from "../../../../../components/BackButton";
@@ -28,9 +28,13 @@ type SubRow = {
   created_at: string;
 };
 
-export default function ViewCategoryPage() {
+export default function ViewCategoryPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
+  const { id } = use(params);
 
   const [row, setRow] = useState<Row | null>(null);
   const [subs, setSubs] = useState<SubRow[]>([]);
@@ -47,12 +51,12 @@ export default function ViewCategoryPage() {
         supabase
           .from("categories")
           .select("id,name,description,image_url,status")
-          .eq("id", params.id)
+          .eq("id", id)
           .single(),
         supabase
           .from("subcategories")
           .select("id,category_id,name,description,image_url,status,created_at")
-          .eq("category_id", params.id)
+          .eq("category_id", id)
           .order("created_at", { ascending: false }),
       ]);
 
@@ -76,7 +80,7 @@ export default function ViewCategoryPage() {
     return () => {
       mounted = false;
     };
-  }, [params.id]);
+  }, [id]);
 
   const filteredSubs = useMemo(() => {
     if (!subSearch.trim()) return subs;

@@ -22,18 +22,18 @@ const merriweather = Merriweather({
 });
 
 function RootLayoutContent({ children }: { children: React.ReactNode }) {
-  const { showErrorModal, setShowErrorModal } = useSupabaseErrorDetection();
+  const { showErrorModal, handleClose, handleRetry, triggerTestModal } = useSupabaseErrorDetection();
 
   // Test shortcut: Press Ctrl+Shift+E to trigger the modal
   React.useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.key === 'E') {
-        setShowErrorModal(true);
+        triggerTestModal();
       }
     };
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [setShowErrorModal]);
+  }, [triggerTestModal]);
 
   return (
     <>
@@ -45,7 +45,8 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
       {children}
       <SupabaseErrorModal 
         isOpen={showErrorModal} 
-        onClose={() => setShowErrorModal(false)} 
+        onClose={handleClose}
+        onRetry={handleRetry}
       />
     </>
   );

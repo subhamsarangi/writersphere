@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../../../../lib/supabaseClient";
 import SubcategoryForm from "../../../../../components/SubcategoryForm";
 import BackButton from "../../../../../components/BackButton";
@@ -18,9 +18,13 @@ type Row = {
   status: "active" | "inactive";
 };
 
-export default function EditSubcategoryPage() {
+export default function EditSubcategoryPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
+  const { id } = use(params);
 
   const [row, setRow] = useState<Row | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +36,7 @@ export default function EditSubcategoryPage() {
       const { data, error } = await supabase
         .from("subcategories")
         .select("id,category_id,name,description,image_url,status")
-        .eq("id", params.id)
+        .eq("id", id)
         .single();
 
       if (!mounted) return;
@@ -46,7 +50,7 @@ export default function EditSubcategoryPage() {
     return () => {
       mounted = false;
     };
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return (
