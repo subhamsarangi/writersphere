@@ -130,7 +130,7 @@ export default function NewWritePage() {
           return;
         }
 
-        // 4) hard navigate (never hangs)
+        {/* 4) hard navigate (never hangs) */}
         window.location.replace(`/dashboard/write/${draftId}`);
       } catch (e: unknown) {
         const msg =

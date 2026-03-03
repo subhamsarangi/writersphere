@@ -10,13 +10,11 @@ export default function BreathingExercise({ onComplete }: BreathingExerciseProps
   const [duration, setDuration] = useState<30 | 60 | null>(null);
   const [phase, setPhase] = useState<"inhale" | "hold" | "exhale">("inhale");
   const [timeLeft, setTimeLeft] = useState(0);
-  const [cycleCount, setCycleCount] = useState(0);
 
   useEffect(() => {
     if (duration === null) return;
 
     const cycleTime = 12; // 4s inhale + 4s hold + 4s exhale
-    const totalCycles = Math.ceil(duration / cycleTime);
     let elapsed = 0;
 
     const interval = setInterval(() => {
@@ -33,8 +31,6 @@ export default function BreathingExercise({ onComplete }: BreathingExerciseProps
         setPhase("exhale");
       }
       
-      const currentCycle = Math.floor(elapsed / cycleTime);
-      setCycleCount(currentCycle);
       setTimeLeft(duration - elapsed);
       
       // Complete when time is up
@@ -63,7 +59,7 @@ export default function BreathingExercise({ onComplete }: BreathingExerciseProps
                 Take a Breath
               </h2>
               <p className="text-sm text-slate-400">
-                Before you begin writing, let's take a moment to center yourself with a breathing exercise.
+                Before you begin writing, let&apos;s take a moment to center yourself with a breathing exercise.
               </p>
             </div>
 
@@ -95,18 +91,6 @@ export default function BreathingExercise({ onComplete }: BreathingExerciseProps
     inhale: "Breathe In",
     hold: "Hold",
     exhale: "Breathe Out",
-  };
-
-  const phaseColor = {
-    inhale: "from-blue-500 to-cyan-500",
-    hold: "from-purple-500 to-pink-500",
-    exhale: "from-emerald-500 to-teal-500",
-  };
-
-  const scale = {
-    inhale: "scale-150",
-    hold: "scale-150",
-    exhale: "scale-75",
   };
 
   return (
