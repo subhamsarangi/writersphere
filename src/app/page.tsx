@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
+import Footer from "../components/Footer";
 import type { Session } from "@supabase/supabase-js";
 
 const supabase = getSupabaseBrowserClient();
@@ -215,6 +216,7 @@ export default function HomePage() {
 
   // Unauthenticated: show landing OR auth form
   return (
+    <>
     <main className="page-shell">
       <div className="page-center">
         {!showAuth ? (
@@ -433,5 +435,7 @@ export default function HomePage() {
         )}
       </div>
     </main>
+    <Footer />
+    </>
   );
 }

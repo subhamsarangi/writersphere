@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import MDEditor from "@uiw/react-md-editor";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
+import Footer from "../../../components/Footer";
 
 type PublishedArticleWithAuthor = {
   id: string;
@@ -154,16 +155,20 @@ export default function PublishedArticlePage({
 
   if (loading) {
     return (
+      <>
       <main className="page-shell">
         <div className="page-center">
           <div className="skeleton-card" />
         </div>
       </main>
+      <Footer />
+      </>
     );
   }
 
   if (error) {
     return (
+      <>
       <main className="page-shell">
         <div className="page-center">
           <div className="card-dashboard w-full max-w-xl">
@@ -175,11 +180,14 @@ export default function PublishedArticlePage({
           </div>
         </div>
       </main>
+      <Footer />
+      </>
     );
   }
 
   if (!row) {
     return (
+      <>
       <main className="page-shell">
         <div className="page-center">
           <div className="card-dashboard w-full max-w-xl">
@@ -193,6 +201,8 @@ export default function PublishedArticlePage({
           </div>
         </div>
       </main>
+      <Footer />
+      </>
     );
   }
 
@@ -200,6 +210,7 @@ export default function PublishedArticlePage({
   const hasPoetryTag = tags.some(tag => tag.toLowerCase() === 'poetry');
 
   return (
+    <>
     <main className="page-shell">
       <div 
         className="page-inner max-w-3xl p-2" 
@@ -293,5 +304,7 @@ export default function PublishedArticlePage({
         </div>
       </div>
     </main>
+    <Footer />
+    </>
   );
 }

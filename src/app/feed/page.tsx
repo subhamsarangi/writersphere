@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import LoadingLink from "@/components/LoadingLink";
+import Footer from "@/components/Footer";
 
 type FeedArticle = {
   id: string;
@@ -238,6 +239,7 @@ export default function FeedPage() {
   }, [loadMore, loading]);
 
   return (
+    <>
     <main className="page-shell">
       <div className="page-inner max-w-4xl">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -371,5 +373,7 @@ export default function FeedPage() {
         )}
       </div>
     </main>
+    <Footer />
+    </>
   );
 }
