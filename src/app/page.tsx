@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
@@ -25,7 +25,7 @@ function Spinner({ className = "" }: { className?: string }) {
   );
 }
 
-export default function HomePage() {
+function HomePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -437,5 +437,19 @@ export default function HomePage() {
     </main>
     <Footer />
     </>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <main className="page-shell">
+        <div className="page-center">
+          <div className="skeleton-card" />
+        </div>
+      </main>
+    }>
+      <HomePageContent />
+    </Suspense>
   );
 }
