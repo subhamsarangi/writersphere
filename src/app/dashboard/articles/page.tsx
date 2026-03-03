@@ -313,23 +313,25 @@ export default function ArticlesPage() {
 
           <LoadingLink
             href="/dashboard/write"
-            className="btn-primary !w-auto flex items-center gap-2"
+            className="btn-primary !w-auto"
             loadingMode="append"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            New draft
+            <span className="inline-flex items-center gap-2">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              New draft
+            </span>
           </LoadingLink>
         </div>
 
@@ -994,9 +996,11 @@ export default function ArticlesPage() {
           ))}
         </div>
 
-        {/* Floating Back Button */}
-        <div className="fixed bottom-6 left-6 z-10">
-          <BackButton />
+        {/* Floating Back Button - Mobile Only */}
+        <div className="fixed bottom-6 left-6 z-10 md:hidden">
+          <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg">
+            <BackButton />
+          </div>
         </div>
       </div>
     </main>

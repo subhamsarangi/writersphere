@@ -70,7 +70,6 @@ export default function EditSubcategoryPage() {
   return (
     <main className="page-shell">
       <div className="page-inner space-y-8">
-        <BackButton />
         <h1 className="page-title">Edit Subcategory</h1>
         <SubcategoryForm
           initial={row}
@@ -92,6 +91,13 @@ export default function EditSubcategoryPage() {
             />
           </div>
         )}
+
+        {/* Floating Back Button - Mobile Only */}
+        <div className="fixed bottom-6 left-6 z-10 md:hidden">
+          <div className="bg-slate-900/80 backdrop-blur-sm rounded-lg">
+            <BackButton />
+          </div>
+        </div>
       </div>
     </main>
   );
