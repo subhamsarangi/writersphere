@@ -9,6 +9,7 @@ import { faTags, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 import LoadingLink from "../../../components/LoadingLink";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
+import WaveBoundary from "../../../components/WaveBoundary";
 
 type Role = "writer" | "reader";
 
@@ -286,7 +287,7 @@ export default function TagsPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner">
+      <div className="page-inner page-with-wave">
         <div className="flex items-center justify-between gap-3">
           <h1 className="page-title flex items-center gap-2">
             <FontAwesomeIcon icon={faTags} />
@@ -381,6 +382,8 @@ export default function TagsPage() {
             </div>
           ) : null}
         </div>
+
+        <WaveBoundary />
       </div>
     </main>
   );

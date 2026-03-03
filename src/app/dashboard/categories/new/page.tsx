@@ -3,13 +3,14 @@
 import { useRouter } from "next/navigation";
 import CategoryForm from "../../../../components/CategoryForm";
 import BackButton from "../../../../components/BackButton";
+import WaveBoundary from "../../../../components/WaveBoundary";
 
 export default function NewCategoryPage() {
   const router = useRouter();
 
   return (
     <main className="page-shell">
-      <div className="page-inner space-y-8">
+      <div className="page-inner space-y-8 page-with-wave">
         <section className="space-y-4">
           <h1 className="page-title">New Category</h1>
           <CategoryForm
@@ -19,6 +20,7 @@ export default function NewCategoryPage() {
         </section>
 
         <BackButton />
+        <WaveBoundary />
       </div>
     </main>
   );

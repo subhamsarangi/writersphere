@@ -15,6 +15,7 @@ import {
 
 import LoadingLink from "../../components/LoadingLink";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
+import WaveBoundary from "../../components/WaveBoundary";
 
 type Role = "writer" | "reader";
 
@@ -125,7 +126,7 @@ export default function DashboardPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner">
+      <div className="page-inner page-with-wave">
         {/* Header row (no redundant article CTA here anymore) */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -305,6 +306,8 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        <WaveBoundary />
       </div>
     </main>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 import BackButton from "../../../components/BackButton";
 import LoadingLink from "../../../components/LoadingLink";
+import WaveBoundary from "../../../components/WaveBoundary";
 
 type ArticleStatus =
   | "draft"
@@ -307,7 +308,7 @@ export default function ArticlesPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner">
+      <div className="page-inner page-with-wave">
         <div className="flex items-center justify-between gap-3 mb-6">
           <div className="page-title !mb-0">Your Articles</div>
 
@@ -997,6 +998,7 @@ export default function ArticlesPage() {
         </div>
 
         <BackButton />
+        <WaveBoundary />
       </div>
     </main>
   );

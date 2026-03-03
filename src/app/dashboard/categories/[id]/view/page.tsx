@@ -6,6 +6,7 @@ import { getSupabaseBrowserClient } from "../../../../../lib/supabaseClient";
 import CategoryForm from "../../../../../components/CategoryForm";
 import BackButton from "../../../../../components/BackButton";
 import LoadingLink from "@/components/LoadingLink";
+import WaveBoundary from "@/components/WaveBoundary";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -173,7 +174,7 @@ export default function ViewCategoryPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner space-y-8">
+      <div className="page-inner space-y-8 page-with-wave">
         {/* Category form + image preview */}
         <section className="space-y-4">
           <h1 className="page-title">Category</h1>
@@ -303,6 +304,7 @@ export default function ViewCategoryPage() {
         </section>
 
         <BackButton />
+        <WaveBoundary />
       </div>
     </main>
   );

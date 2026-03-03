@@ -12,6 +12,7 @@ import { Toast } from "./article-editor/Toast";
 import { ConfirmModal } from "./article-editor/ConfirmModal";
 import { CelebrateBurst } from "./article-editor/CelebrateBurst";
 import { useLocalTheme } from "./article-editor/useLocalTheme";
+import WaveBoundary from "./WaveBoundary";
 
 import {
   statusActionCopy,
@@ -476,7 +477,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
   return (
     <main className="page-shell">
-      <div className="page-inner max-w-full p-2.5 md:p-6" data-color-mode={theme}>
+      <div className="page-inner max-w-full p-2.5 md:p-6 page-with-wave" data-color-mode={theme}>
         <Toast state={toast} />
         <CelebrateBurst mode={burst} />
         <ConfirmModal
@@ -600,6 +601,8 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             onDelete={deleteArticle}
           />
         )}
+
+        <WaveBoundary />
       </div>
     </main>
   );

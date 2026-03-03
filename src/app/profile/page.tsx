@@ -6,6 +6,7 @@ import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightFromBracket, faUser } from "@fortawesome/free-solid-svg-icons";
+import WaveBoundary from "../../components/WaveBoundary";
 
 function Spinner({ className = "" }: { className?: string }) {
   return (
@@ -68,7 +69,7 @@ export default function ProfilePage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner max-w-2xl">
+      <div className="page-inner max-w-2xl page-with-wave">
         <div className="page-title">
           <FontAwesomeIcon icon={faUser} className="mr-2" />
           Profile
@@ -123,6 +124,8 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
+
+        <WaveBoundary />
       </div>
     </main>
   );

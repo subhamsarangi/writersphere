@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 import LoadingLink from "../../../components/LoadingLink";
 import BackButton from "../../../components/BackButton";
+import WaveBoundary from "../../../components/WaveBoundary";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -105,7 +106,7 @@ export default function CategoriesListPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner">
+      <div className="page-inner page-with-wave">
         <div className="flex items-center justify-between mb-4">
           <h1 className="page-title">Categories</h1>
           <LoadingLink
@@ -191,6 +192,7 @@ export default function CategoriesListPage() {
         )}
 
         <BackButton />
+        <WaveBoundary />
       </div>
     </main>
   );

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../../../../lib/supabaseClient";
 import SubcategoryForm from "../../../../../components/SubcategoryForm";
 import BackButton from "../../../../../components/BackButton";
+import WaveBoundary from "../../../../../components/WaveBoundary";
 
 const supabase = getSupabaseBrowserClient();
 
@@ -69,7 +70,7 @@ export default function EditSubcategoryPage() {
 
   return (
     <main className="page-shell">
-      <div className="page-inner space-y-8">
+      <div className="page-inner space-y-8 page-with-wave">
         <h1 className="page-title">Edit Subcategory</h1>
         <SubcategoryForm
           initial={row}
@@ -93,6 +94,7 @@ export default function EditSubcategoryPage() {
         )}
 
         <BackButton />
+        <WaveBoundary />
       </div>
     </main>
   );
