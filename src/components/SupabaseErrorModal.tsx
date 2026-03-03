@@ -33,7 +33,7 @@ export default function SupabaseErrorModal({ isOpen, onClose }: SupabaseErrorMod
               Connection Issue
             </h3>
             <p className="text-sm text-slate-300 mb-4 [html[data-theme='light']_&]:text-slate-700">
-              We're having trouble connecting to our services. This might be due to network restrictions in your region.
+              We&apos;re having trouble connecting to our services. This might be due to network restrictions in your region.
             </p>
             
             <div className="bg-slate-800/50 rounded-lg p-3 mb-4 [html[data-theme='light']_&]:bg-slate-100">
