@@ -153,7 +153,7 @@ export default function NewWritePage() {
       <div className="page-center">
         {error ? (
           <div className="card-dashboard w-full max-w-xl">
-            <div className="page-title">Couldn't create draft</div>
+            <div className="page-title">Couldn&apos;t create draft</div>
             <p className="text-sm text-red-300">{error}</p>
           </div>
         ) : (
