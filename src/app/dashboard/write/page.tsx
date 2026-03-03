@@ -3,8 +3,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
+import BreathingExercise from "../../../components/BreathingExercise";
 
 const KEY_ID = "ws_newdraft_id";
+const KEY_BREATHING_TIMESTAMP = "ws_breathing_timestamp";
+
+const BREATHING_COOLDOWN = 60 * 60 * 1000; // 60 minutes in milliseconds
 
 function uuidv4(): string {
   // RFC4122 v4 using crypto.getRandomValues (browser-safe)
@@ -37,10 +41,37 @@ function uuidv4(): string {
 export default function NewWritePage() {
   const supabase = getSupabaseBrowserClient();
   const [error, setError] = useState<string | null>(null);
+  const [showBreathing, setShowBreathing] = useState(true);
 
   const didRun = useRef(false);
 
+  // Check if breathing exercise was done recently (within 60 minutes)
   useEffect(() => {
+    try {
+      const timestamp = sessionStorage.getItem(KEY_BREATHING_TIMESTAMP);
+      if (timestamp) {
+        const lastTime = parseInt(timestamp, 10);
+        const now = Date.now();
+        if (now - lastTime < BREATHING_COOLDOWN) {
+          setShowBreathing(false);
+        }
+      }
+    } catch {
+      // If sessionStorage fails, show breathing exercise
+    }
+  }, []);
+
+  const handleBreathingComplete = () => {
+    try {
+      sessionStorage.setItem(KEY_BREATHING_TIMESTAMP, Date.now().toString());
+    } catch {
+      // Ignore storage errors
+    }
+    setShowBreathing(false);
+  };
+
+  useEffect(() => {
+    if (showBreathing) return; // Wait for breathing exercise
     if (didRun.current) return;
     didRun.current = true;
 
@@ -54,7 +85,6 @@ export default function NewWritePage() {
           return;
         }
 
-        // 2) reuse the same draft id across dev remounts
         // 2) reuse the same draft id across dev remounts
         let draftId = "";
         try {
@@ -112,14 +142,18 @@ export default function NewWritePage() {
         setError(msg);
       }
     })();
-  }, [supabase]);
+  }, [supabase, showBreathing]);
+
+  if (showBreathing) {
+    return <BreathingExercise onComplete={handleBreathingComplete} />;
+  }
 
   return (
     <main className="page-shell">
       <div className="page-center">
         {error ? (
           <div className="card-dashboard w-full max-w-xl">
-            <div className="page-title">Couldn’t create draft</div>
+            <div className="page-title">Couldn't create draft</div>
             <p className="text-sm text-red-300">{error}</p>
           </div>
         ) : (
