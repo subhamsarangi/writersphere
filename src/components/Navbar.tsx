@@ -91,11 +91,12 @@ export default function Navbar() {
 
       <div className="flex items-center gap-3">
         {/* Desktop Profile Link */}
-        {session ? (
-          <Link href="/profile" className="hidden md:flex btn-ghost">
-            <FontAwesomeIcon icon={faUser} /> Profile
-          </Link>
-        ) : null}
+        <Link 
+          href={session ? "/profile" : "/?auth=true"} 
+          className="hidden md:flex btn-ghost"
+        >
+          <FontAwesomeIcon icon={faUser} /> Profile
+        </Link>
 
         {/* Mobile Menu Toggle */}
         <button
@@ -150,16 +151,14 @@ export default function Navbar() {
               <span className="text-base">Feed</span>
             </Link>
 
-            {session && (
-              <Link 
-                href="/profile" 
-                className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
-                <span className="text-base">Profile</span>
-              </Link>
-            )}
+            <Link 
+              href={session ? "/profile" : "/?auth=true"}
+              className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
+              <span className="text-base">Profile</span>
+            </Link>
           </div>
         </div>
       )}

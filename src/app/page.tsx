@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 
@@ -26,12 +26,20 @@ function Spinner({ className = "" }: { className?: string }) {
 
 export default function HomePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [ready, setReady] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
 
   // Landing vs auth form toggle (unauth only)
   const [showAuth, setShowAuth] = useState(false);
+
+  // Check for 'auth' query parameter to auto-open auth modal
+  useEffect(() => {
+    if (searchParams.get('auth') === 'true') {
+      setShowAuth(true);
+    }
+  }, [searchParams]);
 
   // Auth UI
   const [mode, setMode] = useState<Mode>("sign_up");

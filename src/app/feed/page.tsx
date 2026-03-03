@@ -247,10 +247,6 @@ export default function FeedPage() {
               Public articles from everyone, newest first.
             </p>
           </div>
-
-          <Link href="/" className="btn-chip inline-flex w-fit">
-            Home
-          </Link>
         </div>
 
         {/* Search (Enter-only) */}
@@ -318,67 +314,44 @@ export default function FeedPage() {
         ) : (
           <div className="mt-4 grid gap-3">
             {items.map((a) => (
-              <div key={a.id} className="card-dashboard block transition">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="text-lg font-semibold text-white break-words">
-                      {a.title?.trim() ? a.title : "Untitled"}
-                    </div>
-                    <div className="mt-1 text-xs text-slate-400 break-words">
-                      {a.published_at ? (
-                        <>Published: {fmt(a.published_at)}</>
-                      ) : (
-                        <>Published</>
-                      )}
-                      {a.updated_at ? (
-                        <> · Updated: {fmt(a.updated_at)}</>
-                      ) : null}
-                    </div>
-                    {a.tags && a.tags.length > 0 ? (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {a.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className={`inline-block px-2 py-0.5 text-xs rounded-full ${
-                              tag.toLowerCase() === "poetry"
-                                ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
-                                : "bg-slate-700/50 text-slate-300 border border-slate-600/50"
-                            }`}
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
+              <LoadingLink
+                key={a.id}
+                href={`/articles/${a.id}`}
+                className="card-dashboard block transition hover:bg-slate-800/60 active:bg-slate-800/80 cursor-pointer text-left"
+                loadingMode="overlay"
+              >
+                <div className="min-w-0">
+                  <div className="text-lg font-semibold text-white break-words">
+                    {a.title?.trim() ? a.title : "Untitled"}
+                  </div>
+                  <div className="mt-1 text-xs text-slate-400 break-words">
+                    {a.published_at ? (
+                      <>Published: {fmt(a.published_at)}</>
+                    ) : (
+                      <>Published</>
+                    )}
+                    {a.updated_at ? (
+                      <> · Updated: {fmt(a.updated_at)}</>
                     ) : null}
                   </div>
-
-                  <LoadingLink
-                    href={`/articles/${a.id}`}
-                    className="btn-chip flex items-center justify-center bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30 shrink-0 w-full sm:w-auto"
-                    loadingMode="replace"
-                  >
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  </LoadingLink>
+                  {a.tags && a.tags.length > 0 ? (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {a.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className={`inline-block px-2 py-0.5 text-xs rounded-full ${
+                            tag.toLowerCase() === "poetry"
+                              ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                              : "bg-slate-700/50 text-slate-300 border border-slate-600/50"
+                          }`}
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
-              </div>
+              </LoadingLink>
             ))}
 
             <div ref={sentinelRef} />
