@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import TagInput from "@/components/TagInput";
 import type { CategoryOpt, SubcategoryOpt } from "./types";
 
@@ -28,6 +29,9 @@ export function ArticleMetadata({
   onSubcategoryChange,
   onTagsChange,
 }: ArticleMetadataProps) {
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [subcategoryDropdownOpen, setSubcategoryDropdownOpen] = useState(false);
+
   return (
     <div className="mb-6 rounded-xl border border-slate-700 bg-slate-700/50 shadow-sm font-mono [html[data-theme='light']_&]:bg-slate-100 [html[data-theme='light']_&]:border-slate-300">
       <button
@@ -60,39 +64,127 @@ export function ArticleMetadata({
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="field-label">
               <span className="text-slate-300 [html[data-theme='light']_&]:text-slate-900">Category (required to publish)</span>
-              <select
-                className="field-input bg-slate-700 border-slate-600 text-slate-100 [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-300 [html[data-theme='light']_&]:text-slate-900"
-                value={categoryId}
-                onChange={(e) => onCategoryChange(e.target.value)}
-              >
-                <option value="">Select a category</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                  className="field-input w-full text-left flex items-center gap-2 cursor-pointer bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600/70 transition [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-300 [html[data-theme='light']_&]:text-slate-900 [html[data-theme='light']_&]:hover:bg-slate-50"
+                >
+                  {categoryId === "" ? (
+                    <span className="text-slate-400 [html[data-theme='light']_&]:text-slate-500">Select a category</span>
+                  ) : (
+                    <span>{categories.find(c => c.id === categoryId)?.name || "Select a category"}</span>
+                  )}
+                  <svg
+                    className={`w-4 h-4 ml-auto text-slate-400 transition-transform [html[data-theme='light']_&]:text-slate-600 ${
+                      categoryDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {categoryDropdownOpen ? (
+                  <div className="absolute z-10 mt-1 w-full bg-slate-700 border border-slate-600 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-300">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onCategoryChange("");
+                        setCategoryDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-left hover:bg-slate-600 transition text-slate-400 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:text-slate-600"
+                    >
+                      Select a category
+                    </button>
+                    {categories.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          onCategoryChange(c.id);
+                          setCategoryDropdownOpen(false);
+                        }}
+                        className="w-full px-3 py-2 text-left hover:bg-slate-600 transition text-slate-100 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:text-slate-900"
+                      >
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </label>
 
             <label className="field-label">
               <span className="text-slate-300 [html[data-theme='light']_&]:text-slate-900">Subcategory (optional)</span>
-              <select
-                className={`field-input bg-slate-700 border-slate-600 text-slate-100 [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-300 [html[data-theme='light']_&]:text-slate-900 ${
-                  !categoryId ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                value={subcategoryId}
-                onChange={(e) => onSubcategoryChange(e.target.value)}
-                disabled={!categoryId}
-              >
-                <option value="">
-                  {categoryId ? "Select a subcategory" : "Pick a category first"}
-                </option>
-                {subcategories.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => categoryId && setSubcategoryDropdownOpen(!subcategoryDropdownOpen)}
+                  disabled={!categoryId}
+                  className={`field-input w-full text-left flex items-center gap-2 cursor-pointer bg-slate-700 border-slate-600 text-slate-100 hover:bg-slate-600/70 transition [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-300 [html[data-theme='light']_&]:text-slate-900 [html[data-theme='light']_&]:hover:bg-slate-50 ${
+                    !categoryId ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {subcategoryId === "" ? (
+                    <span className="text-slate-400 [html[data-theme='light']_&]:text-slate-500">
+                      {categoryId ? "Select a subcategory" : "Pick a category first"}
+                    </span>
+                  ) : (
+                    <span>{subcategories.find(s => s.id === subcategoryId)?.name || "Select a subcategory"}</span>
+                  )}
+                  <svg
+                    className={`w-4 h-4 ml-auto text-slate-400 transition-transform [html[data-theme='light']_&]:text-slate-600 ${
+                      subcategoryDropdownOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+
+                {subcategoryDropdownOpen && categoryId ? (
+                  <div className="absolute z-10 mt-1 w-full bg-slate-700 border border-slate-600 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-300">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSubcategoryChange("");
+                        setSubcategoryDropdownOpen(false);
+                      }}
+                      className="w-full px-3 py-2 text-left hover:bg-slate-600 transition text-slate-400 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:text-slate-600"
+                    >
+                      Select a subcategory
+                    </button>
+                    {subcategories.map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => {
+                          onSubcategoryChange(s.id);
+                          setSubcategoryDropdownOpen(false);
+                        }}
+                        className="w-full px-3 py-2 text-left hover:bg-slate-600 transition text-slate-100 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:text-slate-900"
+                      >
+                        {s.name}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </label>
           </div>
 

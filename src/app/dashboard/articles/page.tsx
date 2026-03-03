@@ -79,6 +79,8 @@ export default function ArticlesPage() {
 
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [subcategoryDropdownOpen, setSubcategoryDropdownOpen] = useState(false);
 
   const debounceRef = useRef<number | null>(null);
 
@@ -503,23 +505,6 @@ export default function ArticlesPage() {
                           </svg>
                           Archived
                         </span>
-                      ) : status === "deleted" ? (
-                        <span className="inline-flex items-center gap-1.5 text-red-400">
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                          Deleted
-                        </span>
                       ) : null}
                       <svg
                         className={`w-4 h-4 ml-auto text-slate-400 transition-transform ${
@@ -642,29 +627,6 @@ export default function ArticlesPage() {
                           </svg>
                           <span className="text-slate-400">Archived</span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setStatus("deleted");
-                            setStatusDropdownOpen(false);
-                          }}
-                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2"
-                        >
-                          <svg
-                            className="w-4 h-4 text-red-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                          <span className="text-red-400">Deleted</span>
-                        </button>
                       </div>
                     ) : null}
                   </div>
@@ -672,39 +634,131 @@ export default function ArticlesPage() {
 
                 <label className="field-label sm:col-span-4">
                   <span className="text-slate-300">Category</span>
-                  <select
-                    className="field-input bg-slate-700 border-slate-600 text-slate-100"
-                    value={categoryId}
-                    onChange={(e) => setCategoryId(e.target.value)}
-                  >
-                    <option value="">All</option>
-                    {cats.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                      className="field-input w-full text-left flex items-center gap-2 cursor-pointer hover:bg-slate-600/70 transition"
+                    >
+                      {categoryId === "" ? (
+                        <span className="text-slate-400">All</span>
+                      ) : (
+                        <span className="text-slate-100">
+                          {cats.find(c => c.id === categoryId)?.name || "All"}
+                        </span>
+                      )}
+                      <svg
+                        className={`w-4 h-4 ml-auto text-slate-400 transition-transform ${
+                          categoryDropdownOpen ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+
+                    {categoryDropdownOpen ? (
+                      <div className="absolute z-10 mt-1 w-full bg-slate-700 border border-slate-600 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCategoryId("");
+                            setCategoryDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition text-slate-400"
+                        >
+                          All
+                        </button>
+                        {cats.map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => {
+                              setCategoryId(c.id);
+                              setCategoryDropdownOpen(false);
+                            }}
+                            className="w-full px-3 py-2 text-left hover:bg-slate-600 transition text-slate-100"
+                          >
+                            {c.name}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
                 </label>
 
                 <label className="field-label sm:col-span-4">
                   <span className="text-slate-300">Subcategory</span>
-                  <select
-                    className={`field-input bg-slate-700 border-slate-600 text-slate-100 ${
-                      !categoryId ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    value={subcategoryId}
-                    onChange={(e) => setSubcategoryId(e.target.value)}
-                    disabled={!categoryId}
-                  >
-                    <option value="">
-                      {categoryId ? "All" : "Pick a category first"}
-                    </option>
-                    {subs.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => categoryId && setSubcategoryDropdownOpen(!subcategoryDropdownOpen)}
+                      disabled={!categoryId}
+                      className={`field-input w-full text-left flex items-center gap-2 cursor-pointer hover:bg-slate-600/70 transition ${
+                        !categoryId ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
+                      {subcategoryId === "" ? (
+                        <span className="text-slate-400">
+                          {categoryId ? "All" : "Pick a category first"}
+                        </span>
+                      ) : (
+                        <span className="text-slate-100">
+                          {subs.find(s => s.id === subcategoryId)?.name || "All"}
+                        </span>
+                      )}
+                      <svg
+                        className={`w-4 h-4 ml-auto text-slate-400 transition-transform ${
+                          subcategoryDropdownOpen ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+
+                    {subcategoryDropdownOpen && categoryId ? (
+                      <div className="absolute z-10 mt-1 w-full bg-slate-700 border border-slate-600 rounded-lg shadow-lg overflow-hidden max-h-60 overflow-y-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSubcategoryId("");
+                            setSubcategoryDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition text-slate-400"
+                        >
+                          All
+                        </button>
+                        {subs.map((s) => (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => {
+                              setSubcategoryId(s.id);
+                              setSubcategoryDropdownOpen(false);
+                            }}
+                            className="w-full px-3 py-2 text-left hover:bg-slate-600 transition text-slate-100"
+                          >
+                            {s.name}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
                 </label>
               </div>
 

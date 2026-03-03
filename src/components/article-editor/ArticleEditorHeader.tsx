@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { ArticleStatus } from "./types";
 import { formatTime, isStatusThatNeedsMetadata } from "./utils";
 
@@ -55,6 +56,7 @@ export function ArticleEditorHeader({
   onError,
 }: ArticleEditorHeaderProps) {
   const hasContent = body.trim().length > 0;
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   return (
     <>
@@ -234,30 +236,149 @@ export function ArticleEditorHeader({
             )}
           </button>
 
-          <select
-            className="status-dropdown"
-            value={status}
-            disabled={saving || deleting}
-            onChange={(e) => {
-              const next = e.target.value as ArticleStatus;
-              if (next === status || next === "deleted") return;
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setStatusDropdownOpen(!statusDropdownOpen)}
+              disabled={saving || deleting}
+              className="status-dropdown w-auto min-w-[140px] flex items-center gap-2"
+            >
+              {status === "published" ? (
+                <>
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-green-400">Published</span>
+                </>
+              ) : status === "draft" ? (
+                <>
+                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span className="text-blue-400">Draft</span>
+                </>
+              ) : status === "unpublished" ? (
+                <>
+                  <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                  <span className="text-yellow-400">Unpublished</span>
+                </>
+              ) : status === "archived" ? (
+                <>
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  <span className="text-slate-400">Archived</span>
+                </>
+              ) : null}
+              <svg
+                className={`w-4 h-4 ml-auto text-slate-400 transition-transform ${
+                  statusDropdownOpen ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
 
-              const nextNeedsMetadata = isStatusThatNeedsMetadata(next);
-              if (nextNeedsMetadata && !hasRequiredMetadata) {
-                onError(
-                  "Pick a category and add at least 2 tags before publishing/unpublishing/archiving."
-                );
-                return;
-              }
-
-              onStatusChange(next);
-            }}
-          >
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="unpublished">Unpublished</option>
-            <option value="archived">Archived</option>
-          </select>
+            {statusDropdownOpen ? (
+              <div className="absolute z-10 mt-1 right-0 w-48 bg-slate-700 border border-slate-600 rounded-lg shadow-lg overflow-hidden [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-300">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = "draft";
+                    if (next === status) {
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    onStatusChange(next);
+                    setStatusDropdownOpen(false);
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2 [html[data-theme='light']_&]:hover:bg-slate-100"
+                >
+                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span className="text-blue-400">Draft</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = "published";
+                    if (next === status) {
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    const nextNeedsMetadata = isStatusThatNeedsMetadata(next);
+                    if (nextNeedsMetadata && !hasRequiredMetadata) {
+                      onError("Pick a category and add at least 2 tags before publishing/unpublishing/archiving.");
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    onStatusChange(next);
+                    setStatusDropdownOpen(false);
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2 [html[data-theme='light']_&]:hover:bg-slate-100"
+                >
+                  <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="text-green-400">Published</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = "unpublished";
+                    if (next === status) {
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    const nextNeedsMetadata = isStatusThatNeedsMetadata(next);
+                    if (nextNeedsMetadata && !hasRequiredMetadata) {
+                      onError("Pick a category and add at least 2 tags before publishing/unpublishing/archiving.");
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    onStatusChange(next);
+                    setStatusDropdownOpen(false);
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2 [html[data-theme='light']_&]:hover:bg-slate-100"
+                >
+                  <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                  </svg>
+                  <span className="text-yellow-400">Unpublished</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = "archived";
+                    if (next === status) {
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    const nextNeedsMetadata = isStatusThatNeedsMetadata(next);
+                    if (nextNeedsMetadata && !hasRequiredMetadata) {
+                      onError("Pick a category and add at least 2 tags before publishing/unpublishing/archiving.");
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    onStatusChange(next);
+                    setStatusDropdownOpen(false);
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2 [html[data-theme='light']_&]:hover:bg-slate-100"
+                >
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  <span className="text-slate-400">Archived</span>
+                </button>
+              </div>
+            ) : null}
+          </div>
 
           <button
             className="btn-primary !w-auto"
