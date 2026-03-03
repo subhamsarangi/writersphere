@@ -1,10 +1,16 @@
 // app/layout.tsx
+"use client";
+
 import "./globals.css";
 
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 
+import React from "react";
+import Head from "next/head";
 import Navbar from "../components/Navbar";
+import SupabaseErrorModal from "../components/SupabaseErrorModal";
+import { useSupabaseErrorDetection } from "../lib/useSupabaseErrorDetection";
 import { Merriweather } from "next/font/google";
 
 const merriweather = Merriweather({
@@ -15,10 +21,35 @@ const merriweather = Merriweather({
   variable: '--font-merriweather',
 });
 
-export const metadata = {
-  title: "Writersphere",
-  description: "A small writing platform",
-};
+function RootLayoutContent({ children }: { children: React.ReactNode }) {
+  const { showErrorModal, setShowErrorModal } = useSupabaseErrorDetection();
+
+  // Test shortcut: Press Ctrl+Shift+E to trigger the modal
+  React.useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+        setShowErrorModal(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [setShowErrorModal]);
+
+  return (
+    <>
+      <Head>
+        <title>Writersphere</title>
+        <meta name="description" content="A small writing platform" />
+      </Head>
+      <Navbar />
+      {children}
+      <SupabaseErrorModal 
+        isOpen={showErrorModal} 
+        onClose={() => setShowErrorModal(false)} 
+      />
+    </>
+  );
+}
 
 export default function RootLayout({
   children,
@@ -27,9 +58,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="dark" className={merriweather.variable}>
+      <head>
+        <title>Writersphere</title>
+        <meta name="description" content="A small writing platform" />
+      </head>
       <body>
-        <Navbar />
-        {children}
+        <RootLayoutContent>{children}</RootLayoutContent>
       </body>
     </html>
   );
