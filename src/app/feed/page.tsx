@@ -22,11 +22,6 @@ function fmt(ts: string | null): string {
   }
 }
 
-function escapeIlike(raw: string): string {
-  // Escape % and _ which are wildcards in LIKE patterns
-  return raw.replace(/[%_]/g, (m) => `\\${m}`);
-}
-
 function isFeedArticle(v: unknown): v is FeedArticle {
   if (typeof v !== "object" || v === null) return false;
   const o = v as Record<string, unknown>;
