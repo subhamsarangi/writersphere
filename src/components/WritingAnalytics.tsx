@@ -77,10 +77,16 @@ export default function WritingAnalytics({ userId }: { userId: string }) {
   const [previousStats, setPreviousStats] = useState<Stats | null>(null);
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     async function fetchStats() {
-      setLoading(true);
+      // Only show full loading on initial load
+      if (stats === null) {
+        setLoading(true);
+      } else {
+        setIsRefreshing(true);
+      }
       
       const { start, end, previousStart } = getDateRange(timeRange);
       
@@ -118,6 +124,7 @@ export default function WritingAnalytics({ userId }: { userId: string }) {
       }
       
       setLoading(false);
+      setIsRefreshing(false);
     }
     
     fetchStats();
@@ -147,19 +154,57 @@ export default function WritingAnalytics({ userId }: { userId: string }) {
   const activeTimeGrowth = previousStats ? calculateGrowth(stats.total_active_time, previousStats.total_active_time) : 0;
   const charsGrowth = previousStats ? calculateGrowth(stats.total_characters_added, previousStats.total_characters_added) : 0;
 
+  const minutesSatWithDiscomfort = Math.floor(stats.total_active_time / 60);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Subtle loading overlay when refreshing */}
+      {isRefreshing && (
+        <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm z-10 rounded-lg flex items-center justify-center">
+          <div className="flex items-center gap-3 bg-slate-800 px-6 py-3 rounded-lg border border-slate-700">
+            <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-r-transparent" />
+            <span className="text-slate-200 font-medium">Updating...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Hero Metrics - The Two Most Important Things */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="card-dashboard bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 border-emerald-700/50 p-6 md:p-8">
+          <p className="text-sm md:text-base text-emerald-300 mb-3 font-medium">Days you showed up</p>
+          <p className="text-5xl md:text-6xl font-bold text-emerald-100 mb-3">{stats.days_active}</p>
+          <p className="text-sm md:text-base text-emerald-300/80 mb-3">
+            {stats.days_active === 1 ? 'day' : 'days'} this {timeRange}
+          </p>
+          <p className="text-xs md:text-sm text-emerald-300/60 leading-relaxed hidden md:block">
+            Consistency is everything. Every day you show up, you&apos;re building the habit that separates writers from dreamers.
+          </p>
+        </div>
+
+        <div className="card-dashboard bg-gradient-to-br from-purple-900/30 to-purple-800/20 border-purple-700/50 p-6 md:p-8">
+          <p className="text-sm md:text-base text-purple-300 mb-3 font-medium">Minutes you sat with discomfort</p>
+          <p className="text-5xl md:text-6xl font-bold text-purple-100 mb-3">{minutesSatWithDiscomfort}</p>
+          <p className="text-sm md:text-base text-purple-300/80 mb-3">
+            minutes this {timeRange}
+          </p>
+          <p className="text-xs md:text-sm text-purple-300/60 leading-relaxed hidden md:block">
+            Writing is uncomfortable. The blank page is terrifying. But you sat with it anyway. That&apos;s courage.
+          </p>
+        </div>
+      </div>
+
       {/* Time Range Selector */}
       <div className="flex gap-2">
         {(['day', 'week', 'month', 'year'] as TimeRange[]).map((range) => (
           <button
             key={range}
             onClick={() => setTimeRange(range)}
+            disabled={isRefreshing}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
               timeRange === range
                 ? 'bg-blue-600 text-white'
                 : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-            }`}
+            } disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {range.charAt(0).toUpperCase() + range.slice(1)}
           </button>

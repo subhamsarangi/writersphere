@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 import BackButton from "../../../components/BackButton";
 import LoadingLink from "../../../components/LoadingLink";
@@ -948,7 +947,7 @@ export default function ArticlesPage() {
 
                   <div className="flex gap-2 mt-3 md:hidden">
                     <LoadingLink
-                      className="btn-chip flex items-center gap-1.5"
+                      className="btn-chip"
                       href={`/dashboard/write/${a.id}`}
                       loadingMode="replace"
                     >
@@ -969,7 +968,7 @@ export default function ArticlesPage() {
 
                     {a.status === "published" ? (
                       <LoadingLink
-                        className="btn-chip flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
+                        className="btn-chip bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
                         href={`/articles/${a.id}`}
                         loadingMode="replace"
                       >
@@ -998,9 +997,10 @@ export default function ArticlesPage() {
                 </div>
 
                 <div className="hidden md:flex gap-2">
-                  <Link
-                    className="btn-chip flex items-center gap-1.5"
+                  <LoadingLink
+                    className="btn-chip"
                     href={`/dashboard/write/${a.id}`}
+                    loadingMode="replace"
                   >
                     <svg
                       className="w-4 h-4"
@@ -1015,8 +1015,8 @@ export default function ArticlesPage() {
                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                       />
                     </svg>
-                    Edit
-                  </Link>
+                    <span>Edit</span>
+                  </LoadingLink>
 
                   {a.status === "published" ? (
                     <LoadingLink
