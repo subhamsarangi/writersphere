@@ -281,7 +281,7 @@ export default function FeedPage() {
               <LoadingLink
                 key={a.id}
                 href={`/articles/${a.id}`}
-                className="card-dashboard block transition hover:bg-slate-800/60 active:bg-slate-800/80 cursor-pointer text-left"
+                className="card-dashboard block transition hover:bg-slate-800/60 hover:border-slate-600 active:bg-slate-800/80 cursor-pointer text-left"
                 loadingMode="overlay"
               >
                 <div className="min-w-0">

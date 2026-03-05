@@ -825,7 +825,7 @@ export default function ArticlesPage() {
           {rows.map((a) => (
             <div
               key={a.id}
-              className={`card-dashboard hover:bg-slate-800/40 transition ${
+              className={`card-dashboard hover:bg-slate-800/40 hover:border-slate-600 transition ${
                 a.status === "published"
                   ? "border-2 border-green-500/50 dark:border-green-500/50"
                   : ""

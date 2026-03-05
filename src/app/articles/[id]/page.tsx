@@ -281,7 +281,7 @@ export default function PublishedArticlePage({
           )}
         </div>
 
-        <div className={`prose-container ${hasPoetryTag ? 'poetry-content' : ''}`}>
+        <div className={`prose-container mb-8 ${hasPoetryTag ? 'poetry-content' : ''}`}>
           <div className="prose max-w-none">
             <MDEditor.Markdown className="p-2" source={row.body_md ?? ""} />
           </div>

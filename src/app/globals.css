@@ -481,12 +481,13 @@
 }
 
 html[data-theme="light"] body {
-  @apply bg-slate-50 text-slate-950;
+  background: #F5F1E8;
+  @apply text-slate-950;
 }
 
 html[data-theme="light"] .page-shell,
 html[data-theme="light"] .page-center {
-  @apply bg-slate-50;
+  background: #F5F1E8;
 }
 
 html[data-theme="light"] .card-auth,
@@ -580,7 +581,8 @@ html[data-theme="light"] .btn-danger-zone {
 }
 
 html[data-theme="light"] .btn-primary {
-  @apply bg-blue-900 text-slate-50 hover:bg-blue-800;
+  @apply text-white hover:opacity-90;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 }
 
 html[data-theme="light"] .text-emerald-300 {

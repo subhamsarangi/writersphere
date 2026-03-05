@@ -45,7 +45,7 @@ export function ArticleContentEditor({
   }, [onInput, preview]);
   
   return (
-    <div className={`card-dashboard p-0 md:p-5 ${hasPoetryTag ? 'poetry-content' : ''} ${preview ? 'p-3 md:p-5' : ''}`}>
+    <div className={`card-dashboard p-0 md:p-5 mb-8 ${hasPoetryTag ? 'poetry-content' : ''} ${preview ? 'p-3 md:p-5' : ''}`}>
       {preview ? (
         <div className="prose max-w-none">
           <MDEditor.Markdown source={body || ""} />
