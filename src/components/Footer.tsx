@@ -11,7 +11,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold text-slate-50 mb-2">Writersphere</h3>
             <p className="text-sm text-slate-400">
-              A platform for writers and readers to share and discover great content.
+              For quiet thinkers, burned-out professionals, and engineers who want to express. Writing becomes exploration when you have structure.
             </p>
           </div>
 
@@ -36,7 +36,7 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-slate-300 mb-3">About</h4>
             <p className="text-sm text-slate-400">
-              Built for writers who want a simple, focused space to create and share their work.
+              Built to help you start writing without freezing. Perfectionism, procrastination, and imposter syndrome don&apos;t stand a chance against structured reflection.
             </p>
           </div>
         </div>

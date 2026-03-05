@@ -218,44 +218,173 @@ function HomePageContent() {
   return (
     <>
     <main className="page-shell">
-      <div className="page-center">
+      <div className="page-center md:p-12 lg:p-16">
         {!showAuth ? (
-          <div className="card-dashboard w-full max-w-2xl">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white">Writersphere</div>
-              <p className="mt-2 text-slate-300">
-                Read great writing from everyone. Write when you’re ready.
+          <div className="card-dashboard-main w-full md:max-w-4xl lg:max-w-5xl p-8 md:p-12 lg:p-16 animate-fade-in">
+            <div className="text-center px-4 md:px-8 animate-fade-in-up">
+              <div className="text-4xl md:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-300 to-yellow-200" style={{ fontFamily: 'var(--font-caveat)' }}>Writersphere</div>
+              <p className="mt-4 md:mt-6 text-base md:text-lg lg:text-xl text-slate-300 px-4 md:px-8 italic">
+                Clarity comes after chaos. <span className="text-amber-300 not-italic font-medium">Start writing without freezing.</span>
               </p>
             </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <Link href="/feed" className="btn-primary text-center">
+            <div className="mt-10 md:mt-14 grid gap-5 sm:grid-cols-2 px-4 md:px-8 animate-fade-in-up animation-delay-100">
+              <Link href="/feed" className="btn-primary text-center text-base md:text-lg py-4 md:py-5 px-6 inline-flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 md:w-6 md:h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+                </svg>
                 Explore Feed
               </Link>
 
               <button
                 type="button"
-                className="btn-chip"
+                className="btn-chip text-base md:text-lg py-4 md:py-5 px-6 inline-flex items-center justify-center gap-2"
                 onClick={() => setShowAuth(true)}
               >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 md:w-6 md:h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                </svg>
                 Sign in / Sign up
               </button>
             </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-3 text-xs text-slate-400">
-              <div className="card-dashboard">
-                <div className="font-medium text-slate-200">Public feed</div>
-                <div className="mt-1">
-                  Chronological posts from all writers.
+            <div className="mt-10 md:mt-14 grid gap-5 sm:grid-cols-3 text-sm md:text-base text-slate-400 px-4 md:px-8">
+              <div className="relative animate-fade-in-up animation-delay-200 overflow-hidden">
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 280" preserveAspectRatio="none">
+                  <defs>
+                    <clipPath id="soil-clip">
+                      <path d="M 55 6 C 28 8, 12 22, 7 48 L 5 110 C 4 145, 5 175, 6 215 C 8 245, 20 268, 45 273 L 255 274 C 278 271, 290 255, 294 230 L 296 170 C 297 135, 296 105, 294 65 C 291 35, 275 12, 250 7 Z" />
+                    </clipPath>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: 'rgba(120, 80, 50, 0.5)', stopOpacity: 1 }} />
+                      <stop offset="50%" style={{ stopColor: 'rgba(100, 65, 40, 0.45)', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: 'rgba(90, 55, 35, 0.4)', stopOpacity: 1 }} />
+                    </linearGradient>
+                    <filter id="soil-texture">
+                      <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="3" result="noise" />
+                      <feColorMatrix in="noise" type="saturate" values="0.3" />
+                      <feBlend in="SourceGraphic" in2="noise" mode="multiply" opacity="0.4" />
+                    </filter>
+                  </defs>
+                  <g clipPath="url(#soil-clip)">
+                    <path d="M 55 6 C 28 8, 12 22, 7 48 L 5 110 C 4 145, 5 175, 6 215 C 8 245, 20 268, 45 273 L 255 274 C 278 271, 290 255, 294 230 L 296 170 C 297 135, 296 105, 294 65 C 291 35, 275 12, 250 7 Z" 
+                      fill="url(#grad1)" 
+                      filter="url(#soil-texture)" />
+                  </g>
+                  <path d="M 55 6 C 28 8, 12 22, 7 48 L 5 110 C 4 145, 5 175, 6 215 C 8 245, 20 268, 45 273 L 255 274 C 278 271, 290 255, 294 230 L 296 170 C 297 135, 296 105, 294 65 C 291 35, 275 12, 250 7 Z" 
+                    fill="none"
+                    stroke="rgba(139, 92, 71, 0.6)" 
+                    strokeWidth="1.5" />
+                </svg>
+                <div className="relative p-6 md:p-8">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-amber-700/30 to-orange-900/30 border border-amber-800/40 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7 text-amber-300">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="font-bold text-amber-100 text-base md:text-lg mb-3 text-center italic" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)' }}>Writing as exploration, <span className="text-orange-200 not-italic">not performance</span></div>
+                  <div className="mt-2 text-center text-slate-100" style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.4)' }}>
+                    Chronological posts from all writers.
+                  </div>
                 </div>
               </div>
-              <div className="card-dashboard">
-                <div className="font-medium text-slate-200">Tags & topics</div>
-                <div className="mt-1">Discover posts the way you like.</div>
+              <div className="relative animate-fade-in-up animation-delay-300 overflow-hidden">
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 280" preserveAspectRatio="none">
+                  <defs>
+                    <clipPath id="leaf-clip">
+                      <path d="M 42 5 C 22 7, 9 20, 5 42 L 4 125 C 3 155, 4 185, 6 225 C 9 252, 22 272, 48 276 L 252 277 C 280 274, 293 258, 296 235 L 297 155 C 298 125, 297 95, 295 55 C 292 28, 278 8, 255 5 Z" />
+                    </clipPath>
+                    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: 'rgba(74, 111, 56, 0.4)', stopOpacity: 1 }} />
+                      <stop offset="50%" style={{ stopColor: 'rgba(88, 129, 68, 0.35)', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: 'rgba(65, 95, 50, 0.3)', stopOpacity: 1 }} />
+                    </linearGradient>
+                    <pattern id="leaf-veins" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                      <line x1="50" y1="0" x2="50" y2="100" stroke="rgba(88, 129, 68, 0.3)" strokeWidth="2" />
+                      <line x1="50" y1="20" x2="20" y2="35" stroke="rgba(88, 129, 68, 0.2)" strokeWidth="1" />
+                      <line x1="50" y1="40" x2="25" y2="50" stroke="rgba(88, 129, 68, 0.2)" strokeWidth="1" />
+                      <line x1="50" y1="60" x2="20" y2="70" stroke="rgba(88, 129, 68, 0.2)" strokeWidth="1" />
+                      <line x1="50" y1="80" x2="25" y2="88" stroke="rgba(88, 129, 68, 0.2)" strokeWidth="1" />
+                      <line x1="50" y1="20" x2="80" y2="35" stroke="rgba(88, 129, 68, 0.2)" strokeWidth="1" />
+                      <line x1="50" y1="40" x2="75" y2="50" stroke="rgba(88, 129, 68, 0.2)" strokeWidth="1" />
+                      <line x1="50" y1="60" x2="80" y2="70" stroke="rgba(88, 129, 68, 0.2)" strokeWidth="1" />
+                      <line x1="50" y1="80" x2="75" y2="88" stroke="rgba(88, 129, 68, 0.2)" strokeWidth="1" />
+                    </pattern>
+                  </defs>
+                  <g clipPath="url(#leaf-clip)">
+                    <path d="M 42 5 C 22 7, 9 20, 5 42 L 4 125 C 3 155, 4 185, 6 225 C 9 252, 22 272, 48 276 L 252 277 C 280 274, 293 258, 296 235 L 297 155 C 298 125, 297 95, 295 55 C 292 28, 278 8, 255 5 Z" 
+                      fill="url(#grad2)" />
+                    <path d="M 42 5 C 22 7, 9 20, 5 42 L 4 125 C 3 155, 4 185, 6 225 C 9 252, 22 272, 48 276 L 252 277 C 280 274, 293 258, 296 235 L 297 155 C 298 125, 297 95, 295 55 C 292 28, 278 8, 255 5 Z" 
+                      fill="url(#leaf-veins)" 
+                      opacity="0.6" />
+                  </g>
+                  <path d="M 42 5 C 22 7, 9 20, 5 42 L 4 125 C 3 155, 4 185, 6 225 C 9 252, 22 272, 48 276 L 252 277 C 280 274, 293 258, 296 235 L 297 155 C 298 125, 297 95, 295 55 C 292 28, 278 8, 255 5 Z" 
+                    fill="none"
+                    stroke="rgba(74, 111, 56, 0.6)" 
+                    strokeWidth="1.5" />
+                </svg>
+                <div className="relative p-6 md:p-8">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-green-700/30 to-green-900/30 border border-green-700/40 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7 text-green-300">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="font-bold text-base md:text-lg mb-3 text-center">For overthinkers <span className="italic text-lime-300">who need structure</span></div>
+                  <div className="mt-2 text-center text-slate-300">Discover posts the way you like.</div>
+                </div>
               </div>
-              <div className="card-dashboard">
-                <div className="font-medium text-slate-200">Write anytime</div>
-                <div className="mt-1">Draft, publish, manage your content.</div>
+              <div className="relative animate-fade-in-up animation-delay-400 overflow-hidden">
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 280" preserveAspectRatio="none">
+                  <defs>
+                    <clipPath id="paper-clip">
+                      <path d="M 50 4 C 25 6, 10 18, 6 40 L 4 120 C 3 150, 4 180, 5 220 C 7 250, 18 270, 40 274 L 260 276 C 285 274, 294 262, 296 240 L 297 160 C 298 130, 297 100, 296 60 C 294 30, 282 10, 260 6 Z" />
+                    </clipPath>
+                    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: 'rgba(235, 210, 175, 0.55)', stopOpacity: 1 }} />
+                      <stop offset="50%" style={{ stopColor: 'rgba(220, 195, 160, 0.5)', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: 'rgba(205, 180, 145, 0.45)', stopOpacity: 1 }} />
+                    </linearGradient>
+                    <filter id="paper-texture">
+                      <feTurbulence type="fractalNoise" baseFrequency="3" numOctaves="4" seed="2" result="noise" />
+                      <feColorMatrix in="noise" type="saturate" values="0.2" />
+                      <feComponentTransfer>
+                        <feFuncA type="discrete" tableValues="0 0.08 0.15 0.2" />
+                      </feComponentTransfer>
+                      <feBlend in="SourceGraphic" in2="noise" mode="multiply" opacity="0.5" />
+                    </filter>
+                    <pattern id="paper-stains" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse">
+                      <circle cx="50" cy="80" r="25" fill="rgba(180, 150, 110, 0.12)" />
+                      <circle cx="150" cy="120" r="30" fill="rgba(160, 130, 95, 0.1)" />
+                      <circle cx="100" cy="40" r="20" fill="rgba(170, 140, 100, 0.11)" />
+                    </pattern>
+                  </defs>
+                  <g clipPath="url(#paper-clip)">
+                    <path d="M 50 4 C 25 6, 10 18, 6 40 L 4 120 C 3 150, 4 180, 5 220 C 7 250, 18 270, 40 274 L 260 276 C 285 274, 294 262, 296 240 L 297 160 C 298 130, 297 100, 296 60 C 294 30, 282 10, 260 6 Z" 
+                      fill="url(#grad3)" 
+                      filter="url(#paper-texture)" />
+                    <path d="M 50 4 C 25 6, 10 18, 6 40 L 4 120 C 3 150, 4 180, 5 220 C 7 250, 18 270, 40 274 L 260 276 C 285 274, 294 262, 296 240 L 297 160 C 298 130, 297 100, 296 60 C 294 30, 282 10, 260 6 Z" 
+                      fill="url(#paper-stains)" />
+                  </g>
+                  <path d="M 50 4 C 25 6, 10 18, 6 40 L 4 120 C 3 150, 4 180, 5 220 C 7 250, 18 270, 40 274 L 260 276 C 285 274, 294 262, 296 240 L 297 160 C 298 130, 297 100, 296 60 C 294 30, 282 10, 260 6 Z" 
+                    fill="none"
+                    stroke="rgba(180, 150, 110, 0.6)" 
+                    strokeWidth="1.5" />
+                </svg>
+                <div className="relative p-6 md:p-8">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-amber-600/30 to-yellow-800/30 border border-amber-700/40 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 md:w-7 md:h-7 text-amber-300">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="font-bold text-base md:text-lg mb-3 text-center italic" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)', color: '#2d2419ff' }}>Regulate through <span className="not-italic" style={{ color: '#680000ff' }}>reflection</span></div>
+                  <div className="mt-2 text-center text-slate-100" style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.4)' }}>Draft, publish, manage your content.</div>
+                </div>
               </div>
             </div>
           </div>

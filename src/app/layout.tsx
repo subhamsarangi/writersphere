@@ -11,7 +11,7 @@ import Head from "next/head";
 import Navbar from "../components/Navbar";
 import SupabaseErrorModal from "../components/SupabaseErrorModal";
 import { useSupabaseErrorDetection } from "../lib/useSupabaseErrorDetection";
-import { Merriweather } from "next/font/google";
+import { Merriweather, Caveat } from "next/font/google";
 
 const merriweather = Merriweather({
   weight: ['300', '400', '700'],
@@ -19,6 +19,13 @@ const merriweather = Merriweather({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-merriweather',
+});
+
+const caveat = Caveat({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-caveat',
 });
 
 function RootLayoutContent({ children }: { children: React.ReactNode }) {
@@ -58,7 +65,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-theme="dark" className={merriweather.variable}>
+    <html lang="en" data-theme="dark" className={`${merriweather.variable} ${caveat.variable}`}>
       <head>
         <title>Writersphere</title>
         <meta name="description" content="A small writing platform" />

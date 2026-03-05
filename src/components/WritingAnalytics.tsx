@@ -177,7 +177,7 @@ export default function WritingAnalytics({ userId }: { userId: string }) {
             {stats.days_active === 1 ? 'day' : 'days'} this {timeRange}
           </p>
           <p className="text-xs md:text-sm text-emerald-300/60 leading-relaxed hidden md:block">
-            Consistency is everything. Every day you show up, you&apos;re building the habit that separates writers from dreamers.
+            Perfectionism wants you to wait for the perfect moment. You showed up anyway.
           </p>
         </div>
 
