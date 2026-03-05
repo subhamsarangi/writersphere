@@ -6,12 +6,12 @@ export default function Footer() {
   return (
     <footer className="border-t border-slate-800 bg-slate-950 mt-auto">
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Brand */}
           <div>
             <h3 className="text-lg font-bold text-slate-50 mb-2">Writersphere</h3>
             <p className="text-sm text-slate-400">
-              For quiet thinkers, burned-out professionals, and engineers who want to express. Writing becomes exploration when you have structure.
+              For quiet thinkers who want to beat perfectionism by embracing structured reflection.
             </p>
           </div>
 
@@ -30,14 +30,6 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
-
-          {/* Info */}
-          <div>
-            <h4 className="text-sm font-semibold text-slate-300 mb-3">About</h4>
-            <p className="text-sm text-slate-400">
-              Built to help you start writing without freezing. Perfectionism, procrastination, and imposter syndrome don&apos;t stand a chance against structured reflection.
-            </p>
           </div>
         </div>
 

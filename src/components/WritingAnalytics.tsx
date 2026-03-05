@@ -78,11 +78,12 @@ export default function WritingAnalytics({ userId }: { userId: string }) {
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
       // Only show full loading on initial load
-      if (stats === null) {
+      if (isInitialLoad) {
         setLoading(true);
       } else {
         setIsRefreshing(true);
@@ -125,10 +126,11 @@ export default function WritingAnalytics({ userId }: { userId: string }) {
       
       setLoading(false);
       setIsRefreshing(false);
+      setIsInitialLoad(false);
     }
     
     fetchStats();
-  }, [userId, timeRange, supabase]);
+  }, [userId, timeRange, supabase, isInitialLoad]);
 
   const calculateGrowth = (current: number, previous: number): number => {
     if (previous === 0) return current > 0 ? 100 : 0;
