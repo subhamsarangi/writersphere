@@ -29,7 +29,7 @@ export function ArticleContentEditor({
       const textarea = document.querySelector('.w-md-editor-text-input') as HTMLTextAreaElement;
       if (textarea) {
         textareaRef.current = textarea;
-        textarea.addEventListener('input', onInput as any);
+        textarea.addEventListener('input', onInput as EventListener);
       }
     };
     
@@ -39,7 +39,7 @@ export function ArticleContentEditor({
     return () => {
       clearTimeout(timeout);
       if (textareaRef.current) {
-        textareaRef.current.removeEventListener('input', onInput as any);
+        textareaRef.current.removeEventListener('input', onInput as EventListener);
       }
     };
   }, [onInput, preview]);
