@@ -12,6 +12,7 @@ import { Toast } from "./article-editor/Toast";
 import { ConfirmModal } from "./article-editor/ConfirmModal";
 import { CelebrateBurst } from "./article-editor/CelebrateBurst";
 import { useLocalTheme } from "./article-editor/useLocalTheme";
+import { useWritingAnalytics } from "../lib/useWritingAnalytics";
 import WaveBoundary from "./WaveBoundary";
 
 import {
@@ -89,6 +90,9 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   const [ready, setReady] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
+
+  // Writing analytics tracking
+  const { trackInput } = useWritingAnalytics(articleId, uid);
 
   const [cats, setCats] = useState<CategoryOpt[]>([]);
   const [subs, setSubs] = useState<SubcategoryOpt[]>([]);
@@ -592,6 +596,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             setBody(v);
             markDirty();
           }}
+          onInput={trackInput}
         />
 
         {!preview && (

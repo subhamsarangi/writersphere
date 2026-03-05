@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 
 type ArticleContentEditorProps = {
@@ -7,6 +8,7 @@ type ArticleContentEditorProps = {
   preview: boolean;
   tags: string[];
   onChange: (value: string) => void;
+  onInput?: (event: InputEvent) => void;
 };
 
 export function ArticleContentEditor({
@@ -14,8 +16,33 @@ export function ArticleContentEditor({
   preview,
   tags,
   onChange,
+  onInput,
 }: ArticleContentEditorProps) {
   const hasPoetryTag = tags.some(tag => tag.toLowerCase() === 'poetry');
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  
+  // Attach input listener to MDEditor's textarea
+  useEffect(() => {
+    if (!onInput || preview) return;
+    
+    const findTextarea = () => {
+      const textarea = document.querySelector('.w-md-editor-text-input') as HTMLTextAreaElement;
+      if (textarea) {
+        textareaRef.current = textarea;
+        textarea.addEventListener('input', onInput as any);
+      }
+    };
+    
+    // MDEditor renders asynchronously, so we need to wait a bit
+    const timeout = setTimeout(findTextarea, 100);
+    
+    return () => {
+      clearTimeout(timeout);
+      if (textareaRef.current) {
+        textareaRef.current.removeEventListener('input', onInput as any);
+      }
+    };
+  }, [onInput, preview]);
   
   return (
     <div className={`card-dashboard p-0 md:p-5 ${hasPoetryTag ? 'poetry-content' : ''} ${preview ? 'p-3 md:p-5' : ''}`}>
