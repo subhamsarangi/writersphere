@@ -111,7 +111,7 @@ export default function NewWritePage() {
         const { error: insErr } = await supabase.from("articles").insert({
           id: draftId,
           writer_id: uid,
-          title: "Untitled",
+          title: "Ugly Draft v1",
           body_md: "",
           status: "draft",
           last_saved_at: new Date().toISOString(),
