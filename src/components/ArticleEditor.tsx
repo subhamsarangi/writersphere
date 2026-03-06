@@ -8,6 +8,7 @@ import { ArticleEditorHeader } from "./article-editor/ArticleEditorHeader";
 import { ArticleMetadata } from "./article-editor/ArticleMetadata";
 import { ArticleContentEditor } from "./article-editor/ArticleContentEditor";
 import { ArticleDangerZone } from "./article-editor/ArticleDangerZone";
+import { ArticleImageModal } from "./article-editor/ArticleImageModal";
 import { Toast } from "./article-editor/Toast";
 import { ConfirmModal } from "./article-editor/ConfirmModal";
 import { CelebrateBurst } from "./article-editor/CelebrateBurst";
@@ -21,6 +22,7 @@ import {
   uniqueTags,
   getErrorMessage,
   playSfx,
+  hasRequiredMetadata,
 } from "./article-editor/utils";
 
 import type {
@@ -103,6 +105,8 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   const [categoryId, setCategoryId] = useState<string>("");
   const [subcategoryId, setSubcategoryId] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
+  const [mainImageUrl, setMainImageUrl] = useState<string | null>(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
@@ -160,11 +164,9 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
     );
   }, [status]);
 
-  const hasRequiredMetadata = useMemo(() => {
-    const hasMinTags = uniqueTags(tags).length >= 2;
-    const hasCategory = Boolean(categoryId);
-    return hasMinTags && hasCategory;
-  }, [tags, categoryId]);
+  const hasAllRequiredMetadata = useMemo(() => {
+    return hasRequiredMetadata(categoryId, tags, mainImageUrl);
+  }, [categoryId, tags, mainImageUrl]);
 
   function markDirty() {
     dirtyRef.current = true;
@@ -197,9 +199,9 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
         currentStatus === "unpublished" ||
         currentStatus === "archived";
 
-      if (currentNeedsMetadata && !hasRequiredMetadata) {
+      if (currentNeedsMetadata && !hasRequiredMetadata(categoryId, tags, mainImageUrl)) {
         throw new Error(
-          "To publish/unpublish/archive you must select a category and have at least 2 tags."
+          "To publish/unpublish/archive you must select a category, have at least 2 tags, and add a main image."
         );
       }
 
@@ -209,6 +211,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
         status: currentStatus,
         category_id: categoryId || null,
         subcategory_id: subcategoryId || null,
+        primary_image_url: mainImageUrl || null,
         updated_at: nowIso(),
         last_saved_at: nowIso(),
       };
@@ -287,6 +290,20 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
     try {
       const ts = nowIso();
+      
+      // Delete the main image from R2 if exists
+      if (mainImageUrl && mainImageUrl.includes("article-images/")) {
+        try {
+          await fetch("/api/delete-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: mainImageUrl }),
+          });
+        } catch (e) {
+          console.error("Failed to delete image:", e);
+        }
+      }
+      
       const { error: delErr } = await supabase
         .from("articles")
         .update({
@@ -345,7 +362,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       const { data: a, error: aErr } = await supabase
         .from("articles")
         .select(
-          "title,body_md,status,category_id,subcategory_id,created_at,updated_at,last_saved_at,published_at,anonymous_at,unpublished_at,archived_at,deleted_at"
+          "title,body_md,status,category_id,subcategory_id,primary_image_url,created_at,updated_at,last_saved_at,published_at,anonymous_at,unpublished_at,archived_at,deleted_at"
         )
         .eq("id", articleId)
         .eq("writer_id", id)
@@ -367,6 +384,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       setStatus((a.status ?? "draft") as ArticleStatus);
       setCategoryId(a.category_id ?? "");
       setSubcategoryId(a.subcategory_id ?? "");
+      setMainImageUrl(a.primary_image_url ?? null);
 
       setCreatedAt(a.created_at ?? null);
       setUpdatedAt(a.updated_at ?? null);
@@ -457,7 +475,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blocked, deleting, uid, status, categoryId, subcategoryId, title, body, tags]);
+  }, [blocked, deleting, uid, status, categoryId, subcategoryId, title, body, tags, mainImageUrl]);
 
   if (!ready) {
     return (
@@ -538,7 +556,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
           theme={theme}
           saving={saving}
           deleting={deleting}
-          hasRequiredMetadata={hasRequiredMetadata}
+          hasRequiredMetadata={hasAllRequiredMetadata}
           onTitleChange={(t) => {
             setTitle(t);
             markDirty();
@@ -561,15 +579,21 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             });
           }}
           onSave={() => void save("manual")}
-          onError={setError}
+          onError={(msg) => {
+            setError(msg);
+            // If error is about missing metadata, open metadata section
+            if (msg.toLowerCase().includes("image") || msg.toLowerCase().includes("category") || msg.toLowerCase().includes("tag")) {
+              setMetadataExpanded(true);
+            }
+          }}
         />
 
         {error ? (
           <p className="alert-error !mt-0">{error}</p>
-        ) : needsMetadata && !hasRequiredMetadata ? (
+        ) : needsMetadata && !hasAllRequiredMetadata ? (
           <p className="text-xs text-amber-300 mb-4">
-            To publish/unpublish/archive/delete you must select a category and
-            have <strong>at least 2 tags</strong>.
+            To publish/unpublish/archive you must select a category, have{" "}
+            <strong>at least 2 tags</strong>, and add a <strong>main image</strong>.
           </p>
         ) : null}
 
@@ -580,6 +604,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
             categories={cats}
             subcategories={subs}
             tags={tags}
+            mainImageUrl={mainImageUrl}
             expanded={metadataExpanded}
             onToggle={() => setMetadataExpanded(!metadataExpanded)}
             onCategoryChange={(id) => {
@@ -594,8 +619,19 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
               setTags(t);
               markDirty();
             }}
+            onMainImageClick={() => setImageModalOpen(true)}
           />
         )}
+
+        <ArticleImageModal
+          isOpen={imageModalOpen}
+          currentImageUrl={mainImageUrl}
+          onClose={() => setImageModalOpen(false)}
+          onImageSelect={(url) => {
+            setMainImageUrl(url);
+            markDirty();
+          }}
+        />
 
         <ArticleContentEditor
           body={body}

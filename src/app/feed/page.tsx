@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import LoadingLink from "@/components/LoadingLink";
 import Footer from "@/components/Footer";
@@ -8,6 +9,7 @@ import Footer from "@/components/Footer";
 type FeedArticle = {
   id: string;
   title: string | null;
+  primary_image_url: string | null;
   published_at: string | null;
   updated_at: string | null;
   tags?: string[];
@@ -284,7 +286,23 @@ export default function FeedPage() {
                 className="card-dashboard block transition hover:bg-slate-800/60 hover:border-slate-600 active:bg-slate-800/80 cursor-pointer text-left"
                 loadingMode="overlay"
               >
-                <div className="min-w-0">
+                <div className="flex flex-col md:flex-row gap-4">
+                  {/* Image on the left */}
+                  {a.primary_image_url && (
+                    <div className="flex-shrink-0 w-full md:w-32 h-32 md:h-24 rounded-lg overflow-hidden bg-slate-700/30">
+                      <Image
+                        src={a.primary_image_url}
+                        alt={a.title || "Article"}
+                        width={128}
+                        height={96}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
                   <div className="text-lg font-semibold text-white break-words">
                     {a.title?.trim() ? a.title : "Untitled"}
                   </div>
@@ -314,6 +332,7 @@ export default function FeedPage() {
                       ))}
                     </div>
                   ) : null}
+                </div>
                 </div>
               </LoadingLink>
             ))}

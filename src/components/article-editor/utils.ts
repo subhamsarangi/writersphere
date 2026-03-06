@@ -21,6 +21,17 @@ export function isStatusThatNeedsMetadata(s: ArticleStatus): boolean {
   return s === "published" || s === "anonymous" || s === "unpublished" || s === "archived";
 }
 
+export function hasRequiredMetadata(
+  categoryId: string,
+  tags: string[],
+  mainImageUrl: string | null
+): boolean {
+  const hasMinTags = uniqueTags(tags).length >= 2;
+  const hasCategory = Boolean(categoryId);
+  const hasMainImage = Boolean(mainImageUrl);
+  return hasMinTags && hasCategory && hasMainImage;
+}
+
 export function statusActionCopy(
   from: ArticleStatus,
   to: ArticleStatus,

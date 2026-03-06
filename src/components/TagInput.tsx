@@ -56,7 +56,7 @@ export default function TagInput({
   tags,
   onChange,
   placeholder = "Type a tag and press Enter or comma…",
-  label = "Tags",
+  label = "",
   disabled = false,
 }: TagInputProps) {
   const [value, setValue] = useState("");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 import BackButton from "../../../components/BackButton";
 import LoadingLink from "../../../components/LoadingLink";
@@ -9,6 +10,7 @@ import WaveBoundary from "../../../components/WaveBoundary";
 type ArticleStatus =
   | "draft"
   | "published"
+  | "anonymous"
   | "unpublished"
   | "archived"
   | "deleted";
@@ -23,6 +25,7 @@ type ArticleRowDb = {
   updated_at: string | null;
   last_saved_at: string | null;
   created_at: string | null;
+  primary_image_url: string | null;
   categories: { name: string | null }[] | null;
   subcategories: { name: string | null }[] | null;
 };
@@ -34,6 +37,7 @@ type ArticleRow = {
   updated_at: string | null;
   last_saved_at: string | null;
   created_at: string | null;
+  primary_image_url: string | null;
   category_name: string | null;
   subcategory_name: string | null;
 };
@@ -268,6 +272,7 @@ export default function ArticlesPage() {
         updated_at: r.updated_at,
         last_saved_at: r.last_saved_at,
         created_at: r.created_at,
+        primary_image_url: r.primary_image_url,
         category_name: r.categories?.[0]?.name ?? null,
         subcategory_name: r.subcategories?.[0]?.name ?? null,
       }));
@@ -453,6 +458,23 @@ export default function ArticlesPage() {
                           </svg>
                           Published
                         </span>
+                      ) : status === "anonymous" ? (
+                        <span className="inline-flex items-center gap-1.5 text-purple-400">
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                          </svg>
+                          Anonymous
+                        </span>
                       ) : status === "draft" ? (
                         <span className="inline-flex items-center gap-1.5 text-blue-400">
                           <svg
@@ -579,6 +601,29 @@ export default function ArticlesPage() {
                             />
                           </svg>
                           <span className="text-green-400">Published</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStatus("anonymous");
+                            setStatusDropdownOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2"
+                        >
+                          <svg
+                            className="w-4 h-4 text-purple-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                          </svg>
+                          <span className="text-purple-400">Anonymous</span>
                         </button>
                         <button
                           type="button"
@@ -831,8 +876,24 @@ export default function ArticlesPage() {
                   : ""
               }`}
             >
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                <div className="flex-1">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Image on the left */}
+                {a.primary_image_url && (
+                  <div className="flex-shrink-0 w-full md:w-32 h-32 md:h-24 rounded-lg overflow-hidden bg-slate-700/30">
+                    <Image
+                      src={a.primary_image_url}
+                      alt={a.title || "Article"}
+                      width={128}
+                      height={96}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                    />
+                  </div>
+                )}
+                
+                {/* Content */}
+                <div className="flex-1 flex flex-col md:flex-row md:items-start md:justify-between gap-3 min-w-0">
+                  <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="text-lg font-semibold">
                       {a.title || "Untitled"}
@@ -853,6 +914,23 @@ export default function ArticlesPage() {
                           />
                         </svg>
                         Published
+                      </span>
+                    ) : a.status === "anonymous" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                          />
+                        </svg>
+                        Anonymous
                       </span>
                     ) : a.status === "draft" ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
@@ -966,7 +1044,7 @@ export default function ArticlesPage() {
                       </svg>
                     </LoadingLink>
 
-                    {a.status === "published" ? (
+                    {a.status === "published" || a.status === "anonymous" ? (
                       <LoadingLink
                         className="btn-chip bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
                         href={`/articles/${a.id}`}
@@ -1018,7 +1096,7 @@ export default function ArticlesPage() {
                     <span>Edit</span>
                   </LoadingLink>
 
-                  {a.status === "published" ? (
+                  {a.status === "published" || a.status === "anonymous" ? (
                     <LoadingLink
                       className="btn-chip flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
                       href={`/articles/${a.id}`}
@@ -1046,6 +1124,7 @@ export default function ArticlesPage() {
                     </LoadingLink>
                   ) : null}
                 </div>
+              </div>
               </div>
             </div>
           ))}

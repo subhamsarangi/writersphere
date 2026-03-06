@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import MDEditor from "@uiw/react-md-editor";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 import Footer from "../../../components/Footer";
@@ -10,6 +11,8 @@ type PublishedArticleWithAuthor = {
   id: string;
   title: string | null;
   body_md: string | null;
+  primary_image_url: string | null;
+  category_name: string | null;
   published_at: string | null;
   updated_at: string | null;
   author_name: string | null;
@@ -32,6 +35,8 @@ function isRow(v: unknown): v is PublishedArticleWithAuthor {
     typeof o.id === "string" &&
     "title" in o &&
     "body_md" in o &&
+    "primary_image_url" in o &&
+    "category_name" in o &&
     "published_at" in o &&
     "updated_at" in o &&
     "author_name" in o &&
@@ -196,81 +201,120 @@ export default function PublishedArticlePage({
   return (
     <>
     <main className="page-shell">
-      <div 
-        className="page-inner max-w-3xl p-2" 
-        data-color-mode={theme}
-      >
-        {/* Theme toggle button */}
-        <div className="flex justify-end mb-4">
-          <button className="btn-ghost" type="button" onClick={toggleTheme}>
-            {theme === "dark" ? (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
-                  />
-                </svg>
-                Dark
-              </>
-            ) : (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-4 h-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-                  />
-                </svg>
-                Light
-              </>
-            )}
-          </button>
-        </div>
+      <div data-color-mode={theme}>
+        {/* Header with Image and Title - Full Width */}
+        <div className="w-full mb-8 bg-slate-800/30 [html[data-theme='light']_&]:bg-slate-100">
+          {/* Mobile: Image full width, Desktop: Constrained with flex layout */}
+          <div className="lg:max-w-6xl lg:mx-auto" style={{ maxWidth: '100vw' }}>
+            <div className="flex flex-col lg:flex-row lg:gap-6 items-start" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}>
+              {/* Image - touches edges on mobile, 40% on desktop */}
+              {row.primary_image_url && (
+                <div className="w-full lg:w-[40%] flex-shrink-0">
+                  <div className="relative w-full aspect-video bg-slate-700/30 [html[data-theme='light']_&]:bg-slate-200">
+                    <Image
+                      src={row.primary_image_url}
+                      alt={row.title || "Article"}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                </div>
+              )}
 
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">
-            {row.title?.trim() ? row.title : "Untitled"}
-          </h1>
+              {/* Title and Metadata - 60% width on desktop */}
+              <div className="flex-1 flex flex-col justify-between min-h-[240px] px-4 lg:px-0 py-8" style={{ height: 'stretch' }}>
+                {/* Theme toggle above content */}
+                <div className="flex justify-end mb-4">
+                  <button 
+                    className="px-3 py-1.5 text-xs rounded-md bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-slate-100 transition border border-slate-600 [html[data-theme='light']_&]:bg-slate-200 [html[data-theme='light']_&]:hover:bg-slate-300 [html[data-theme='light']_&]:text-slate-700 [html[data-theme='light']_&]:border-slate-300" 
+                    type="button" 
+                    onClick={toggleTheme}
+                  >
+                    {theme === "dark" ? (
+                      <span className="flex items-center gap-1.5">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-3.5 h-3.5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                          />
+                        </svg>
+                        Dark
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-3.5 h-3.5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                          />
+                        </svg>
+                        Light
+                      </span>
+                    )}
+                  </button>
+                </div>
 
-          <div className="text-xs text-slate-400 mt-2 flex flex-wrap gap-x-2 gap-y-1">
-            <span>By {author}</span>
-            <span className="text-slate-500">·</span>
-            <span>Published: {fmt(row.published_at)}</span>
-            {row.updated_at ? (
-              <>
-                <span className="text-slate-500">·</span>
-                <span>Updated: {fmt(row.updated_at)}</span>
-              </>
-            ) : null}
+                {/* Category at top edge */}
+                <div className="mb-4">
+                {row.category_name && (
+                  <span className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 [html[data-theme='light']_&]:bg-blue-100 [html[data-theme='light']_&]:text-blue-700 [html[data-theme='light']_&]:border-blue-300">
+                    {row.category_name}
+                  </span>
+                )}
+              </div>
+
+              {/* Title in the middle - centered vertically */}
+              <div className="flex-1 flex items-center">
+                <h1 className="text-3xl font-bold lg:font-normal text-slate-100 [html[data-theme='light']_&]:text-slate-900 leading-tight" style={{ fontSize: 'clamp(1.875rem, 5vw, 4rem)' }}>
+                  {row.title?.trim() ? row.title : "Untitled"}
+                </h1>
+              </div>
+
+              {/* Author and time at bottom edge */}
+              <div className="text-sm text-slate-400 mt-4 flex flex-wrap gap-x-2 gap-y-1 [html[data-theme='light']_&]:text-slate-600">
+                <span className="font-medium">By {author}</span>
+                <span className="text-slate-500 [html[data-theme='light']_&]:text-slate-400">·</span>
+                <span>Published: {fmt(row.published_at)}</span>
+                {row.updated_at ? (
+                  <>
+                    <span className="text-slate-500 [html[data-theme='light']_&]:text-slate-400">·</span>
+                    <span>Updated: {fmt(row.updated_at)}</span>
+                  </>
+                ) : null}
+              </div>
+            </div>
           </div>
 
-          {tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {tags.map((tag) => {
+          {/* Tags below the header - constrained on desktop */}
+          <div className="lg:max-w-6xl lg:mx-auto" style={{ maxWidth: '100vw' }}>
+            {tags.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2 px-4">
+                {tags.map((tag) => {
                 const isPoetry = tag.toLowerCase() === 'poetry';
                 return (
                   <span
                     key={tag}
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       isPoetry
-                        ? 'poetry-tag bg-purple-900/40 text-purple-200 border border-purple-700/60 shadow-sm shadow-purple-500/20'
-                        : 'bg-slate-800 text-slate-300 border border-slate-700'
+                        ? 'poetry-tag bg-purple-900/40 text-purple-200 border border-purple-700/60 shadow-sm shadow-purple-500/20 [html[data-theme=\'light\']_&]:bg-purple-100 [html[data-theme=\'light\']_&]:text-purple-700 [html[data-theme=\'light\']_&]:border-purple-300'
+                        : 'bg-slate-800 text-slate-300 border border-slate-700 [html[data-theme=\'light\']_&]:bg-slate-100 [html[data-theme=\'light\']_&]:text-slate-700 [html[data-theme=\'light\']_&]:border-slate-300'
                     }`}
                   >
                     #{tag}
@@ -279,11 +323,15 @@ export default function PublishedArticlePage({
               })}
             </div>
           )}
+          </div>
         </div>
 
-        <div className={`prose-container mb-8 ${hasPoetryTag ? 'poetry-content' : ''}`}>
-          <div className="prose max-w-none">
-            <MDEditor.Markdown className="p-2" source={row.body_md ?? ""} />
+        {/* Content Area - Constrained Width */}
+        <div className="max-w-3xl mx-auto px-4">
+          <div className={`prose-container mt-16 mb-24 ${hasPoetryTag ? 'poetry-content' : ''}`}>
+            <div className="prose max-w-none">
+              <MDEditor.Markdown className="p-2" source={row.body_md ?? ""} />
+            </div>
           </div>
         </div>
 
@@ -353,6 +401,7 @@ export default function PublishedArticlePage({
               </svg>
             </a>
           </div>
+        </div>
         </div>
       </div>
     </main>

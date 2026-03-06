@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import TagInput from "@/components/TagInput";
 import type { CategoryOpt, SubcategoryOpt } from "./types";
 
@@ -10,11 +11,13 @@ type ArticleMetadataProps = {
   categories: CategoryOpt[];
   subcategories: SubcategoryOpt[];
   tags: string[];
+  mainImageUrl: string | null;
   expanded: boolean;
   onToggle: () => void;
   onCategoryChange: (id: string) => void;
   onSubcategoryChange: (id: string) => void;
   onTagsChange: (tags: string[]) => void;
+  onMainImageClick: () => void;
 };
 
 export function ArticleMetadata({
@@ -23,11 +26,13 @@ export function ArticleMetadata({
   categories,
   subcategories,
   tags,
+  mainImageUrl,
   expanded,
   onToggle,
   onCategoryChange,
   onSubcategoryChange,
   onTagsChange,
+  onMainImageClick,
 }: ArticleMetadataProps) {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [subcategoryDropdownOpen, setSubcategoryDropdownOpen] = useState(false);
@@ -61,6 +66,74 @@ export function ArticleMetadata({
 
       {expanded && (
         <div className="p-5 pt-0 space-y-4">
+          {/* Main Image and Tags - side by side on desktop */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Main Image */}
+            <div className="max-w-md">
+              <label className="field-label">
+                <span className="text-slate-300 [html[data-theme='light']_&]:text-slate-900">
+                  Main Image (required to publish)
+                </span>
+              </label>
+              <button
+                type="button"
+                onClick={onMainImageClick}
+                className="w-full mt-2 relative group"
+              >
+                {mainImageUrl ? (
+                  <div className="relative rounded-lg overflow-hidden border-2 border-slate-600 hover:border-blue-500 transition [html[data-theme='light']_&]:border-slate-300 [html[data-theme='light']_&]:hover:border-blue-500">
+                    <Image
+                      src={mainImageUrl}
+                      alt="Article main"
+                      width={800}
+                      height={400}
+                      className="w-full h-32 sm:h-40 object-cover"
+                      unoptimized
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">Click to change</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-32 sm:h-40 border-2 border-dashed border-slate-600 rounded-lg hover:border-blue-500 transition bg-slate-700/30 [html[data-theme='light']_&]:bg-slate-50 [html[data-theme='light']_&]:border-slate-300 [html[data-theme='light']_&]:hover:border-blue-500">
+                    <div className="text-center">
+                      <svg
+                        className="mx-auto h-10 w-10 text-slate-400 [html[data-theme='light']_&]:text-slate-500"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                      >
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <p className="mt-2 text-sm text-slate-300 [html[data-theme='light']_&]:text-slate-700">
+                        Click to add main image
+                      </p>
+                      <p className="text-xs text-slate-500 [html[data-theme='light']_&]:text-slate-600">
+                        Required for publishing
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </button>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label className="field-label">
+                <span className="text-slate-300 [html[data-theme='light']_&]:text-slate-900">
+                  Tags (at least 2 required to publish)
+                </span>
+              </label>
+              <TagInput tags={tags} onChange={onTagsChange} />
+            </div>
+          </div>
+
+          {/* Category and Subcategory */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="field-label">
               <span className="text-slate-300 [html[data-theme='light']_&]:text-slate-900">Category (required to publish)</span>
@@ -186,71 +259,6 @@ export function ArticleMetadata({
                 ) : null}
               </div>
             </label>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="field-label">
-                <span className="text-slate-300 [html[data-theme='light']_&]:text-slate-900">Tags (min 2)</span>
-              </div>
-              <div className="text-xs text-slate-400 [html[data-theme='light']_&]:text-slate-600">{tags.length}/2</div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Left: Tag Input */}
-              <div>
-                <TagInput
-                  label=""
-                  tags={[]}
-                  onChange={(newTags) => {
-                    // Only add new tags that aren't already in the list
-                    const existingLower = tags.map(t => t.toLowerCase());
-                    const toAdd = newTags.filter(t => !existingLower.includes(t.toLowerCase()));
-                    if (toAdd.length > 0) {
-                      onTagsChange([...tags, ...toAdd]);
-                    }
-                  }}
-                  placeholder="Add tag… (Enter / comma)"
-                />
-                <p className="mt-2 text-xs text-slate-400 [html[data-theme='light']_&]:text-slate-600">
-                  Tip: press <strong>Enter</strong> or type a <strong>,</strong> to add
-                </p>
-              </div>
-
-              {/* Right: Added Tags */}
-              <div className="mt-2">
-                {tags.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {tags.map((t) => {
-                      const isPoetry = t.toLowerCase() === 'poetry';
-                      return (
-                        <button
-                          key={t.toLowerCase()}
-                          type="button"
-                          className={`btn-chip ${
-                            isPoetry
-                              ? 'poetry-tag !bg-purple-900/40 !text-purple-200 !border-purple-700/60 shadow-sm shadow-purple-500/20 [html[data-theme=\'light\']_&]:!bg-purple-100 [html[data-theme=\'light\']_&]:!text-purple-900 [html[data-theme=\'light\']_&]:!border-purple-300'
-                              : 'bg-slate-600/50 border-slate-500/50 [html[data-theme=\'light\']_&]:bg-slate-200 [html[data-theme=\'light\']_&]:border-slate-300 [html[data-theme=\'light\']_&]:text-slate-900'
-                          }`}
-                          onClick={() => {
-                            const key = t.toLowerCase();
-                            onTagsChange(tags.filter((x) => x.toLowerCase() !== key));
-                          }}
-                          title="Remove tag"
-                        >
-                          #{t}{" "}
-                          <span aria-hidden="true" className="opacity-70">
-                            ×
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p className="text-xs text-slate-400 italic [html[data-theme='light']_&]:text-slate-600">No tags added yet</p>
-                )}
-              </div>
-            </div>
           </div>
         </div>
       )}
