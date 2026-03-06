@@ -6,6 +6,8 @@ export function statusLabel(s: ArticleStatus): string {
       return "Draft";
     case "published":
       return "Published";
+    case "anonymous":
+      return "Anonymous";
     case "unpublished":
       return "Unpublished";
     case "archived":
@@ -16,7 +18,7 @@ export function statusLabel(s: ArticleStatus): string {
 }
 
 export function isStatusThatNeedsMetadata(s: ArticleStatus): boolean {
-  return s === "published" || s === "unpublished" || s === "archived";
+  return s === "published" || s === "anonymous" || s === "unpublished" || s === "archived";
 }
 
 export function statusActionCopy(
@@ -43,7 +45,31 @@ export function statusActionCopy(
     };
   }
 
-  if (from === "published" && to === "archived") {
+  if (to === "anonymous" && from !== "anonymous") {
+    return {
+      title: "Publish anonymously?",
+      body: "Your article will be public but your identity will be hidden. You can reveal your identity later by changing to Published.",
+      confirmText: "Publish Anonymously",
+      tone: "primary",
+      sfx: "publish",
+      toast: "Published anonymously ✨",
+      burst: "publish",
+    };
+  }
+
+  if (to === "published" && from === "anonymous") {
+    return {
+      title: "Reveal your identity?",
+      body: "Your article will now show your name as the author.",
+      confirmText: "Reveal Identity",
+      tone: "primary",
+      sfx: "publish",
+      toast: "Identity revealed",
+      burst: null,
+    };
+  }
+
+  if ((from === "published" || from === "anonymous") && to === "archived") {
     return {
       title: "Archive this public article?",
       body: "It will disappear from the public feed. You can restore it later.",
@@ -55,7 +81,7 @@ export function statusActionCopy(
     };
   }
 
-  if (from === "published" && (to === "draft" || to === "unpublished")) {
+  if ((from === "published" || from === "anonymous") && (to === "draft" || to === "unpublished")) {
     return {
       title: "Make this article private?",
       body: "It will be removed from the public feed immediately.",
@@ -67,7 +93,7 @@ export function statusActionCopy(
     };
   }
 
-  if (to === "archived" && from !== "archived" && from !== "published") {
+  if (to === "archived" && from !== "archived" && from !== "published" && from !== "anonymous") {
     return {
       title: "Archive this article?",
       body: "It won't be public. You can unarchive later.",

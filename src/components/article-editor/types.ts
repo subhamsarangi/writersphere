@@ -1,6 +1,7 @@
 export type ArticleStatus =
   | "draft"
   | "published"
+  | "anonymous"
   | "unpublished"
   | "archived"
   | "deleted";

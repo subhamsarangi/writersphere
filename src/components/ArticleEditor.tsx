@@ -108,6 +108,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [publishedAt, setPublishedAt] = useState<string | null>(null);
+  const [anonymousAt, setAnonymousAt] = useState<string | null>(null);
   const [unpublishedAt, setUnpublishedAt] = useState<string | null>(null);
   const [archivedAt, setArchivedAt] = useState<string | null>(null);
   const [deletedAt, setDeletedAt] = useState<string | null>(null);
@@ -153,6 +154,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   const needsMetadata = useMemo(() => {
     return (
       status === "published" ||
+      status === "anonymous" ||
       status === "unpublished" ||
       status === "archived"
     );
@@ -172,6 +174,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
   function bumpStatusDatetime(next: ArticleStatus) {
     const ts = nowIso();
     if (next === "published") setPublishedAt(ts);
+    if (next === "anonymous") setAnonymousAt(ts);
     if (next === "unpublished") setUnpublishedAt(ts);
     if (next === "archived") setArchivedAt(ts);
     if (next === "deleted") setDeletedAt(ts);
@@ -190,6 +193,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       const currentStatus = overrideStatus ?? status;
       const currentNeedsMetadata = 
         currentStatus === "published" ||
+        currentStatus === "anonymous" ||
         currentStatus === "unpublished" ||
         currentStatus === "archived";
 
@@ -211,6 +215,8 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
 
       if (currentStatus === "published")
         payload.published_at = publishedAt ?? nowIso();
+      if (currentStatus === "anonymous")
+        payload.anonymous_at = anonymousAt ?? nowIso();
       if (currentStatus === "unpublished")
         payload.unpublished_at = unpublishedAt ?? nowIso();
       if (currentStatus === "archived") payload.archived_at = archivedAt ?? nowIso();
@@ -241,6 +247,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       setUpdatedAt(updated?.updated_at ?? null);
       setLastSavedAt(updated?.last_saved_at ?? null);
       setPublishedAt(updated?.published_at ?? null);
+      setAnonymousAt(updated?.anonymous_at ?? null);
       setUnpublishedAt(updated?.unpublished_at ?? null);
       setArchivedAt(updated?.archived_at ?? null);
       setDeletedAt(updated?.deleted_at ?? null);
@@ -338,7 +345,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       const { data: a, error: aErr } = await supabase
         .from("articles")
         .select(
-          "title,body_md,status,category_id,subcategory_id,created_at,updated_at,last_saved_at,published_at,unpublished_at,archived_at,deleted_at"
+          "title,body_md,status,category_id,subcategory_id,created_at,updated_at,last_saved_at,published_at,anonymous_at,unpublished_at,archived_at,deleted_at"
         )
         .eq("id", articleId)
         .eq("writer_id", id)
@@ -365,6 +372,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
       setUpdatedAt(a.updated_at ?? null);
       setLastSavedAt(a.last_saved_at ?? null);
       setPublishedAt(a.published_at ?? null);
+      setAnonymousAt(a.anonymous_at ?? null);
       setUnpublishedAt(a.unpublished_at ?? null);
       setArchivedAt(a.archived_at ?? null);
       setDeletedAt(a.deleted_at ?? null);
@@ -522,6 +530,7 @@ export default function ArticleEditor({ articleId }: { articleId: string }) {
           createdAt={createdAt}
           updatedAt={updatedAt}
           publishedAt={publishedAt}
+          anonymousAt={anonymousAt}
           unpublishedAt={unpublishedAt}
           archivedAt={archivedAt}
           deletedAt={deletedAt}

@@ -17,6 +17,20 @@
 
 ## 🌟 Features
 
+### Anonymous Publishing 🎭
+
+**Publish Without Revealing Identity**
+- Share your work publicly while keeping your identity private
+- Perfect for sensitive topics, experimental writing, or personal stories
+- One-click reveal when you're ready to claim authorship
+- Articles show "Anonymous" as the author in feeds and article pages
+
+**Flexible Identity Control**
+- Start anonymous, reveal identity later
+- Same validation as regular publishing (category + 2 tags required)
+- Seamless transition between anonymous and published states
+- Your articles, your choice
+
 ### Mindful Writing Experience
 
 **Breathing Exercise**
@@ -41,8 +55,9 @@
 **Flexible Structure**
 - Organize articles with categories and subcategories
 - Tag your work for easy discovery
-- Multiple status options: Draft, Published, Unpublished, Archived
+- Multiple status options: Draft, Published, Anonymous, Unpublished, Archived
 - Visual status indicators with color-coded badges
+- Anonymous publishing to share work without revealing identity
 
 **Smart Search**
 - Find articles quickly with full-text search
@@ -54,8 +69,9 @@
 **Beautiful Article Pages**
 - Clean, readable typography optimized for long-form content
 - Theme toggle for reader preference (dark/light)
-- Author attribution and publication dates
+- Author attribution and publication dates (or anonymous display)
 - Tag display for content discovery
+- Social sharing buttons (WhatsApp, LinkedIn, X, Email, Reddit)
 
 **Article Feed**
 - Browse all published articles with infinite scroll
@@ -69,6 +85,7 @@
 - View all your articles in one place
 - Filter and search to find what you need
 - Quick status changes and editing
+- Publish anonymously or reveal your identity later
 - Bulk organization with categories and tags
 
 **Category System**
@@ -141,7 +158,11 @@ Built with modern, reliable technologies:
 
 3. **Set up database**
    
-   Run the SQL scripts in `meta-guide/` folder in your Supabase SQL editor
+   Run the SQL scripts in `meta-guide/` folder in your Supabase SQL editor:
+   - Start with `sql.md` for base schema
+   - Run `migration-add-anonymous-status.sql` for anonymous publishing
+   - Run `fix-article-view-function.sql` if articles don't load from feed
+   - See `ANONYMOUS-STATUS-MIGRATION.md` for detailed instructions
 
 4. **Start developing**
    ```bash
@@ -187,6 +208,9 @@ Published articles are optimized for reading. Theme options, clean layouts, and 
 **It Respects Your Process**
 The breathing exercise isn't a gimmick—it's a recognition that good writing starts with a clear mind. Take a moment, breathe, then create.
 
+**It Protects Your Privacy**
+Sometimes you need to share your voice without revealing your identity. Anonymous publishing lets you express yourself freely while maintaining control over when (or if) to reveal authorship.
+
 **It Gets Out of Your Way**
 No complex menus, no feature bloat. Just a clean editor, smart organization, and the tools you actually need.
 
@@ -194,7 +218,7 @@ No complex menus, no feature bloat. Just a clean editor, smart organization, and
 Published articles look professional and polished. Your readers see your best work in the best light.
 
 **It Grows With You**
-Start with simple drafts. Add categories as you need them. Tag for discovery. The system adapts to your workflow, not the other way around.
+Start with simple drafts. Add categories as you need them. Tag for discovery. Publish anonymously or with attribution. The system adapts to your workflow, not the other way around.
 
 ---
 

@@ -14,6 +14,7 @@ type ArticleEditorHeaderProps = {
   createdAt: string | null;
   updatedAt: string | null;
   publishedAt: string | null;
+  anonymousAt: string | null;
   unpublishedAt: string | null;
   archivedAt: string | null;
   deletedAt: string | null;
@@ -40,6 +41,7 @@ export function ArticleEditorHeader({
   createdAt,
   updatedAt,
   publishedAt,
+  anonymousAt,
   unpublishedAt,
   archivedAt,
   deletedAt,
@@ -139,6 +141,7 @@ export function ArticleEditorHeader({
                 <span>Updated: {formatTime(updatedAt)}</span>
               )}
               {publishedAt && <span>Published: {formatTime(publishedAt)}</span>}
+              {anonymousAt && <span>Anonymous: {formatTime(anonymousAt)}</span>}
               {unpublishedAt && (
                 <span>Unpublished: {formatTime(unpublishedAt)}</span>
               )}
@@ -250,6 +253,14 @@ export function ArticleEditorHeader({
                   </svg>
                   <span className="text-green-400">Published</span>
                 </>
+              ) : status === "anonymous" ? (
+                <>
+                  <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10h6" />
+                  </svg>
+                  <span className="text-purple-400">Anonymous</span>
+                </>
               ) : status === "draft" ? (
                 <>
                   <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,6 +338,31 @@ export function ArticleEditorHeader({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span className="text-green-400">Published</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = "anonymous";
+                    if (next === status) {
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    const nextNeedsMetadata = isStatusThatNeedsMetadata(next);
+                    if (nextNeedsMetadata && !hasRequiredMetadata) {
+                      onError("Pick a category and add at least 2 tags before publishing/unpublishing/archiving.");
+                      setStatusDropdownOpen(false);
+                      return;
+                    }
+                    onStatusChange(next);
+                    setStatusDropdownOpen(false);
+                  }}
+                  className="w-full px-3 py-2 text-left hover:bg-slate-600 transition flex items-center gap-2 [html[data-theme='light']_&]:hover:bg-slate-100"
+                >
+                  <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10h6" />
+                  </svg>
+                  <span className="text-purple-400">Anonymous</span>
                 </button>
                 <button
                   type="button"
