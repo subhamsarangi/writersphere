@@ -66,6 +66,16 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#0f172a" />
         <link rel="manifest" href="/manifest.json" />
+        
+        {/* Open Graph / Social Media */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Writersphere" />
+        <meta property="og:description" content="A small writing platform" />
+        <meta property="og:image" content="/og-image.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Writersphere" />
+        <meta name="twitter:description" content="A small writing platform" />
+        <meta name="twitter:image" content="/og-image.png" />
       </head>
       <body>
         <RootLayoutContent>{children}</RootLayoutContent>

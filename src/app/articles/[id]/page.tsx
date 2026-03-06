@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import Head from "next/head";
 import MDEditor from "@uiw/react-md-editor";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
 import Footer from "../../../components/Footer";
@@ -197,9 +198,33 @@ export default function PublishedArticlePage({
 
   const author = row.author_name?.trim() ? row.author_name : "Anonymous";
   const hasPoetryTag = tags.some(tag => tag.toLowerCase() === 'poetry');
+  const articleUrl = typeof window !== 'undefined' ? window.location.href : '';
+  const ogImage = row.primary_image_url || '/og-image.png';
+  const description = row.body_md?.slice(0, 160) || 'Read this article on Writersphere';
 
   return (
     <>
+    <Head>
+      <title>{row.title || 'Article'} - Writersphere</title>
+      <meta name="description" content={description} />
+      
+      {/* Open Graph */}
+      <meta property="og:type" content="article" />
+      <meta property="og:title" content={row.title || 'Article'} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:url" content={articleUrl} />
+      {row.published_at && <meta property="article:published_time" content={row.published_at} />}
+      {row.updated_at && <meta property="article:modified_time" content={row.updated_at} />}
+      {row.author_name && <meta property="article:author" content={row.author_name} />}
+      {tags.map(tag => <meta key={tag} property="article:tag" content={tag} />)}
+      
+      {/* Twitter */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={row.title || 'Article'} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={ogImage} />
+    </Head>
     <main className="page-shell">
       <div data-color-mode={theme}>
         {/* Header with Image and Title - Full Width */}
