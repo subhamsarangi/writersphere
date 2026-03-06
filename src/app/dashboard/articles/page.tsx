@@ -915,7 +915,7 @@ export default function ArticlesPage() {
                         </svg>
                         Published
                       </span>
-                    ) : a.status === "anonymous" ? (
+                    ) : (a.status as string) === "anonymous" ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/30">
                         <svg
                           className="w-3 h-3"
@@ -1025,7 +1025,7 @@ export default function ArticlesPage() {
 
                   <div className="flex gap-2 mt-3 md:hidden">
                     <LoadingLink
-                      className="btn-chip"
+                      className="btn-chip [html[data-theme='light']_&]:bg-slate-100 [html[data-theme='light']_&]:text-slate-700 [html[data-theme='light']_&]:border-slate-300 [html[data-theme='light']_&]:hover:bg-slate-200"
                       href={`/dashboard/write/${a.id}`}
                       loadingMode="replace"
                     >
@@ -1046,7 +1046,7 @@ export default function ArticlesPage() {
 
                     {a.status === "published" || a.status === "anonymous" ? (
                       <LoadingLink
-                        className="btn-chip bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
+                        className="btn-chip bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30 [html[data-theme='light']_&]:bg-emerald-100 [html[data-theme='light']_&]:text-emerald-700 [html[data-theme='light']_&]:border-emerald-300 [html[data-theme='light']_&]:hover:bg-emerald-200"
                         href={`/articles/${a.id}`}
                         loadingMode="replace"
                       >
@@ -1076,7 +1076,7 @@ export default function ArticlesPage() {
 
                 <div className="hidden md:flex gap-2">
                   <LoadingLink
-                    className="btn-chip"
+                    className="btn-chip [html[data-theme='light']_&]:bg-slate-100 [html[data-theme='light']_&]:text-slate-700 [html[data-theme='light']_&]:border-slate-300 [html[data-theme='light']_&]:hover:bg-slate-200"
                     href={`/dashboard/write/${a.id}`}
                     loadingMode="replace"
                   >
@@ -1098,7 +1098,7 @@ export default function ArticlesPage() {
 
                   {a.status === "published" || a.status === "anonymous" ? (
                     <LoadingLink
-                      className="btn-chip flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30"
+                      className="btn-chip flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30 [html[data-theme='light']_&]:bg-emerald-100 [html[data-theme='light']_&]:text-emerald-700 [html[data-theme='light']_&]:border-emerald-300 [html[data-theme='light']_&]:hover:bg-emerald-200"
                       href={`/articles/${a.id}`}
                       loadingMode="replace"
                     >

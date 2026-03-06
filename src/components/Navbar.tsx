@@ -262,10 +262,10 @@ export default function Navbar() {
               </button>
 
               {writerToolsOpen && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
+                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden z-50 [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-200">
                   <Link 
                     href="/dashboard/articles" 
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm [html[data-theme='light']_&]:text-slate-700 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:hover:text-slate-900"
                     onClick={() => setWriterToolsOpen(false)}
                   >
                     <FontAwesomeIcon icon={faPenNib} className="w-4 h-4" />
@@ -273,7 +273,7 @@ export default function Navbar() {
                   </Link>
                   <Link 
                     href="/dashboard" 
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm [html[data-theme='light']_&]:text-slate-700 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:hover:text-slate-900"
                     onClick={() => setWriterToolsOpen(false)}
                   >
                     <FontAwesomeIcon icon={faTableColumns} className="w-4 h-4" />
@@ -281,7 +281,7 @@ export default function Navbar() {
                   </Link>
                   <Link 
                     href="/dashboard/analytics" 
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm"
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm [html[data-theme='light']_&]:text-slate-700 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:hover:text-slate-900"
                     onClick={() => setWriterToolsOpen(false)}
                   >
                     <FontAwesomeIcon icon={faChartLine} className="w-4 h-4" />
@@ -322,12 +322,12 @@ export default function Navbar() {
       {/* Mobile Menu Backdrop */}
       {mobileMenuOpen && (
         <div 
-          className={`md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center transition-opacity duration-200 ${mobileMenuClosing ? 'opacity-0' : 'opacity-100'}`}
+          className={`md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center transition-opacity duration-200 ${mobileMenuClosing ? 'opacity-0' : 'opacity-100'} [html[data-theme='light']_&]:bg-black/30`}
           onClick={handleMobileMenuClose}
         >
           {/* Mobile Menu */}
           <div 
-            className={`bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-[90%] max-w-md p-6 transition-all duration-200 ${mobileMenuClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}
+            className={`bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-[90%] max-w-md p-6 transition-all duration-200 ${mobileMenuClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'} [html[data-theme='light']_&]:bg-white [html[data-theme='light']_&]:border-slate-200`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col gap-4">
@@ -335,54 +335,54 @@ export default function Navbar() {
                 <>
                   <Link 
                     href="/dashboard/articles" 
-                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition text-slate-100 [html[data-theme='light']_&]:text-slate-900 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:active:bg-slate-200"
                     onClick={handleMobileMenuClose}
                     style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
                   >
                     <FontAwesomeIcon icon={faPenNib} className="w-8 h-8" />
-                    <span className="text-2xl font-normal">My Articles</span>
+                    <span className="text-3xl font-normal">My Articles</span>
                   </Link>
 
                   <Link 
                     href="/dashboard" 
-                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition text-slate-100 [html[data-theme='light']_&]:text-slate-900 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:active:bg-slate-200"
                     onClick={handleMobileMenuClose}
                     style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
                   >
                     <FontAwesomeIcon icon={faTableColumns} className="w-8 h-8" />
-                    <span className="text-2xl font-normal">Dashboard</span>
+                    <span className="text-3xl font-normal">Dashboard</span>
                   </Link>
 
                   <Link 
                     href="/dashboard/analytics" 
-                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition text-slate-100 [html[data-theme='light']_&]:text-slate-900 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:active:bg-slate-200"
                     onClick={handleMobileMenuClose}
                     style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
                   >
                     <FontAwesomeIcon icon={faChartLine} className="w-8 h-8" />
-                    <span className="text-2xl font-normal">Analytics</span>
+                    <span className="text-3xl font-normal">Analytics</span>
                   </Link>
                 </>
               )}
 
               <Link 
                 href="/feed" 
-                className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition text-slate-100 [html[data-theme='light']_&]:text-slate-900 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:active:bg-slate-200"
                 onClick={handleMobileMenuClose}
                 style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
               >
                 <FontAwesomeIcon icon={faBookOpen} className="w-8 h-8" />
-                <span className="text-2xl font-normal">Feed</span>
+                <span className="text-3xl font-normal">Feed</span>
               </Link>
 
               <Link 
                 href={session ? "/profile" : "/?auth=true"}
-                className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition text-slate-100 [html[data-theme='light']_&]:text-slate-900 [html[data-theme='light']_&]:hover:bg-slate-100 [html[data-theme='light']_&]:active:bg-slate-200"
                 onClick={handleMobileMenuClose}
                 style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
               >
                 <FontAwesomeIcon icon={faUser} className="w-8 h-8" />
-                <span className="text-2xl font-normal">Profile</span>
+                <span className="text-3xl font-normal">Profile</span>
               </Link>
             </div>
           </div>

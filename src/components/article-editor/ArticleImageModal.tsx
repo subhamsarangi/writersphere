@@ -25,7 +25,7 @@ export function ArticleImageModal({
   const [closing, setClosing] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl);
-  const oldImageUrl = currentImageUrl;
+  const oldImageUrl = currentImageUrl; // Used for comparison and cleanup
 
   if (!isOpen) return null;
 

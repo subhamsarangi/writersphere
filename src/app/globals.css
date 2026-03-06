@@ -593,6 +593,22 @@ html[data-theme="light"] .navbar {
   @apply bg-slate-50 border-slate-200;
 }
 
+html[data-theme="light"] .nav-brand {
+  @apply text-slate-900;
+}
+
+html[data-theme="light"] .nav-link {
+  color: #475569;
+}
+
+html[data-theme="light"] .nav-link:hover {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .btn-ghost {
+  @apply border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900;
+}
+
 /* Danger zone in light mode */
 html[data-theme="light"] .card-dashboard.danger-zone {
   @apply border-red-300 bg-red-50;
@@ -925,9 +941,26 @@ html[data-theme="light"] .poetry-tag:hover {
 }
 
 /* Mobile menu light theme */
-html[data-theme="light"] .navbar > div[class*="absolute"] {
-  background-color: rgb(248 250 252);
-  border-color: rgb(226 232 240);
+html[data-theme="light"] .navbar > div[class*="fixed"] {
+  background-color: rgba(248, 250, 252, 0.95);
+}
+
+html[data-theme="light"] .navbar > div[class*="fixed"] > div {
+  background-color: rgb(255, 255, 255);
+  border-color: rgb(226, 232, 240);
+}
+
+html[data-theme="light"] .navbar > div[class*="fixed"] a {
+  color: rgb(51, 65, 85);
+}
+
+html[data-theme="light"] .navbar > div[class*="fixed"] a:hover {
+  background-color: rgb(241, 245, 249);
+  color: rgb(15, 23, 42);
+}
+
+html[data-theme="light"] .navbar > div[class*="fixed"] a:active {
+  background-color: rgb(226, 232, 240);
 }
 
 /* =========================================================
