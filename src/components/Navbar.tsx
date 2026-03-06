@@ -37,10 +37,52 @@ export default function Navbar() {
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<Role | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [writerToolsOpen, setWriterToolsOpen] = useState(false);
+  const [mobileMenuClosing, setMobileMenuClosing] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState<"dawn" | "day" | "dusk" | "night">("night");
   const [previewTheme, setPreviewTheme] = useState<"dawn" | "day" | "dusk" | "night" | null>(null);
 
   const brandHref = useMemo(() => (session ? "/feed" : "/"), [session]);
+
+  // Handle mobile menu close with animation
+  const handleMobileMenuClose = () => {
+    setMobileMenuClosing(true);
+    setTimeout(() => {
+      setMobileMenuOpen(false);
+      setMobileMenuClosing(false);
+    }, 200);
+  };
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.writer-tools-dropdown')) {
+        setWriterToolsOpen(false);
+      }
+    };
+
+    if (writerToolsOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [writerToolsOpen]);
 
   // Check for preview theme override
   useEffect(() => {
@@ -198,28 +240,56 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:items-center md:gap-3">
-          {/* My Articles only for writers */}
+          {/* Writer Tools Dropdown for writers */}
           {session && role === "writer" && (
-            <Link href="/dashboard/articles" className="nav-link">
-              <FontAwesomeIcon icon={faPenNib} />
-              My Articles
-            </Link>
-          )}
+            <div className="relative writer-tools-dropdown">
+              <button
+                onClick={() => setWriterToolsOpen(!writerToolsOpen)}
+                className="nav-link"
+              >
+                <FontAwesomeIcon icon={faPenNib} />
+                Writer Tools
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth={2} 
+                  stroke="currentColor" 
+                  className={`w-4 h-4 transition-transform ${writerToolsOpen ? 'rotate-180' : ''}`}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
 
-          {/* Dashboard only for writers */}
-          {session && role === "writer" && (
-            <Link href="/dashboard" className="nav-link">
-              <FontAwesomeIcon icon={faTableColumns} />
-              Dashboard
-            </Link>
-          )}
-
-          {/* Analytics only for writers */}
-          {session && role === "writer" && (
-            <Link href="/dashboard/analytics" className="nav-link">
-              <FontAwesomeIcon icon={faChartLine} />
-              Analytics
-            </Link>
+              {writerToolsOpen && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
+                  <Link 
+                    href="/dashboard/articles" 
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm"
+                    onClick={() => setWriterToolsOpen(false)}
+                  >
+                    <FontAwesomeIcon icon={faPenNib} className="w-4 h-4" />
+                    My Articles
+                  </Link>
+                  <Link 
+                    href="/dashboard" 
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm"
+                    onClick={() => setWriterToolsOpen(false)}
+                  >
+                    <FontAwesomeIcon icon={faTableColumns} className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                  <Link 
+                    href="/dashboard/analytics" 
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition text-slate-100 text-sm"
+                    onClick={() => setWriterToolsOpen(false)}
+                  >
+                    <FontAwesomeIcon icon={faChartLine} className="w-4 h-4" />
+                    Analytics
+                  </Link>
+                </div>
+              )}
+            </div>
           )}
 
           {/* Feed is available for everyone */}
@@ -252,63 +322,69 @@ export default function Navbar() {
       {/* Mobile Menu Backdrop */}
       {mobileMenuOpen && (
         <div 
-          className="md:hidden fixed top-[64px] left-0 right-0 bottom-0 bg-black/50 backdrop-blur-sm z-40"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
+          className={`md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center transition-opacity duration-200 ${mobileMenuClosing ? 'opacity-0' : 'opacity-100'}`}
+          onClick={handleMobileMenuClose}
+        >
+          {/* Mobile Menu */}
+          <div 
+            className={`bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-[90%] max-w-md p-6 transition-all duration-200 ${mobileMenuClosing ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col gap-4">
+              {session && role === "writer" && (
+                <>
+                  <Link 
+                    href="/dashboard/articles" 
+                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                    onClick={handleMobileMenuClose}
+                    style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
+                  >
+                    <FontAwesomeIcon icon={faPenNib} className="w-8 h-8" />
+                    <span className="text-2xl font-normal">My Articles</span>
+                  </Link>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-slate-900 border-t border-slate-800 shadow-lg z-[60]">
-          <div className="flex flex-col p-4 gap-3">
-            {session && role === "writer" && (
-              <>
-                <Link 
-                  href="/dashboard/articles" 
-                  className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <FontAwesomeIcon icon={faPenNib} className="w-5 h-5" />
-                  <span className="text-base">My Articles</span>
-                </Link>
+                  <Link 
+                    href="/dashboard" 
+                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                    onClick={handleMobileMenuClose}
+                    style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
+                  >
+                    <FontAwesomeIcon icon={faTableColumns} className="w-8 h-8" />
+                    <span className="text-2xl font-normal">Dashboard</span>
+                  </Link>
 
-                <Link 
-                  href="/dashboard" 
-                  className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <FontAwesomeIcon icon={faTableColumns} className="w-5 h-5" />
-                  <span className="text-base">Dashboard</span>
-                </Link>
+                  <Link 
+                    href="/dashboard/analytics" 
+                    className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                    onClick={handleMobileMenuClose}
+                    style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
+                  >
+                    <FontAwesomeIcon icon={faChartLine} className="w-8 h-8" />
+                    <span className="text-2xl font-normal">Analytics</span>
+                  </Link>
+                </>
+              )}
 
-                <Link 
-                  href="/dashboard/analytics" 
-                  className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <FontAwesomeIcon icon={faChartLine} className="w-5 h-5" />
-                  <span className="text-base">Analytics</span>
-                </Link>
-              </>
-            )}
+              <Link 
+                href="/feed" 
+                className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                onClick={handleMobileMenuClose}
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
+              >
+                <FontAwesomeIcon icon={faBookOpen} className="w-8 h-8" />
+                <span className="text-2xl font-normal">Feed</span>
+              </Link>
 
-            <Link 
-              href="/feed" 
-              className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <FontAwesomeIcon icon={faBookOpen} className="w-5 h-5" />
-              <span className="text-base">Feed</span>
-            </Link>
-
-            <Link 
-              href={session ? "/profile" : "/?auth=true"}
-              className="nav-link !justify-start py-3 px-4 rounded-lg hover:bg-slate-800 transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
-              <span className="text-base">Profile</span>
-            </Link>
+              <Link 
+                href={session ? "/profile" : "/?auth=true"}
+                className="flex items-center gap-4 py-5 px-5 rounded-xl hover:bg-slate-800 active:bg-slate-700 transition"
+                onClick={handleMobileMenuClose}
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif' }}
+              >
+                <FontAwesomeIcon icon={faUser} className="w-8 h-8" />
+                <span className="text-2xl font-normal">Profile</span>
+              </Link>
+            </div>
           </div>
         </div>
       )}

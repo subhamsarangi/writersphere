@@ -173,7 +173,7 @@ export default function DashboardPage() {
               <div className="flex flex-wrap items-center justify-start sm:justify-end gap-3 sm:gap-4">
                 <LoadingLink
                   href="/dashboard/write"
-                  className="btn-primary"
+                  className="btn-new-draft"
                   loadingMode="overlay"
                 >
                   <span className="inline-flex items-center gap-2">

@@ -244,7 +244,13 @@
   }
 
   .nav-link {
-    @apply flex items-center gap-1 text-sm hover:underline;
+    @apply flex items-center gap-1 text-sm transition-colors duration-200;
+    color: #b8c9d9;
+  }
+
+  .nav-link:hover {
+    color: white;
+    text-decoration: none;
   }
 
   .btn-ghost {
@@ -318,6 +324,34 @@
            hover:opacity-90 active:scale-[0.99] disabled:opacity-60;
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     border-radius: 1.25rem;
+  }
+
+  .btn-new-draft {
+    @apply w-full px-4 py-2.5 text-sm font-medium shadow-sm transition-all duration-300
+           active:scale-[0.99] disabled:opacity-60;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #0f172a;
+    border: 2px solid transparent;
+    border-radius: 1.25rem;
+    font-family: var(--font-merriweather), Merriweather, serif;
+  }
+
+  .btn-new-draft:hover {
+    background: linear-gradient(135deg, #4a5a2e 0%, #5a6b38 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 90, 46, 0.4);
+    border-color: white;
+    font-weight: 700;
+  }
+
+  @keyframes border-blink {
+    0%, 100% {
+      border-color: white;
+    }
+    50% {
+      border-color: #4a5a2e;
+    }
   }
 
   /* Sign Up button: dark blue + bluish violet */
@@ -583,6 +617,19 @@ html[data-theme="light"] .btn-danger-zone {
 html[data-theme="light"] .btn-primary {
   @apply text-white hover:opacity-90;
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+html[data-theme="light"] .btn-new-draft {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+  color: #0f172a;
+  border-color: transparent;
+}
+
+html[data-theme="light"] .btn-new-draft:hover {
+  background: linear-gradient(135deg, #4a5a2e 0%, #5a6b38 100%);
+  color: white;
+  border-color: white;
+  font-weight: 700;
 }
 
 html[data-theme="light"] .text-emerald-300 {

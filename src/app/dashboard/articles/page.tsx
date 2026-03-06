@@ -315,7 +315,7 @@ export default function ArticlesPage() {
 
           <LoadingLink
             href="/dashboard/write"
-            className="btn-primary !w-auto"
+            className="btn-new-draft !w-auto"
             loadingMode="append"
           >
             <span className="inline-flex items-center gap-2">
