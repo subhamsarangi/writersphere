@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getSupabaseBrowserClient } from "../lib/supabaseClient";
 import type { Session } from "@supabase/supabase-js";
 
@@ -234,7 +235,13 @@ export default function Navbar() {
       <div className="nav-left relative z-10">
         {/* Brand: auth users -> /feed, unauth -> / */}
         <Link href={brandHref} className="nav-brand">
-          <FontAwesomeIcon icon={faPenNib} />
+          <Image 
+            src="/logo.png" 
+            alt="Writersphere Logo" 
+            width={32} 
+            height={32}
+            className="w-8 h-8 object-contain"
+          />
           Writersphere
         </Link>
 

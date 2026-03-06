@@ -62,6 +62,10 @@ export default function RootLayout({
       <head>
         <title>Writersphere</title>
         <meta name="description" content="A small writing platform" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#0f172a" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body>
         <RootLayoutContent>{children}</RootLayoutContent>
