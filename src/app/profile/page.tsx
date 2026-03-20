@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightFromBracket, faUser, faChartLine, faPenNib, faBookOpen, faTag, faFolderOpen, faChartBar } from "@fortawesome/free-solid-svg-icons";
+import { faRightFromBracket, faUser, faChartLine, faPenNib, faBookOpen, faTag, faFolderOpen, faChartBar, faWind } from "@fortawesome/free-solid-svg-icons";
+
+const KEY_BREATHING_SKIP = "ws_breathing_skip_until";
+const BREATHING_SKIP_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 import WaveBoundary from "../../components/WaveBoundary";
 import LoadingLink from "../../components/LoadingLink";
 
@@ -27,6 +30,7 @@ const WRITER_FEATURES = [
 ];
 
 function WriterFeaturesModal({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" style={{ background: "rgba(2,6,23,0.8)", backdropFilter: "blur(6px)" }}>
       <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
@@ -51,7 +55,7 @@ function WriterFeaturesModal({ onClose }: { onClose: () => void }) {
         </div>
 
         <button
-          onClick={onClose}
+          onClick={() => { onClose(); router.push("/dashboard"); }}
           className="w-full py-3 rounded-xl text-sm font-medium text-slate-900 transition hover:opacity-90"
           style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)" }}
         >
@@ -73,6 +77,35 @@ export default function ProfilePage() {
   const [previewTheme, setPreviewTheme] = useState<"dawn" | "day" | "dusk" | "night" | null>(null);
   const [upgrading, setUpgrading] = useState(false);
   const [showWriterModal, setShowWriterModal] = useState(false);
+  const [breathingSkipped, setBreathingSkipped] = useState(false);
+
+  // Read breathing skip state from localStorage
+  useEffect(() => {
+    try {
+      const skipUntil = localStorage.getItem(KEY_BREATHING_SKIP);
+      if (skipUntil && Date.now() < parseInt(skipUntil, 10)) {
+        setBreathingSkipped(true);
+      } else {
+        setBreathingSkipped(false);
+      }
+    } catch {
+      setBreathingSkipped(false);
+    }
+  }, []);
+
+  function handleBreathingToggle() {
+    try {
+      if (breathingSkipped) {
+        localStorage.removeItem(KEY_BREATHING_SKIP);
+        // Also clear the cooldown so exercise shows on next write session
+        localStorage.removeItem("ws_breathing_timestamp");
+        setBreathingSkipped(false);
+      } else {
+        localStorage.setItem(KEY_BREATHING_SKIP, (Date.now() + BREATHING_SKIP_DURATION).toString());
+        setBreathingSkipped(true);
+      }
+    } catch {}
+  }
 
   // Update time every second
   useEffect(() => {
@@ -357,6 +390,37 @@ export default function ProfilePage() {
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Writing Experience */}
+          <div className="border-t border-slate-700 pt-6">
+            <h2 className="text-lg font-semibold mb-4 text-slate-200">Writing Experience</h2>
+            <div className="flex items-center justify-between">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 text-cyan-400">
+                  <FontAwesomeIcon icon={faWind} className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-100">Breathing Exercise</p>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {breathingSkipped
+                      ? "Skipped for today — exercise won't show when you start writing"
+                      : "Shown before writing sessions to help you focus"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleBreathingToggle}
+                aria-label={breathingSkipped ? "Enable breathing exercise" : "Skip breathing exercise for today"}
+                className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
+                style={{ background: breathingSkipped ? "#334155" : "linear-gradient(135deg, #0891b2, #7c3aed)" }}
+              >
+                <span
+                  className="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transform transition-transform duration-200"
+                  style={{ transform: breathingSkipped ? "translateX(0px)" : "translateX(20px)" }}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Actions */}

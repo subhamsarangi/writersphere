@@ -3,45 +3,27 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "../../../lib/supabaseClient";
-import BreathingExercise from "../../../components/BreathingExercise";
 
 const KEY_ID = "ws_newdraft_id";
-const KEY_BREATHING_TIMESTAMP = "ws_breathing_timestamp";
-
-const BREATHING_COOLDOWN = 60 * 60 * 1000; // 60 minutes in milliseconds
 
 function uuidv4(): string {
-  // RFC4122 v4 using crypto.getRandomValues (browser-safe)
   if (typeof crypto === "undefined" || !crypto.getRandomValues) {
     throw new Error("Secure crypto not available to generate UUID.");
   }
-
   const b = new Uint8Array(16);
   crypto.getRandomValues(b);
-
-  // version 4
   b[6] = (b[6] & 0x0f) | 0x40;
-  // variant 10xx
   b[8] = (b[8] & 0x3f) | 0x80;
-
   const hex = Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
   return (
-    hex.slice(0, 8) +
-    "-" +
-    hex.slice(8, 12) +
-    "-" +
-    hex.slice(12, 16) +
-    "-" +
-    hex.slice(16, 20) +
-    "-" +
-    hex.slice(20)
+    hex.slice(0, 8) + "-" + hex.slice(8, 12) + "-" +
+    hex.slice(12, 16) + "-" + hex.slice(16, 20) + "-" + hex.slice(20)
   );
 }
 
 export default function NewWritePage() {
   const supabase = getSupabaseBrowserClient();
   const [error, setError] = useState<string | null>(null);
-
   const didRun = useRef(false);
 
   useEffect(() => {
@@ -50,7 +32,6 @@ export default function NewWritePage() {
 
     (async () => {
       try {
-        // 1) session check
         const { data: sess } = await supabase.auth.getSession();
         const uid = sess.session?.user.id;
         if (!uid) {
@@ -58,7 +39,6 @@ export default function NewWritePage() {
           return;
         }
 
-        // 2) reuse the same draft id across dev remounts
         let draftId = "";
         try {
           draftId = sessionStorage.getItem(KEY_ID) ?? "";
@@ -67,20 +47,16 @@ export default function NewWritePage() {
         }
 
         if (!draftId) {
-          // randomUUID exists in modern browsers; fallback to uuidv4()
           const canRandomUUID =
             typeof globalThis.crypto !== "undefined" &&
             "randomUUID" in globalThis.crypto &&
             typeof globalThis.crypto.randomUUID === "function";
-
           draftId = canRandomUUID ? globalThis.crypto.randomUUID() : uuidv4();
-
           try {
             sessionStorage.setItem(KEY_ID, draftId);
           } catch {}
         }
 
-        // 3) insert with explicit UUID (no select/returning)
         const { error: insErr } = await supabase.from("articles").insert({
           id: draftId,
           writer_id: uid,
@@ -91,52 +67,35 @@ export default function NewWritePage() {
         });
 
         if (insErr) {
-          // If it already exists (e.g. double-run), just navigate to it
           const code = (insErr as unknown as { code?: string }).code;
           if (code === "23505") {
             window.location.replace(`/dashboard/write/${draftId}`);
             return;
           }
-
-          // otherwise show error
           setError(insErr.message ?? JSON.stringify(insErr));
           return;
         }
 
-        {/* 4) hard navigate (never hangs) */}
         window.location.replace(`/dashboard/write/${draftId}`);
       } catch (e: unknown) {
         const msg =
-          e instanceof Error
-            ? e.message
-            : typeof e === "string"
-            ? e
-            : JSON.stringify(e);
+          e instanceof Error ? e.message :
+          typeof e === "string" ? e : JSON.stringify(e);
         setError(msg);
       }
     })();
-  }, [supabase, showBreathing]);
+  }, [supabase]);
 
-  if (showBreathing === null) {
-    // Still checking — render nothing to avoid flash
-    return null;
-  }
-
-  if (showBreathing) {
-    return <BreathingExercise onComplete={handleBreathingComplete} />;
-  }
+  // Show nothing while creating draft (no flash)
+  if (!error) return null;
 
   return (
     <main className="page-shell">
       <div className="page-center">
-        {error ? (
-          <div className="card-dashboard w-full max-w-xl">
-            <div className="page-title">Couldn&apos;t create draft</div>
-            <p className="text-sm text-red-300">{error}</p>
-          </div>
-        ) : (
-          <div className="skeleton-card" />
-        )}
+        <div className="card-dashboard w-full max-w-xl">
+          <div className="page-title">Couldn&apos;t create draft</div>
+          <p className="text-sm text-red-300">{error}</p>
+        </div>
       </div>
     </main>
   );

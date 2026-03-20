@@ -5,6 +5,7 @@ import ArticleEditor from "../../../../components/ArticleEditor";
 import BreathingExercise from "../../../../components/BreathingExercise";
 
 const KEY_BREATHING_TIMESTAMP = "ws_breathing_timestamp";
+const KEY_BREATHING_SKIP = "ws_breathing_skip_until";
 const BREATHING_COOLDOWN = 60 * 60 * 1000;
 
 export default function WriteByIdPage({
@@ -17,6 +18,13 @@ export default function WriteByIdPage({
 
   useEffect(() => {
     try {
+      // Check if user has skipped breathing for today
+      const skipUntil = localStorage.getItem(KEY_BREATHING_SKIP);
+      if (skipUntil && Date.now() < parseInt(skipUntil, 10)) {
+        setShowBreathing(false);
+        return;
+      }
+      // Check 60-min cooldown
       const timestamp = localStorage.getItem(KEY_BREATHING_TIMESTAMP);
       if (timestamp) {
         const lastTime = parseInt(timestamp, 10);

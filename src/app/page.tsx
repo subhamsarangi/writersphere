@@ -74,9 +74,10 @@ function HomePageContent() {
         router.replace(r === "writer" ? "/dashboard" : "/feed");
       }
 
-      const { data: listener } = supabase.auth.onAuthStateChange((_e, s2) => {
+      const { data: listener } = supabase.auth.onAuthStateChange((event, s2) => {
         setSession(s2);
-        if (s2) {
+        // Only redirect on actual sign-in, not on profile updates
+        if (s2 && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" && !s)) {
           const r = pickRole(s2.user.user_metadata?.role);
           router.replace(r === "writer" ? "/dashboard" : "/feed");
         }
