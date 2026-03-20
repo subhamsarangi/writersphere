@@ -61,7 +61,7 @@ export default function RootLayout({
     <html lang="en" data-theme="dark" className={merriweather.variable}>
       <head>
         <title>Writersphere</title>
-        <meta name="description" content="A small writing platform" />
+        <meta name="description" content="For those who think too much, and write too little." />
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#0f172a" />
@@ -69,13 +69,16 @@ export default function RootLayout({
         
         {/* Open Graph / Social Media */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Writersphere" />
-        <meta property="og:description" content="A small writing platform" />
-        <meta property="og:image" content="/og-image.png" />
+        <meta property="og:url" content="https://write.openworldregister.com" />
+        <meta property="og:title" content="Writersphere — A sanctuary for writers" />
+        <meta property="og:description" content="For those who think too much, and write too little." />
+        <meta property="og:image" content="https://cdn.openworldregister.com/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Writersphere" />
-        <meta name="twitter:description" content="A small writing platform" />
-        <meta name="twitter:image" content="/og-image.png" />
+        <meta name="twitter:title" content="Writersphere — A sanctuary for writers" />
+        <meta name="twitter:description" content="For those who think too much, and write too little." />
+        <meta name="twitter:image" content="https://cdn.openworldregister.com/og-image.png" />
       </head>
       <body>
         <RootLayoutContent>{children}</RootLayoutContent>
