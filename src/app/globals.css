@@ -330,22 +330,33 @@
   }
 
   .btn-new-draft {
-    @apply w-full px-4 py-2.5 text-sm font-medium shadow-sm transition-all duration-300
-           active:scale-[0.99] disabled:opacity-60;
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    color: #0f172a;
+    @apply w-full px-4 py-2.5 text-sm font-medium shadow-sm transition-all duration-200
+           active:scale-[0.97] disabled:opacity-60;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #1c1917;
     border: 2px solid transparent;
     border-radius: 1.25rem;
     font-family: var(--font-merriweather), Merriweather, serif;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
   }
 
   .btn-new-draft:hover {
-    background: linear-gradient(135deg, #4a5a2e 0%, #5a6b38 100%);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 90, 46, 0.4);
-    border-color: white;
-    font-weight: 700;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #1c1917;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .btn-new-draft:focus-visible {
+    outline: 2px solid #f59e0b;
+    outline-offset: 2px;
+  }
+
+  .btn-new-draft:active {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    transform: scale(0.97);
+    box-shadow: 0 1px 4px rgba(245, 158, 11, 0.3);
   }
 
   @keyframes border-blink {
@@ -639,16 +650,16 @@ html[data-theme="light"] .btn-primary {
 }
 
 html[data-theme="light"] .btn-new-draft {
-  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
-  color: #0f172a;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #1c1917;
   border-color: transparent;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
 }
 
 html[data-theme="light"] .btn-new-draft:hover {
-  background: linear-gradient(135deg, #4a5a2e 0%, #5a6b38 100%);
-  color: white;
-  border-color: white;
-  font-weight: 700;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1c1917;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.5);
 }
 
 html[data-theme="light"] .text-emerald-300 {
