@@ -405,7 +405,8 @@ export default function PublishedArticlePage({
             {/* Email */}
             <a
               href={`mailto:?subject=${encodeURIComponent(row.title || 'Check out this article')}&body=${encodeURIComponent(`${row.title || 'Check out this article'}\n\n${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-full transition-colors"
+              style={{ background: theme === 'light' ? '#475569' : '#334155' }}
               title="Share via Email"
             >
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

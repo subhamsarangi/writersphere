@@ -592,7 +592,8 @@ html[data-theme="light"] .nav-link {
 }
 
 html[data-theme="light"] .navbar {
-  @apply bg-slate-50 border-slate-200;
+  background-color: #f8fafc !important;
+  @apply border-slate-200;
 }
 
 html[data-theme="light"] .nav-brand {

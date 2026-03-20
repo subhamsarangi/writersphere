@@ -42,6 +42,7 @@ export default function Navbar() {
   const [mobileMenuClosing, setMobileMenuClosing] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState<"dawn" | "day" | "dusk" | "night">("night");
   const [previewTheme, setPreviewTheme] = useState<"dawn" | "day" | "dusk" | "night" | null>(null);
+  const [pageTheme, setPageTheme] = useState<"dark" | "light">("dark");
 
   const brandHref = useMemo(() => (session ? "/feed" : "/"), [session]);
 
@@ -98,6 +99,18 @@ export default function Navbar() {
     const observer = new MutationObserver(checkPreview);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-preview-theme'] });
     
+    return () => observer.disconnect();
+  }, []);
+
+  // Watch data-theme for article page light mode
+  useEffect(() => {
+    const checkTheme = () => {
+      const t = document.documentElement.getAttribute('data-theme') as "dark" | "light";
+      setPageTheme(t === 'light' ? 'light' : 'dark');
+    };
+    checkTheme();
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     return () => observer.disconnect();
   }, []);
 
@@ -226,7 +239,7 @@ export default function Navbar() {
   }, [activeTheme]);
 
   return (
-    <nav className={navbarClass}>
+    <nav className={navbarClass} style={pageTheme === 'light' ? { background: '#ffffff', backgroundImage: 'none' } : undefined}>
       {/* SVG Pattern Background - clipped to navbar only */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {navbarPattern}
@@ -234,7 +247,7 @@ export default function Navbar() {
       
       <div className="nav-left relative z-10">
         {/* Brand: auth users -> /feed, unauth -> / */}
-        <Link href={brandHref} className="nav-brand">
+        <Link href={brandHref} className="nav-brand" style={pageTheme === 'light' ? { color: '#0f172a' } : undefined}>
           <Image 
             src="/logo.png" 
             alt="Writersphere Logo" 
@@ -248,7 +261,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex md:items-center md:gap-3">
+        <div className="hidden md:flex md:items-center md:gap-3" style={pageTheme === 'light' ? { color: '#334155' } : undefined}>
           {/* Writer Tools Dropdown for writers */}
           {session && role === "writer" && (
             <div className="relative writer-tools-dropdown">
@@ -309,7 +322,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 relative z-10">
+      <div className="flex items-center gap-3 relative z-10" style={pageTheme === 'light' ? { color: '#334155' } : undefined}>
         {/* Desktop Profile Link */}
         <Link 
           href={session ? "/profile" : "/?auth=true"} 
