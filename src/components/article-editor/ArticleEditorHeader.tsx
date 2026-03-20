@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ArticleStatus } from "./types";
 import { formatTime, isStatusThatNeedsMetadata } from "./utils";
 
@@ -59,6 +59,16 @@ export function ArticleEditorHeader({
 }: ArticleEditorHeaderProps) {
   const hasContent = body.trim().length > 0;
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const titleLoadedRef = useRef(false);
+  const titleElRef = useRef<HTMLDivElement | null>(null);
+
+  // Sync title into contentEditable once when it first loads
+  useEffect(() => {
+    if (title && !titleLoadedRef.current && titleElRef.current) {
+      titleLoadedRef.current = true;
+      titleElRef.current.textContent = title;
+    }
+  }, [title]);
 
   return (
     <>
@@ -66,21 +76,9 @@ export function ArticleEditorHeader({
         <div className="flex-1">
           <div
             ref={(el) => {
-              if (el && status === "draft" && !el.dataset.initialized) {
-                el.dataset.initialized = "true";
-                el.focus();
-                // Move cursor to end
-                const range = document.createRange();
-                const sel = window.getSelection();
-                if (el.childNodes.length > 0) {
-                  range.setStart(el.childNodes[0], el.textContent?.length || 0);
-                  range.collapse(true);
-                  sel?.removeAllRanges();
-                  sel?.addRange(range);
-                }
-              }
-              // Update content only if it differs and element is not focused
-              if (el && el !== document.activeElement && el.textContent !== title) {
+              titleElRef.current = el;
+              // Only set content if element is empty and not focused
+              if (el && !el.textContent && title) {
                 el.textContent = title;
               }
             }}
