@@ -4,8 +4,27 @@ export interface HeroSectionProps {
   onGetStarted: () => void;
 }
 
-const DESKTOP_SVG = "https://cdn.openworldregister.com/editorial_typography_hero_16x9_2.svg";
-const MOBILE_SVG = "https://cdn.openworldregister.com/editorial_typography_hero_mobile_2.svg";
+const DESKTOP_SVG = "https://cdn.openworldregister.com/hero_16x9_2.svg";
+const MOBILE_SVG = "https://cdn.openworldregister.com/hero_mobile_2.svg";
+
+// Each spark: [left%, top%, delay(s), duration(s), size(px), color, dx(px), dy(px)]
+const SPARKS: [number, number, number, number, number, string, number, number][] = [
+  [12, 70, 0,    5.2, 2, "rgba(167,139,250,0.9)",   35,  -110],
+  [22, 55, 1.1, 6.4, 3, "rgba(196,181,253,0.8)",  -50,   -80],
+  [35, 80, 0.4, 5.8, 2, "rgba(255,255,255,0.7)",   80,   -65],
+  [48, 65, 2.0, 7.0, 2, "rgba(167,139,250,0.85)", -80,   -95],
+  [58, 75, 0.7, 4.8, 3, "rgba(216,180,254,0.8)",   65,    50],
+  [70, 60, 1.5, 6.1, 2, "rgba(255,255,255,0.6)",  -35,    80],
+  [80, 72, 0.2, 6.7, 2, "rgba(196,181,253,0.9)",   95,   -50],
+  [90, 50, 1.8, 5.5, 3, "rgba(167,139,250,0.7)",  -65,  -125],
+  [28, 40, 2.5, 7.4, 2, "rgba(255,255,255,0.5)",   50,    95],
+  [62, 35, 0.9, 5.1, 2, "rgba(216,180,254,0.75)", -95,    65],
+  [75, 45, 1.3, 6.4, 3, "rgba(167,139,250,0.8)",   15,  -140],
+  [42, 30, 3.0, 5.8, 2, "rgba(255,255,255,0.65)", -110,  -35],
+  [18, 85, 1.6, 6.7, 2, "rgba(196,181,253,0.7)",  125,    15],
+  [55, 88, 0.3, 6.1, 3, "rgba(167,139,250,0.6)",  -15,  -120],
+  [88, 82, 2.2, 4.8, 2, "rgba(255,255,255,0.8)",  -80,    80],
+];
 
 export default function HeroSection({ onGetStarted }: HeroSectionProps) {
   return (
@@ -16,12 +35,43 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
         <source media="(min-width: 768px)" srcSet={DESKTOP_SVG} />
         <source media="(max-width: 767px)" srcSet={MOBILE_SVG} />
         { }
-        <img
-          src={DESKTOP_SVG}
-          alt=""
-          className="w-full opacity-50"
-        />
+        <img src={DESKTOP_SVG} alt="" className="w-full opacity-50" />
       </picture>
+
+      {/* Multi-layer halo */}
+      {/* Layer 1 — deep indigo, upper-left of center */}
+      <div className="absolute z-0 pointer-events-none" style={{ width: "900px", height: "500px", top: "40%", left: "35%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(49,38,156,0.35) 0%, transparent 65%)", filter: "blur(50px)", animation: "halo-float-1 9s ease-in-out infinite" }} />
+      {/* Layer 2 — dark violet, lower-right of center */}
+      <div className="absolute z-0 pointer-events-none" style={{ width: "700px", height: "700px", top: "60%", left: "65%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(76,29,149,0.3) 0%, transparent 60%)", filter: "blur(55px)", animation: "halo-float-2 13s ease-in-out infinite" }} />
+      {/* Layer 3 — dark blue, upper-right of center */}
+      <div className="absolute z-0 pointer-events-none" style={{ width: "600px", height: "500px", top: "35%", left: "68%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(23,37,84,0.35) 0%, transparent 65%)", filter: "blur(40px)", animation: "halo-float-3 7s ease-in-out infinite" }} />
+
+      {/* Per-spark keyframes injected inline */}
+      <style>{SPARKS.map(([,,,,, , dx, dy], i) =>
+        `@keyframes spark-${i} {
+          0%   { opacity: 0;   transform: translate(0, 0) scale(1); }
+          10%  { opacity: 1; }
+          100% { opacity: 0;   transform: translate(${dx}px, ${dy}px) scale(0.5); }
+        }`
+      ).join('\n')}</style>
+
+      {/* Sparks — tiny particles drifting in all directions */}
+      {SPARKS.map(([left, top, delay, duration, size, color], i) => (
+        <div
+          key={i}
+          className="absolute pointer-events-none z-[1]"
+          style={{
+            left: `${left}%`,
+            top: `${top}%`,
+            width: `${size}px`,
+            height: `${size}px`,
+            borderRadius: "50%",
+            background: color,
+            boxShadow: `0 0 ${size * 3}px ${size}px ${color}`,
+            animation: `spark-${i} ${duration}s ease-out ${delay}s infinite`,
+          }}
+        />
+      ))}
 
       <h1
         className="relative z-10 text-5xl md:text-7xl lg:text-8xl font-light leading-tight mb-6"
@@ -47,7 +97,7 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
 
       <div className="mb-12" />
 
-      <div className="relative z-10 flex flex-row gap-6 items-center">
+      <div className="relative z-10">
         <button
           type="button"
           onClick={onGetStarted}

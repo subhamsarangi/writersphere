@@ -1,13 +1,13 @@
 const testimonials = [
   {
     quote:
-      "I'd been staring at a blank document for months. Writersphere made it feel safe to just start — no audience, no pressure, just me and the page.",
-    attribution: "— A first-time blogger",
+      "I'd been staring at a blank page for months. Writersphere made it feel safe to just start",
+    attribution: "Gunjan, A first-time blogger",
   },
   {
     quote:
-      "I'm a chronic overthinker. Having categories and tags helped me stop spiraling and actually finish a piece for the first time in years.",
-    attribution: "— A journaling enthusiast",
+      "I'm a real overthinker. This app has helped me actually finish a piece for the first time in months.",
+    attribution: "Sam, A journaling enthusiast",
   },
 ];
 
@@ -19,7 +19,7 @@ export default function SocialProofSection() {
         className="text-center text-amber-300 text-base mb-10 animate-fade-in-up"
         style={{ fontFamily: "var(--font-merriweather), Merriweather, serif" }}
       >
-        Join thousands of writers finding their voice.
+        Join hundreds of writers finding their voice.
       </p>
 
       {/* Testimonial grid: 1-col mobile, 2-col md+ */}

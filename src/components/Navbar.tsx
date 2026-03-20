@@ -242,7 +242,9 @@ export default function Navbar() {
             height={32}
             className="w-8 h-8 object-contain"
           />
-          Writersphere
+          <span style={{ fontFamily: "var(--font-merriweather), Merriweather, serif", letterSpacing: "0.04em", marginLeft: "10px" }}>
+            Writersphere
+          </span>
         </Link>
 
         {/* Desktop Navigation */}

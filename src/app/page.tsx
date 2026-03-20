@@ -190,8 +190,15 @@ function HomePageContent() {
   if (!ready) {
     return (
       <main className="page-shell">
-        <div className="page-center">
-          <div className="skeleton-card" />
+        <div className="w-full flex flex-col items-center justify-center py-36 px-6 gap-5 animate-pulse">
+          {/* headline */}
+          <div className="h-12 md:h-16 w-72 md:w-96 rounded-2xl bg-slate-800/60" />
+          <div className="h-12 md:h-16 w-56 md:w-72 rounded-2xl bg-slate-800/60" />
+          {/* subtitle */}
+          <div className="h-5 w-64 md:w-80 rounded-xl bg-slate-800/40 mt-2" />
+          <div className="h-5 w-48 md:w-64 rounded-xl bg-slate-800/40" />
+          {/* cta button */}
+          <div className="h-11 w-40 rounded-full bg-slate-700/50 mt-4" />
         </div>
       </main>
     );
@@ -416,8 +423,12 @@ export default function HomePage() {
   return (
     <Suspense fallback={
       <main className="page-shell">
-        <div className="page-center">
-          <div className="skeleton-card" />
+        <div className="w-full flex flex-col items-center justify-center py-36 px-6 gap-5 animate-pulse">
+          <div className="h-12 md:h-16 w-72 md:w-96 rounded-2xl bg-slate-800/60" />
+          <div className="h-12 md:h-16 w-56 md:w-72 rounded-2xl bg-slate-800/60" />
+          <div className="h-5 w-64 md:w-80 rounded-xl bg-slate-800/40 mt-2" />
+          <div className="h-5 w-48 md:w-64 rounded-xl bg-slate-800/40" />
+          <div className="h-11 w-40 rounded-full bg-slate-700/50 mt-4" />
         </div>
       </main>
     }>
