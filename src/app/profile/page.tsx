@@ -156,7 +156,24 @@ export default function ProfilePage() {
       if (error) return;
       // Refresh user
       const { data } = await supabase.auth.getUser();
-      if (data.user) setUser(data.user);
+      if (data.user) {
+        setUser(data.user);
+        // Create default category and subcategory
+        try {
+          const { data: catData, error: catErr } = await supabase
+            .from("categories")
+            .insert({ writer_id: data.user.id, name: "General" })
+            .select("id")
+            .single();
+          if (!catErr && catData) {
+            await supabase.from("subcategories").insert({
+              writer_id: data.user.id,
+              category_id: catData.id,
+              name: "Uncategorized",
+            });
+          }
+        } catch {}
+      }
       setShowWriterModal(true);
     } finally {
       setUpgrading(false);
