@@ -66,22 +66,15 @@ export function ArticleEditorHeader({
         <div className="flex-1">
           <div
             ref={(el) => {
-              if (el && status === "draft" && !el.dataset.initialized) {
+              if (!el) return;
+              // Set content first if element is empty and title exists
+              if (el.textContent !== title && el !== document.activeElement) {
+                el.textContent = title;
+              }
+              // Auto-focus new drafts (no title yet) only once
+              if (status === "draft" && !title && !el.dataset.initialized) {
                 el.dataset.initialized = "true";
                 el.focus();
-                // Move cursor to end
-                const range = document.createRange();
-                const sel = window.getSelection();
-                if (el.childNodes.length > 0) {
-                  range.setStart(el.childNodes[0], el.textContent?.length || 0);
-                  range.collapse(true);
-                  sel?.removeAllRanges();
-                  sel?.addRange(range);
-                }
-              }
-              // Update content only if it differs and element is not focused
-              if (el && el !== document.activeElement && el.textContent !== title) {
-                el.textContent = title;
               }
             }}
             contentEditable
