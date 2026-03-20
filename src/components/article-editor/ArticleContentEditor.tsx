@@ -18,7 +18,7 @@ export function ArticleContentEditor({
   onChange,
   onInput,
 }: ArticleContentEditorProps) {
-  const hasPoetryTag = tags.some(tag => tag.toLowerCase() === 'poetry');
+  const hasPoetryTag = tags.some(tag => ['poetry', 'poem', 'poems', 'poet'].includes(tag.toLowerCase()));
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   
   // Attach input listener to MDEditor's textarea
@@ -47,9 +47,19 @@ export function ArticleContentEditor({
   return (
     <div className={`card-dashboard p-0 md:p-5 mb-8 ${hasPoetryTag ? 'poetry-content' : ''} ${preview ? 'p-3 md:p-5' : ''}`}>
       {preview ? (
-        <div className="prose max-w-none">
-          <MDEditor.Markdown source={body || ""} />
-        </div>
+        hasPoetryTag ? (
+          <div className="poetry-preview px-2 py-1">
+            {(body || "").split(/\n\n+/).map((stanza, i) => (
+              <p key={i} style={{ whiteSpace: 'pre-line', marginBottom: '1.2em', marginTop: 0 }}>
+                {stanza.trim()}
+              </p>
+            ))}
+          </div>
+        ) : (
+          <div className="prose max-w-none">
+            <MDEditor.Markdown source={body || ""} />
+          </div>
+        )
       ) : (
         <MDEditor
           value={body}

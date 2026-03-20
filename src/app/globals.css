@@ -788,9 +788,35 @@ html[data-theme="light"] .text-amber-300 {
    AVENIR FONT FOR POETRY
    ========================================================= */
 
-/* Avenir font fallback using system fonts */
+@font-face {
+  font-family: 'Avenir';
+  src: url('/fonts/Avenir-Book.woff2') format('woff2'),
+       url('/fonts/Avenir-Book.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Avenir';
+  src: url('/fonts/Avenir-Medium.woff2') format('woff2'),
+       url('/fonts/Avenir-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Avenir';
+  src: url('/fonts/Avenir-Heavy.woff2') format('woff2'),
+       url('/fonts/Avenir-Heavy.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 .font-avenir {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   letter-spacing: 0.01em;
 }
 
@@ -798,25 +824,44 @@ html[data-theme="light"] .text-amber-300 {
 .poetry-content .wmde-markdown,
 .poetry-content .w-md-editor-text-pre,
 .poetry-content .w-md-editor-text-input {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+  font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
   letter-spacing: 0.01em;
   line-height: 1.8;
   white-space: pre-wrap !important;
 }
 
 .poetry-content .prose {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
   letter-spacing: 0.01em;
-  line-height: 1.8;
+  line-height: 1.6;
   white-space: pre-wrap;
+}
+
+.poetry-content .prose *,
+.poetry-content .wmde-markdown *,
+.poetry-content .wmde-markdown {
+  font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+.poetry-preview,
+.poetry-preview p {
+  font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
 }
 
 /* Preserve line breaks in poetry paragraphs */
 .poetry-content .prose p,
 .poetry-content .wmde-markdown p,
 .poetry-content .w-md-editor-text-pre p {
-  white-space: pre-wrap;
-  margin-bottom: 0.5em;
+  white-space: pre-line;
+  margin-top: 0 !important;
+  margin-bottom: 0.25em !important;
+}
+
+.poetry-content .wmde-markdown p,
+.poetry-content .prose p {
+  white-space: pre-line;
 }
 
 /* Preserve line breaks in the editor textarea */

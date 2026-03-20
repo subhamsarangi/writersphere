@@ -197,7 +197,7 @@ export default function PublishedArticlePage({
   }
 
   const author = row.author_name?.trim() ? row.author_name : "Anonymous";
-  const hasPoetryTag = tags.some(tag => tag.toLowerCase() === 'poetry');
+  const hasPoetryTag = tags.some(tag => ['poetry', 'poem', 'poems', 'poet'].includes(tag.toLowerCase()));
   const articleUrl = typeof window !== 'undefined' ? window.location.href : '';
   const ogImage = row.primary_image_url || '/og-image.png';
   const description = row.body_md?.slice(0, 160) || 'Read this article on Writersphere';
@@ -354,9 +354,19 @@ export default function PublishedArticlePage({
         {/* Content Area - Constrained Width */}
         <div className="max-w-3xl mx-auto px-4">
           <div className={`prose-container mt-16 mb-24 ${hasPoetryTag ? 'poetry-content' : ''}`}>
-            <div className="prose max-w-none">
-              <MDEditor.Markdown className="p-2" source={row.body_md ?? ""} />
-            </div>
+            {hasPoetryTag ? (
+              <div className="poetry-preview px-2 py-1">
+                {(row.body_md ?? "").split(/\n\n+/).map((stanza, i) => (
+                  <p key={i} style={{ whiteSpace: 'pre-line', marginBottom: '1.2em', marginTop: 0 }}>
+                    {stanza.trim()}
+                  </p>
+                ))}
+              </div>
+            ) : (
+              <div className="prose max-w-none">
+                <MDEditor.Markdown className="p-2" source={row.body_md ?? ""} />
+              </div>
+            )}
           </div>
         </div>
 
