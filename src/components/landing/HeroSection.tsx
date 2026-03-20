@@ -38,15 +38,15 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
         <img src={DESKTOP_SVG} alt="" className="w-full opacity-50" />
       </picture>
 
-      {/* Multi-layer halo */}
+      {/* Multi-layer halo — desktop only for performance */}
       {/* Layer 1 — deep indigo, upper-left of center */}
-      <div className="absolute z-0 pointer-events-none" style={{ width: "900px", height: "500px", top: "40%", left: "35%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(49,38,156,0.35) 0%, transparent 65%)", filter: "blur(50px)", animation: "halo-float-1 9s ease-in-out infinite" }} />
+      <div className="absolute z-0 pointer-events-none hidden md:block" style={{ width: "900px", height: "500px", top: "40%", left: "35%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(49,38,156,0.35) 0%, transparent 65%)", filter: "blur(50px)", animation: "halo-float-1 9s ease-in-out infinite" }} />
       {/* Layer 2 — dark violet, lower-right of center */}
-      <div className="absolute z-0 pointer-events-none" style={{ width: "700px", height: "700px", top: "60%", left: "65%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(76,29,149,0.3) 0%, transparent 60%)", filter: "blur(55px)", animation: "halo-float-2 13s ease-in-out infinite" }} />
+      <div className="absolute z-0 pointer-events-none hidden md:block" style={{ width: "700px", height: "700px", top: "60%", left: "65%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(76,29,149,0.3) 0%, transparent 60%)", filter: "blur(55px)", animation: "halo-float-2 13s ease-in-out infinite" }} />
       {/* Layer 3 — dark blue, upper-right of center */}
-      <div className="absolute z-0 pointer-events-none" style={{ width: "600px", height: "500px", top: "35%", left: "68%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(23,37,84,0.35) 0%, transparent 65%)", filter: "blur(40px)", animation: "halo-float-3 7s ease-in-out infinite" }} />
+      <div className="absolute z-0 pointer-events-none hidden md:block" style={{ width: "600px", height: "500px", top: "35%", left: "68%", transform: "translate(-50%, -50%)", background: "radial-gradient(ellipse at center, rgba(23,37,84,0.35) 0%, transparent 65%)", filter: "blur(40px)", animation: "halo-float-3 7s ease-in-out infinite" }} />
 
-      {/* Per-spark keyframes injected inline */}
+      {/* Per-spark keyframes injected inline — desktop only */}
       <style>{SPARKS.map(([,,,,, , dx, dy], i) =>
         `@keyframes spark-${i} {
           0%   { opacity: 0;   transform: translate(0, 0) scale(1); }
@@ -55,11 +55,11 @@ export default function HeroSection({ onGetStarted }: HeroSectionProps) {
         }`
       ).join('\n')}</style>
 
-      {/* Sparks — tiny particles drifting in all directions */}
+      {/* Sparks — desktop only for performance */}
       {SPARKS.map(([left, top, delay, duration, size, color], i) => (
         <div
           key={i}
-          className="absolute pointer-events-none z-[1]"
+          className="absolute pointer-events-none z-[1] hidden md:block"
           style={{
             left: `${left}%`,
             top: `${top}%`,
