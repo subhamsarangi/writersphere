@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "../../lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightFromBracket, faUser, faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { faRightFromBracket, faUser, faChartLine, faPenNib, faBookOpen, faTag, faFolderOpen, faChartBar } from "@fortawesome/free-solid-svg-icons";
 import WaveBoundary from "../../components/WaveBoundary";
 import LoadingLink from "../../components/LoadingLink";
 
@@ -18,6 +18,50 @@ function Spinner({ className = "" }: { className?: string }) {
   );
 }
 
+const WRITER_FEATURES = [
+  { icon: faPenNib,      color: "text-amber-400",   title: "Write & Publish",    desc: "Create articles with a rich markdown editor and publish them to the feed." },
+  { icon: faFolderOpen,  color: "text-blue-400",    title: "Categories & Tags",  desc: "Organise your work into categories, subcategories, and custom tags." },
+  { icon: faBookOpen,    color: "text-emerald-400", title: "Reader Feed",         desc: "Your published articles appear in the public feed for all readers." },
+  { icon: faChartBar,    color: "text-purple-400",  title: "Writing Analytics",  desc: "Track views, reading time, and engagement on your articles." },
+  { icon: faTag,         color: "text-rose-400",    title: "Tag Management",     desc: "Create and manage tags to help readers discover your writing." },
+];
+
+function WriterFeaturesModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" style={{ background: "rgba(2,6,23,0.8)", backdropFilter: "blur(6px)" }}>
+      <div className="w-full max-w-lg rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-2xl">✍️</span>
+          <h2 className="text-xl font-semibold text-slate-50">You&apos;re now a Writer</h2>
+        </div>
+        <p className="text-sm text-slate-400 mb-6">Here&apos;s what you can do now:</p>
+
+        <div className="space-y-4 mb-6">
+          {WRITER_FEATURES.map((f) => (
+            <div key={f.title} className="flex items-start gap-3">
+              <div className={`mt-0.5 w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center shrink-0 ${f.color}`}>
+                <FontAwesomeIcon icon={f.icon} className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-100">{f.title}</p>
+                <p className="text-xs text-slate-400 mt-0.5">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full py-3 rounded-xl text-sm font-medium text-slate-900 transition hover:opacity-90"
+          style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)" }}
+        >
+          Start writing
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const supabase = getSupabaseBrowserClient();
   const router = useRouter();
@@ -27,6 +71,8 @@ export default function ProfilePage() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [previewTheme, setPreviewTheme] = useState<"dawn" | "day" | "dusk" | "night" | null>(null);
+  const [upgrading, setUpgrading] = useState(false);
+  const [showWriterModal, setShowWriterModal] = useState(false);
 
   // Update time every second
   useEffect(() => {
@@ -66,6 +112,21 @@ export default function ProfilePage() {
       router.replace("/");
     } finally {
       setLoggingOut(false);
+    }
+  }
+
+  async function handleUpgradeToWriter() {
+    if (upgrading) return;
+    setUpgrading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { role: "writer" } });
+      if (error) return;
+      // Refresh user
+      const { data } = await supabase.auth.getUser();
+      if (data.user) setUser(data.user);
+      setShowWriterModal(true);
+    } finally {
+      setUpgrading(false);
     }
   }
 
@@ -128,9 +189,22 @@ export default function ProfilePage() {
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <span className="text-sm font-medium text-slate-400 w-32">Role:</span>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/40 text-blue-200 border border-blue-700/60">
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/40 text-blue-200 border border-blue-700/60">
+                    {role.charAt(0).toUpperCase() + role.slice(1)}
+                  </span>
+                  {!isWriter && (
+                    <button
+                      onClick={handleUpgradeToWriter}
+                      disabled={upgrading}
+                      className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all hover:scale-105 active:scale-95 disabled:opacity-60"
+                      style={{ background: "linear-gradient(135deg, #7c3aed 0%, #2563eb 50%, #0891b2 100%)", color: "#fff", boxShadow: "0 0 12px rgba(124,58,237,0.4)" }}
+                    >
+                      {upgrading ? <Spinner /> : <FontAwesomeIcon icon={faPenNib} className="w-3 h-3" />}
+                      Become a Writer
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -314,6 +388,7 @@ export default function ProfilePage() {
 
         <WaveBoundary />
       </div>
+      {showWriterModal && <WriterFeaturesModal onClose={() => setShowWriterModal(false)} />}
     </main>
   );
 }

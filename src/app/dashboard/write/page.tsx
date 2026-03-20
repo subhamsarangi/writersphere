@@ -41,37 +41,10 @@ function uuidv4(): string {
 export default function NewWritePage() {
   const supabase = getSupabaseBrowserClient();
   const [error, setError] = useState<string | null>(null);
-  const [showBreathing, setShowBreathing] = useState(true);
 
   const didRun = useRef(false);
 
-  // Check if breathing exercise was done recently (within 60 minutes)
   useEffect(() => {
-    try {
-      const timestamp = sessionStorage.getItem(KEY_BREATHING_TIMESTAMP);
-      if (timestamp) {
-        const lastTime = parseInt(timestamp, 10);
-        const now = Date.now();
-        if (now - lastTime < BREATHING_COOLDOWN) {
-          setShowBreathing(false);
-        }
-      }
-    } catch {
-      // If sessionStorage fails, show breathing exercise
-    }
-  }, []);
-
-  const handleBreathingComplete = () => {
-    try {
-      sessionStorage.setItem(KEY_BREATHING_TIMESTAMP, Date.now().toString());
-    } catch {
-      // Ignore storage errors
-    }
-    setShowBreathing(false);
-  };
-
-  useEffect(() => {
-    if (showBreathing) return; // Wait for breathing exercise
     if (didRun.current) return;
     didRun.current = true;
 
@@ -143,6 +116,11 @@ export default function NewWritePage() {
       }
     })();
   }, [supabase, showBreathing]);
+
+  if (showBreathing === null) {
+    // Still checking — render nothing to avoid flash
+    return null;
+  }
 
   if (showBreathing) {
     return <BreathingExercise onComplete={handleBreathingComplete} />;
